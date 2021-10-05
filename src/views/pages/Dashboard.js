@@ -3,6 +3,9 @@ import reactFeature from '../../assets/images/react-feature.svg';
 import sassFeature from '../../assets/images/sass-feature.svg';
 import bootstrapFeature from '../../assets/images/bootstrap-feature.svg';
 import responsiveFeature from '../../assets/images/responsive-feature.svg';
+import "react-responsive-carousel/lib/styles/carousel.min.css";
+import { Carousel } from 'react-responsive-carousel';
+
 import {
   Row,
   Col,
@@ -82,7 +85,27 @@ class Dashboard extends Component {
               </CardBody>
             </Card>
           </Col>
+          <Col>
+          <div style={{textAlign : "-webkit-center"}}>
+            <Carousel width="50%">
+              <div>
+              <img src="/assets/basic.jpg" />
+                <p className="Basic Heatmap">Legend 1</p>
+              </div>
+              <div>
+              <img src="/assets/duration.jpg" />
+                <p className="Duration Heatmap">Legend 2</p>
+              </div>
+              <div>
+              <img src="/assets/gamescore.jpg" />
+                <p className="Gamescore Heatmap">Legend 3</p>
+              </div>
+            </Carousel>
+            </div>
+          </Col>
         </Row>
+        
+        
 
         {/* <Row>
           <Col md={6}>
