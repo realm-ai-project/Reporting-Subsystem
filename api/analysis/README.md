@@ -1,3 +1,4 @@
 # Analysis-Subsystem
 
-In terminal run `python main.py`
+`generator.py` contains the code for creating heatmaps
+`functions.py` contains the code for file operations
