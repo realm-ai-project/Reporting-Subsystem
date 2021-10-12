@@ -59,6 +59,13 @@ def renameFile(existingFilePath, newFileName):
     except OSError as e:
         print("Error: %s : %s" % (existingFilePath, e.strerror))
 
+def mergeFiles(filesToMerge, endFile):  
+    with open(endFile, 'w') as outfile:
+        for file in filesToMerge:
+            with open(file) as infile:
+                outfile.write(infile.read())
+            outfile.write("\n")
+
 def getAllFilesFromDirectory(directory):
     try:
         allFiles = []
@@ -105,3 +112,4 @@ def getAllJsonFilesFromDirectory(directory):
     except OSError as e:
         print("Error: %s : %s" % (directory, e.strerror))
         return []
+        
