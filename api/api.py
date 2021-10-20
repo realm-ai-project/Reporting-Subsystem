@@ -67,6 +67,142 @@ def create_heatmap_1():
     
     return {'text': 'Heatmap 1 created: %s' % fileSavePath}
 
+# ROUTES BELOW ARE FROM REPORTING SUBSYSTEM DOCUMENTATION
+
+@app.route('/count_dat_files')
+def count_dat_files():
+    return {"count": len(getAllDatFilesFromDirectory("analysis/data"))}
+
+@app.route('/by_reward/<range_type>/<percentage>/<dat_id>')
+def create_heatmap_by_reward(range_type, percentage, dat_id):
+    '''
+    TODO validate parameter inputs
+    '''
+    highest = None
+    if range_type == "top":
+        highest = True
+    elif range_type == "bottom":
+        highest = False
+    # hardcoded file for testing purposes - michael, you should look into accepting filePath as a param
+    filePath = f"analysis/data/Data-{dat_id}.json"
+
+    # hardcoded file name for testing purposes
+    # should discuss a file naming convention, or allow user to input file name
+    fileName = f"heatmap_reward_{range_type}_{percentage}_dat_id_{dat_id}.jpg"
+
+    if filePath not in DATA_JSON_LOOKUP: # data needs to be loaded in
+        data = loadJSONIntoMemory(filePath)
+        if data == []:
+            return {'text': 'Heatmap was not created: %s' % filePath}
+
+        DATA_DICTIONARY[filePath] = data
+        DATA_JSON_LOOKUP.add(filePath)
+        print("%s has been loaded into memory successfully" % filePath)
+        
+    # Get data
+    data = DATA_DICTIONARY[filePath]
+    fileSavePath = HEATMAP_RESULTS_DIRECTORY + fileName
+
+    # Create Heatmap
+    createHeatmap2(data, float(percentage), highest, fileSavePath)
+    
+    return {'text': 'Heatmap created: %s' % fileSavePath}
+
+@app.route('/by_episode_length/<range_type>/<percentage>/<dat_id>')
+def create_heatmap_by_episode_length(range_type, percentage, dat_id):
+    '''
+    TODO validate parameter inputs
+    '''
+    highest = None
+    if range_type == "top":
+        highest = True
+    elif range_type == "bottom":
+        highest = False
+    # hardcoded file for testing purposes - michael, you should look into accepting filePath as a param
+    filePath = f"analysis/data/Data-{dat_id}.json"
+
+    # hardcoded file name for testing purposes
+    # should discuss a file naming convention, or allow user to input file name
+    fileName = f"heatmap_episode_length_{range_type}_{percentage}_dat_id_{dat_id}.jpg"
+
+    if filePath not in DATA_JSON_LOOKUP: # data needs to be loaded in
+        data = loadJSONIntoMemory(filePath)
+        if data == []:
+            return {'text': 'Heatmap was not created: %s' % filePath}
+
+        DATA_DICTIONARY[filePath] = data
+        DATA_JSON_LOOKUP.add(filePath)
+        print("%s has been loaded into memory successfully" % filePath)
+        
+    # Get data
+    data = DATA_DICTIONARY[filePath]
+    fileSavePath = HEATMAP_RESULTS_DIRECTORY + fileName
+
+    # Create Heatmap
+    createHeatmap3(data, float(percentage), highest, fileSavePath)
+    
+    return {'text': 'Heatmap created: %s' % fileSavePath}
+
+@app.route('/naive/<dat_id>')
+def create_heatmap_naive(dat_id):
+    '''
+    TODO validate parameter inputs
+    '''
+    # hardcoded file for testing purposes - michael, you should look into accepting filePath as a param
+    filePath = f"analysis/data/Data-{dat_id}.json"
+
+    # hardcoded file name for testing purposes
+    # should discuss a file naming convention, or allow user to input file name
+    fileName = f"heatmap_naive_dat_id_{dat_id}.jpg"
+
+    if filePath not in DATA_JSON_LOOKUP: # data needs to be loaded in
+        data = loadJSONIntoMemory(filePath)
+        if data == []:
+            return {'text': 'Heatmap was not created: %s' % filePath}
+
+        DATA_DICTIONARY[filePath] = data
+        DATA_JSON_LOOKUP.add(filePath)
+        print("%s has been loaded into memory successfully" % filePath)
+        
+    # Get data
+    data = DATA_DICTIONARY[filePath]
+    fileSavePath = HEATMAP_RESULTS_DIRECTORY + fileName
+
+    # Create Heatmap
+    createHeatmap1(data, fileSavePath)
+    
+    return {'text': 'Heatmap created: %s' % fileSavePath}
+
+@app.route('/by_last_position/<dat_id>')
+def create_heatmap_by_last_position(dat_id):
+    '''
+    TODO validate parameter inputs
+    '''
+    # hardcoded file for testing purposes - michael, you should look into accepting filePath as a param
+    filePath = f"analysis/data/Data-{dat_id}.json"
+
+    # hardcoded file name for testing purposes
+    # should discuss a file naming convention, or allow user to input file name
+    fileName = f"heatmap_last_position_dat_id_{dat_id}.jpg"
+
+    if filePath not in DATA_JSON_LOOKUP: # data needs to be loaded in
+        data = loadJSONIntoMemory(filePath)
+        if data == []:
+            return {'text': 'Heatmap was not created: %s' % filePath}
+
+        DATA_DICTIONARY[filePath] = data
+        DATA_JSON_LOOKUP.add(filePath)
+        print("%s has been loaded into memory successfully" % filePath)
+        
+    # Get data
+    data = DATA_DICTIONARY[filePath]
+    fileSavePath = HEATMAP_RESULTS_DIRECTORY + fileName
+
+    # Create Heatmap
+    createHeatmap4(data, fileSavePath)
+    
+    return {'text': 'Heatmap created: %s' % fileSavePath}
+
 # @app.before_first_request # couldn't get this to be on flask init
 # def init():
 #     # On Flask Server Start Up
