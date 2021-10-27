@@ -83,6 +83,10 @@ export default {
           name: '404',
           url: '/pages/404',
         },
+        {
+          name: 'Display',
+          url: '/pages/display',
+        },
       ],
     },
     {

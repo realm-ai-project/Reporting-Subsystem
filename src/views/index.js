@@ -21,6 +21,7 @@ import Modals from './elements/Modals';
 import ProgressBars from './elements/ProgressBars';
 import PaginationPage from './elements/Pagination';
 import ErrorPage from './pages/404';
+import DisplayPage from './pages/DisplayPage';
 
 // See React Router documentation for details: https://reacttraining.com/react-router/web/api/Route
 const pageList = [
@@ -103,6 +104,11 @@ const pageList = [
     name: 'Blank',
     path: '/pages/blank',
     component: BlankPage,
+  },
+  {
+    name: 'Runs Display',
+    path: '/pages/display',
+    component: DisplayPage,
   },
   {
     name: 'Sub Navigation',
