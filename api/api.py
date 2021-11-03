@@ -1,8 +1,10 @@
-from flask import Flask, jsonify
 from analysis.functions import *
 from analysis.generator import *
+from flask import Flask, jsonify
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 # keeps track of the json files that are loaded into memory
 DATA_JSON_LOOKUP = set() 

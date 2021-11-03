@@ -3,22 +3,20 @@ import reactFeature from '../../assets/images/react-feature.svg';
 import sassFeature from '../../assets/images/sass-feature.svg';
 import bootstrapFeature from '../../assets/images/bootstrap-feature.svg';
 import responsiveFeature from '../../assets/images/responsive-feature.svg';
-import "react-responsive-carousel/lib/styles/carousel.min.css";
+import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import { Carousel } from 'react-responsive-carousel';
+import { generateHeatmap } from '../../api';
 
-import {
-  Row,
-  Col,
-  Card,
-  CardHeader,
-  CardBody,
-  Progress,
-  Button
-} from 'reactstrap';
+import { Row, Col, Card, CardHeader, CardBody, Progress, Button } from 'reactstrap';
 class Dashboard extends Component {
   render() {
+    this.state = {
+      option: 1,
+      dat_id: '5',
+    };
+
     const heroStyles = {
-      padding: '50px 0 70px'
+      padding: '50px 0 70px',
     };
 
     return (
@@ -86,26 +84,27 @@ class Dashboard extends Component {
             </Card>
           </Col>
           <Col>
-          <div style={{textAlign : "-webkit-center"}}>
-            <Carousel width="50%">
-              <div>
-              <img src="/assets/basic.jpg" />
-                <p className="Basic Heatmap">Legend 1</p>
-              </div>
-              <div>
-              <img src="/assets/duration.jpg" />
-                <p className="Duration Heatmap">Legend 2</p>
-              </div>
-              <div>
-              <img src="/assets/gamescore.jpg" />
-                <p className="Gamescore Heatmap">Legend 3</p>
-              </div>
-            </Carousel>
+            <div style={{ textAlign: '-webkit-center' }}>
+              <Carousel width="50%">
+                <div>
+                  <img src="/assets/basic.jpg" />
+                  <p className="Basic Heatmap">Legend 1</p>
+                </div>
+                <div>
+                  <img src="/assets/duration.jpg" />
+                  <p className="Duration Heatmap">Legend 2</p>
+                </div>
+                <div>
+                  <img src="/assets/gamescore.jpg" />
+                  <p className="Gamescore Heatmap">Legend 3</p>
+                </div>
+              </Carousel>
             </div>
           </Col>
         </Row>
-        
-        
+        <Button onClick={() => generateHeatmap(this.state)} size="sm" className="pull-right">
+          Generate heatmap
+        </Button>
 
         {/* <Row>
           <Col md={6}>
