@@ -102,9 +102,6 @@ class Dashboard extends Component {
             </div>
           </Col>
         </Row>
-        <Button onClick={() => generateHeatmap(this.state)} size="sm" className="pull-right">
-          Generate heatmap
-        </Button>
 
         {/* <Row>
           <Col md={6}>

@@ -2,6 +2,7 @@ from analysis.functions import *
 from analysis.generator import *
 from flask import Flask, jsonify
 from flask_cors import CORS
+import base64
 
 app = Flask(__name__)
 CORS(app)
@@ -107,8 +108,12 @@ def create_heatmap_by_reward(range_type, percentage, dat_id):
 
     # Create Heatmap
     createHeatmap2(data, float(percentage), highest, fileSavePath)
+
+    # get base64
+    with open(fileSavePath, "rb") as img_file:
+        base64_str = base64.b64encode(img_file.read()).decode("utf-8")
     
-    return {'text': 'Heatmap created: %s' % fileSavePath}
+    return {'name': fileName, "base64": base64_str}
 
 @app.route('/by_episode_length/<range_type>/<percentage>/<dat_id>')
 def create_heatmap_by_episode_length(range_type, percentage, dat_id):
@@ -172,8 +177,12 @@ def create_heatmap_naive(dat_id):
 
     # Create Heatmap
     createHeatmap1(data, fileSavePath)
+
+    # get base64
+    with open(fileSavePath, "rb") as img_file:
+        base64_str = base64.b64encode(img_file.read()).decode("utf-8")
     
-    return {'text': 'Heatmap created: %s' % fileSavePath}
+    return {'name': fileName, "base64": base64_str}
 
 @app.route('/by_last_position/<dat_id>')
 def create_heatmap_by_last_position(dat_id):

@@ -1,17 +1,20 @@
 // pass in object as params
-export function generateHeatmap(params) {
+export async function generateHeatmap(option, params) {
   // naive heatmap for now
   let url = 'http://localhost:5000/';
-  if (params.option == 1) {
+  if (option === '1') {
     // make api call
-    url += 'naive/';
-    url += params.dat_id;
-
-    fetch(url)
-      .then(res => res.json)
-      .then(result =>
-        // do stuff with result response, send to frontend?
-        console.log('succesfully generated heatmap for url: ' + url)
-      );
+    url += 'naive/' + params.dat_id;
+    return makeApiCall(url);
+  } else if (option === '2') {
+    // make api call
+    url += 'by_reward/' + params.range_type + '/' + params.percentage + '/' + params.dat_id;
+    return makeApiCall(url);
   }
+}
+
+async function makeApiCall(url) {
+  const response = await fetch(url);
+  const responseJSON = response.json();
+  return responseJSON;
 }

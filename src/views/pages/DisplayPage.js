@@ -25,6 +25,7 @@ import {
   NavLink,
 } from 'reactstrap';
 import laptopImage from '../../assets/images/laptop.jpeg';
+import { generateHeatmap } from '../../api';
 
 class DisplayPage extends Component {
   constructor(props) {
@@ -34,6 +35,13 @@ class DisplayPage extends Component {
     this.state = {
       activeTab: '1',
       progress: 40,
+      params: {
+        range_type: 'top',
+        percentage: 0.01,
+        dat_id: '1',
+      },
+      naiveImageList: [],
+      byRewardImageList: [],
     };
 
     this.down = this.down.bind(this);
@@ -59,6 +67,42 @@ class DisplayPage extends Component {
       this.setState(prevState => ({ progress: prevState.progress + 10 }));
     }
   }
+
+  // abstraction to let us set base64 image in react state
+  async apiHandler(option, params) {
+    let oldState = this.state;
+    if (option == '1') {
+      const responseJSON = await generateHeatmap(option, params);
+      oldState.naiveImageList.push({ name: responseJSON.name, base64: responseJSON.base64 });
+    } else if (option == '2') {
+      oldState.params.percentage = this.state.progress / 100;
+      const responseJSON = await generateHeatmap(option, params);
+      oldState.byRewardImageList.push({ name: responseJSON.name, base64: responseJSON.base64 });
+    }
+    this.setState(oldState);
+  }
+
+  // for by reward
+  createHeatmapOptionTwo() {
+    // TODO, change params state based off UI params set
+    let oldState = this.state;
+    oldState.params.range_type = 'top'; // should be from user input
+    oldState.params.percentage = this.state.progress / 100;
+    oldState.params.dat_id = 1; // should be from user input
+    //run api call
+    this.setState(oldState);
+    generateHeatmap(this.state.activeTab, this.state.params);
+  }
+
+  // TODO add error checking and validation for form inputs
+  updateStateParams(option, dat_id) {
+    let oldState = this.state;
+    if (option == '1') {
+      oldState.params.dat_id = dat_id; // should be from user input
+    }
+    this.setState(oldState);
+  }
+
   render() {
     return (
       <div>
@@ -130,9 +174,34 @@ class DisplayPage extends Component {
         </Nav>
         <TabContent activeTab={this.state.activeTab}>
           <TabPane tabId="1">
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+              <Button
+                onClick={() => this.apiHandler(this.state.activeTab, this.state.params)}
+                size="sm"
+                className="pull-right"
+              >
+                Generate Heatmap
+              </Button>
+              <input
+                type="text"
+                pattern="[0-9]*"
+                onChange={event => this.updateStateParams(this.state.activeTab, event.target.value)}
+                value={this.state.params.dat_id}
+              />
+            </div>
             <Row>
-              <Col>
-                <div style={{ textAlign: '-webkit-center' }}>
+              {this.state.naiveImageList.map((imgObj, index) => (
+                <div key={index} style={{ display: 'flex', flexDirection: 'row' }}>
+                  <Card>
+                    <CardImg src={`data:image/png;base64,${imgObj.base64}`} style={{ flex: 1 }} />
+                    <CardBody>
+                      <CardTitle>{imgObj.name}</CardTitle>
+                    </CardBody>
+                  </Card>
+                </div>
+              ))}
+              {/* {this.state.naiveImage ? <img src={`data:image/png;base64,${this.state.naiveImage}`} /> : ''} */}
+              {/* <div style={{ textAlign: '-webkit-center' }}>
                   <Carousel width="30%">
                     <Card>
                       <CardImg src="/assets/gamescore.jpg" top width="100%" />
@@ -151,31 +220,45 @@ class DisplayPage extends Component {
                       </CardBody>
                     </Card>
                   </Carousel>
-                </div>
-              </Col>
+                </div> */}
             </Row>
           </TabPane>
           <TabPane tabId="2">
+            <Card color="primary" outline>
+              <CardHeader>Select Parameters</CardHeader>
+              <input
+                type="text"
+                pattern="[0-9]*"
+                onChange={event => this.updateStateParams(this.state.activeTab, event.target.value)}
+                value={this.state.params.dat_id}
+              />
+              <CardBody>
+                <Row>
+                  <ButtonGroup className="m-b" style={{ paddingRight: '5px' }}>
+                    <Button onClick={this.down}>Down</Button>
+                    <Button onClick={this.up}>Up</Button>
+                  </ButtonGroup>
+                  <h4> Percentage: {this.state.progress} %</h4>
+                </Row>
+                <Progress className="m-b" value={this.state.progress} />
+                <Button onClick={() => this.apiHandler(this.state.activeTab, this.state.params)} color="success">
+                  Generate Heat Map
+                </Button>
+              </CardBody>
+            </Card>
             <Row>
-              <Col xs="12" md="6">
-                <Card color="primary" outline>
-                  <CardHeader>Select Parameters</CardHeader>
-
-                  <CardBody>
-                    <Row>
-                      <ButtonGroup className="m-b" style={{ paddingRight: '5px' }}>
-                        <Button onClick={this.down}>Down</Button>
-                        <Button onClick={this.up}>Up</Button>
-                      </ButtonGroup>
-                      <h4> Percentage: {this.state.progress} %</h4>
-                    </Row>
-                    <Progress className="m-b" value={this.state.progress} />
-                    <Button color="success">Generate Heat Map</Button>{' '}
-                  </CardBody>
-                </Card>
-              </Col>
+              {this.state.byRewardImageList.map((imgObj, index) => (
+                <div key={index} style={{ display: 'flex', flexDirection: 'row' }}>
+                  <Card>
+                    <CardImg src={`data:image/png;base64,${imgObj.base64}`} style={{ flex: 1 }} />
+                    <CardBody>
+                      <CardTitle>{imgObj.name}</CardTitle>
+                    </CardBody>
+                  </Card>
+                </div>
+              ))}
             </Row>
-            <Row>
+            {/* <Row>
               <Card outline color="secondary">
                 <CardImg src="/assets/gamescore.jpg" top width="100%" />
                 <CardBody>
@@ -192,7 +275,7 @@ class DisplayPage extends Component {
                   <Button color="primary">Run Again</Button>
                 </CardBody>
               </Card>
-            </Row>
+            </Row> */}
           </TabPane>
           <TabPane tabId="3">
             <Row>
