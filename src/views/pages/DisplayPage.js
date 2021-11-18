@@ -116,7 +116,8 @@ class DisplayPage extends Component {
   handleSubmit(event) {
     event.preventDefault();
     alert(`Selected file - ${this.fileInput.current.files[0].name}`);
-    this.updateFilePath(this.fileInput.current.files[0].name);
+    console.log(this.fileInput.current.files[0].webkitRelativePath.split('/')[0]);
+    this.updateFilePath(this.fileInput.current.files[0].webkitRelativePath.split('/')[0]);
   }
 
   getFileInput() {
