@@ -30,6 +30,8 @@ import { generateHeatmap } from '../../api';
 class DisplayPage extends Component {
   constructor(props) {
     super(props);
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.fileInput = React.createRef();
 
     this.toggle = this.toggle.bind(this);
     this.state = {
@@ -39,6 +41,7 @@ class DisplayPage extends Component {
         range_type: 'top',
         percentage: 0.01,
         dat_id: '1',
+        file_path: 'data',
       },
       naiveImageList: [],
       byRewardImageList: [],
@@ -103,6 +106,32 @@ class DisplayPage extends Component {
     this.setState(oldState);
   }
 
+  updateFilePath(path) {
+    let oldState = this.state;
+    console.log(path);
+    oldState.params.file_path = path;
+    this.setState(oldState);
+  }
+
+  handleSubmit(event) {
+    event.preventDefault();
+    alert(`Selected file - ${this.fileInput.current.files[0].name}`);
+    this.updateFilePath(this.fileInput.current.files[0].name);
+  }
+
+  getFileInput() {
+    return (
+      <form onSubmit={this.handleSubmit}>
+        <label>
+          Upload file:
+          <input type="file" directory="" webkitdirectory="" ref={this.fileInput} />
+        </label>
+        <br />
+        <button type="submit">Submit</button>
+      </form>
+    );
+  }
+
   render() {
     return (
       <div>
@@ -125,6 +154,8 @@ class DisplayPage extends Component {
               </Breadcrumb>
             </CardBody>
           </Card>
+          {/* <FileInput /> */}
+          {this.getFileInput()}
         </div>
         <Nav tabs>
           <NavItem>

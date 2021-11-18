@@ -123,22 +123,5 @@ export default {
       },
     },
   ],
-  bottom: [
-    {
-      name: 'Source Code',
-      url: 'https://github.com/realm-ai-project/Reporting-Subsystem',
-      icon: 'GitHub',
-      external: true,
-      target: '_blank',
-    },
-    {
-      name: 'Account',
-      url: '/dashboard',
-      icon: 'User',
-      badge: {
-        variant: 'success',
-        text: '3',
-      },
-    },
-  ],
+  bottom: [],
 };
