@@ -31,7 +31,6 @@ import {
   Input,
   Label,
 } from 'reactstrap';
-import laptopImage from '../../assets/images/laptop.jpeg';
 import { generateHeatmap } from '../../api';
 
 class DisplayPage extends Component {
@@ -54,6 +53,8 @@ class DisplayPage extends Component {
       byRewardImageList: [],
       modal: false,
       pathName: null,
+      byEpisodeLengthList: [],
+      byLastPositionList: [],
     };
 
     this.down = this.down.bind(this);
@@ -88,35 +89,36 @@ class DisplayPage extends Component {
   // abstraction to let us set base64 image in react state
   async apiHandler(option, params) {
     let oldState = this.state;
-    if (option == '1') {
+    if (option == '1' || option == '4') {
       const responseJSON = await generateHeatmap(option, params);
-      oldState.naiveImageList.push({ name: responseJSON.name, base64: responseJSON.base64 });
-    } else if (option == '2') {
+      if (option == '1') {
+        oldState.naiveImageList.push({ name: responseJSON.name, base64: responseJSON.base64 });
+      } else {
+        oldState.byLastPositionList.push({ name: responseJSON.name, base64: responseJSON.base64 });
+      }
+    } else if (option == '2' || option == '3') {
       oldState.params.percentage = this.state.progress / 100;
       const responseJSON = await generateHeatmap(option, params);
-      oldState.byRewardImageList.push({ name: responseJSON.name, base64: responseJSON.base64 });
+      if (option == '2') {
+        oldState.byRewardImageList.push({ name: responseJSON.name, base64: responseJSON.base64 });
+      } else {
+        oldState.byEpisodeLengthList.push({ name: responseJSON.name, base64: responseJSON.base64 });
+      }
     }
     this.setState(oldState);
-  }
-
-  // for by reward
-  createHeatmapOptionTwo() {
-    // TODO, change params state based off UI params set
-    let oldState = this.state;
-    oldState.params.range_type = 'top'; // should be from user input
-    oldState.params.percentage = this.state.progress / 100;
-    oldState.params.dat_id = 1; // should be from user input
-    //run api call
-    this.setState(oldState);
-    generateHeatmap(this.state.activeTab, this.state.params);
   }
 
   // TODO add error checking and validation for form inputs
-  updateStateParams(option, dat_id) {
+  updateStateParamsDatId(dat_id) {
     let oldState = this.state;
-    if (option == '1') {
-      oldState.params.dat_id = dat_id; // should be from user input
-    }
+    oldState.params.dat_id = dat_id;
+    this.setState(oldState);
+  }
+
+  // TODO add error checking and validation for form inputs
+  updateStateParamsRangeType(range_type) {
+    let oldState = this.state;
+    oldState.params.range_type = range_type;
     this.setState(oldState);
   }
 
@@ -212,7 +214,7 @@ class DisplayPage extends Component {
                 this.toggle('1');
               }}
             >
-              HeatMap Option 1
+              Naive Heatmap
             </NavLink>
           </NavItem>
           <NavItem>
@@ -223,7 +225,7 @@ class DisplayPage extends Component {
                 this.toggle('2');
               }}
             >
-              HeatMap Option 2
+              Heatmaps by reward
             </NavLink>
           </NavItem>
           <NavItem>
@@ -231,10 +233,10 @@ class DisplayPage extends Component {
               href="#"
               className={classnames({ active: this.state.activeTab === '3' })}
               onClick={() => {
-                this.toggle('2');
+                this.toggle('3');
               }}
             >
-              HeatMap Option
+              Heatmaps by episode length
             </NavLink>
           </NavItem>
           <NavItem>
@@ -242,10 +244,10 @@ class DisplayPage extends Component {
               href="#"
               className={classnames({ active: this.state.activeTab === '4' })}
               onClick={() => {
-                this.toggle('2');
+                this.toggle('4');
               }}
             >
-              HeatMap Option 4
+              Heatmaps by last position
             </NavLink>
           </NavItem>
         </Nav>
@@ -259,12 +261,15 @@ class DisplayPage extends Component {
               >
                 Generate Heatmap
               </Button>
-              <input
-                type="text"
-                pattern="[0-9]*"
-                onChange={event => this.updateStateParams(this.state.activeTab, event.target.value)}
-                value={this.state.params.dat_id}
-              />
+              <label>
+                dat_id
+                <input
+                  type="text"
+                  pattern="[0-9]*"
+                  onChange={event => this.updateStateParamsDatId(event.target.value)}
+                  value={this.state.params.dat_id}
+                />
+              </label>
             </div>
             <Row>
               {this.state.naiveImageList.map((imgObj, index) => (
@@ -303,12 +308,28 @@ class DisplayPage extends Component {
           <TabPane tabId="2">
             <Card color="primary" outline>
               <CardHeader>Select Parameters</CardHeader>
-              <input
-                type="text"
-                pattern="[0-9]*"
-                onChange={event => this.updateStateParams(this.state.activeTab, event.target.value)}
-                value={this.state.params.dat_id}
-              />
+              <label>
+                dat_id
+                <input
+                  type="text"
+                  pattern="[0-9]*"
+                  onChange={event => this.updateStateParamsDatId(event.target.value)}
+                  value={this.state.params.dat_id}
+                />
+              </label>
+              <FormGroup>
+                <Label for="exampleSelect">Range type</Label>
+                <Input
+                  id="exampleSelect"
+                  name="select"
+                  type="select"
+                  onChange={event => this.updateStateParamsRangeType(event.target.value)}
+                  value={this.state.params.range_type}
+                >
+                  <option>top</option>
+                  <option>bottom</option>
+                </Input>
+              </FormGroup>
               <CardBody>
                 <Row>
                   <ButtonGroup className="m-b" style={{ paddingRight: '5px' }}>
@@ -355,13 +376,87 @@ class DisplayPage extends Component {
             </Row> */}
           </TabPane>
           <TabPane tabId="3">
+            <Card color="primary" outline>
+              <CardHeader>Select Parameters</CardHeader>
+              <label>
+                dat_id
+                <input
+                  type="text"
+                  pattern="[0-9]*"
+                  onChange={event => this.updateStateParamsDatId(event.target.value)}
+                  value={this.state.params.dat_id}
+                />
+              </label>
+              <FormGroup>
+                <Label for="exampleSelect">Range type</Label>
+                <Input
+                  id="exampleSelect"
+                  name="select"
+                  type="select"
+                  onChange={event => this.updateStateParamsRangeType(event.target.value)}
+                  value={this.state.params.range_type}
+                >
+                  <option>top</option>
+                  <option>bottom</option>
+                </Input>
+              </FormGroup>
+              <CardBody>
+                <Row>
+                  <ButtonGroup className="m-b" style={{ paddingRight: '5px' }}>
+                    <Button onClick={this.down}>Down</Button>
+                    <Button onClick={this.up}>Up</Button>
+                  </ButtonGroup>
+                  <h4> Percentage: {this.state.progress} %</h4>
+                </Row>
+                <Progress className="m-b" value={this.state.progress} />
+                <Button onClick={() => this.apiHandler(this.state.activeTab, this.state.params)} color="success">
+                  Generate Heat Map
+                </Button>
+              </CardBody>
+            </Card>
             <Row>
-              <p>TODO: add component here</p>
+              {this.state.byEpisodeLengthList.map((imgObj, index) => (
+                <div key={index} style={{ display: 'flex', flexDirection: 'row' }}>
+                  <Card>
+                    <CardImg src={`data:image/png;base64,${imgObj.base64}`} style={{ flex: 1 }} />
+                    <CardBody>
+                      <CardTitle>{imgObj.name}</CardTitle>
+                    </CardBody>
+                  </Card>
+                </div>
+              ))}
             </Row>
           </TabPane>
           <TabPane tabId="4">
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+              <Button
+                onClick={() => this.apiHandler(this.state.activeTab, this.state.params)}
+                size="sm"
+                className="pull-right"
+              >
+                Generate Heatmap
+              </Button>
+              <label>
+                dat_id
+                <input
+                  type="text"
+                  pattern="[0-9]*"
+                  onChange={event => this.updateStateParamsDatId(event.target.value)}
+                  value={this.state.params.dat_id}
+                />
+              </label>
+            </div>
             <Row>
-              <p>TODO: add component here</p>
+              {this.state.byLastPositionList.map((imgObj, index) => (
+                <div key={index} style={{ display: 'flex', flexDirection: 'row' }}>
+                  <Card>
+                    <CardImg src={`data:image/png;base64,${imgObj.base64}`} style={{ flex: 1 }} />
+                    <CardBody>
+                      <CardTitle>{imgObj.name}</CardTitle>
+                    </CardBody>
+                  </Card>
+                </div>
+              ))}
             </Row>
           </TabPane>
         </TabContent>
