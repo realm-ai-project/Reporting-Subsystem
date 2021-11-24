@@ -47,12 +47,11 @@ class DisplayPage extends Component {
         range_type: 'top',
         percentage: 0.01,
         dat_id: '1',
-        file_path: 'data',
+        file_path: null,
       },
       naiveImageList: [],
       byRewardImageList: [],
       modal: false,
-      pathName: null,
       byEpisodeLengthList: [],
       byLastPositionList: [],
     };
@@ -63,10 +62,12 @@ class DisplayPage extends Component {
   }
 
   handleChange = event => {
-    this.setState({ file_path: event.target.value });
+    let oldState = this.state;
+    oldState.params.file_path = event.target.value;
+    this.setState(oldState);
   };
 
-  toggle(tab) {
+  toggleTab(tab) {
     if (this.state.activeTab !== tab) {
       this.setState({
         activeTab: tab,
@@ -177,9 +178,12 @@ class DisplayPage extends Component {
               </Breadcrumb>
             </CardBody>
           </Card>
-          <Button color="primary" onClick={this.toggle}>
-            Select directory path
-          </Button>
+          <label>
+            <Button color="primary" onClick={this.toggle}>
+              Select directory path
+            </Button>
+            {this.state.params.file_path}
+          </label>
           <Modal isOpen={this.state.modal} toggle={this.toggle}>
             <ModalHeader toggle={this.toggle}>Please Select Directory</ModalHeader>
             <ModalBody>
@@ -190,7 +194,7 @@ class DisplayPage extends Component {
                   name="path"
                   id="path"
                   placeholder="/Users/documents"
-                  value={this.state.pathName}
+                  value={this.state.params.file_path}
                   onChange={this.handleChange}
                 />
               </FormGroup>
@@ -211,7 +215,7 @@ class DisplayPage extends Component {
               href="#"
               className={classnames({ active: this.state.activeTab === '1' })}
               onClick={() => {
-                this.toggle('1');
+                this.toggleTab('1');
               }}
             >
               Naive Heatmap
@@ -222,7 +226,7 @@ class DisplayPage extends Component {
               href="#"
               className={classnames({ active: this.state.activeTab === '2' })}
               onClick={() => {
-                this.toggle('2');
+                this.toggleTab('2');
               }}
             >
               Heatmaps by reward
@@ -233,7 +237,7 @@ class DisplayPage extends Component {
               href="#"
               className={classnames({ active: this.state.activeTab === '3' })}
               onClick={() => {
-                this.toggle('3');
+                this.toggleTab('3');
               }}
             >
               Heatmaps by episode length
@@ -244,7 +248,7 @@ class DisplayPage extends Component {
               href="#"
               className={classnames({ active: this.state.activeTab === '4' })}
               onClick={() => {
-                this.toggle('4');
+                this.toggleTab('4');
               }}
             >
               Heatmaps by last position
