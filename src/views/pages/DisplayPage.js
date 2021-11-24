@@ -23,6 +23,13 @@ import {
   Nav,
   NavItem,
   NavLink,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  FormGroup,
+  Input,
+  Label,
 } from 'reactstrap';
 import laptopImage from '../../assets/images/laptop.jpeg';
 import { generateHeatmap } from '../../api';
@@ -45,11 +52,18 @@ class DisplayPage extends Component {
       },
       naiveImageList: [],
       byRewardImageList: [],
+      modal: false,
+      pathName: null,
     };
 
     this.down = this.down.bind(this);
     this.up = this.up.bind(this);
+    this.toggle = this.toggle.bind(this);
   }
+
+  handleChange = event => {
+    this.setState({ file_path: event.target.value });
+  };
 
   toggle(tab) {
     if (this.state.activeTab !== tab) {
@@ -133,6 +147,12 @@ class DisplayPage extends Component {
     );
   }
 
+  toggle() {
+    this.setState(prevState => ({
+      modal: !prevState.modal,
+    }));
+  }
+
   render() {
     return (
       <div>
@@ -155,8 +175,33 @@ class DisplayPage extends Component {
               </Breadcrumb>
             </CardBody>
           </Card>
-          {/* <FileInput /> */}
-          {this.getFileInput()}
+          <Button color="primary" onClick={this.toggle}>
+            Select directory path
+          </Button>
+          <Modal isOpen={this.state.modal} toggle={this.toggle}>
+            <ModalHeader toggle={this.toggle}>Please Select Directory</ModalHeader>
+            <ModalBody>
+              <FormGroup>
+                <Label for="path">Path</Label>
+                <Input
+                  type="text"
+                  name="path"
+                  id="path"
+                  placeholder="/Users/documents"
+                  value={this.state.pathName}
+                  onChange={this.handleChange}
+                />
+              </FormGroup>
+            </ModalBody>
+            <ModalFooter>
+              <Button color="primary" onClick={this.toggle}>
+                Submit
+              </Button>{' '}
+              <Button color="secondary" onClick={this.toggle}>
+                Cancel
+              </Button>
+            </ModalFooter>
+          </Modal>
         </div>
         <Nav tabs>
           <NavItem>
