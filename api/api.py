@@ -1,6 +1,6 @@
 from analysis.functions import *
 from analysis.generator import *
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 import base64
 
@@ -76,7 +76,7 @@ def create_heatmap_1():
 def count_dat_files():
     return {"count": len(getAllDatFilesFromDirectory("analysis/data"))}
 
-@app.route('/by_reward/<range_type>/<percentage>/<dat_id>')
+@app.route('/by_reward/<range_type>/<percentage>/<dat_id>', methods=["POST"])
 def create_heatmap_by_reward(range_type, percentage, dat_id):
     '''
     TODO validate parameter inputs
@@ -87,7 +87,7 @@ def create_heatmap_by_reward(range_type, percentage, dat_id):
     elif range_type == "bottom":
         highest = False
     # hardcoded file for testing purposes - michael, you should look into accepting filePath as a param
-    filePath = f"analysis/data/Data-{dat_id}.json"
+    filePath = request.json["file_path"] + f"/Data-{dat_id}.json"
 
     # hardcoded file name for testing purposes
     # should discuss a file naming convention, or allow user to input file name
@@ -115,7 +115,7 @@ def create_heatmap_by_reward(range_type, percentage, dat_id):
     
     return {'name': fileName, "base64": base64_str}
 
-@app.route('/by_episode_length/<range_type>/<percentage>/<dat_id>')
+@app.route('/by_episode_length/<range_type>/<percentage>/<dat_id>', methods=["POST"])
 def create_heatmap_by_episode_length(range_type, percentage, dat_id):
     '''
     TODO validate parameter inputs
@@ -126,7 +126,7 @@ def create_heatmap_by_episode_length(range_type, percentage, dat_id):
     elif range_type == "bottom":
         highest = False
     # hardcoded file for testing purposes - michael, you should look into accepting filePath as a param
-    filePath = f"analysis/data/Data-{dat_id}.json"
+    filePath = request.json["file_path"] + f"/Data-{dat_id}.json"
 
     # hardcoded file name for testing purposes
     # should discuss a file naming convention, or allow user to input file name
@@ -154,13 +154,17 @@ def create_heatmap_by_episode_length(range_type, percentage, dat_id):
     
     return {'name': fileName, "base64": base64_str}
 
-@app.route('/naive/<dat_id>')
+@app.route('/naive/<dat_id>', methods=["POST"])
 def create_heatmap_naive(dat_id):
     '''
     TODO validate parameter inputs
     '''
+    # get file path from request body
+    # print("naive heatmap filepath")
+    # print(request.json)
+    
     # hardcoded file for testing purposes - michael, you should look into accepting filePath as a param
-    filePath = f"analysis/data/Data-{dat_id}.json"
+    filePath = request.json["file_path"] + f"/Data-{dat_id}.json"
 
     # hardcoded file name for testing purposes
     # should discuss a file naming convention, or allow user to input file name
@@ -188,13 +192,13 @@ def create_heatmap_naive(dat_id):
     
     return {'name': fileName, "base64": base64_str}
 
-@app.route('/by_last_position/<dat_id>')
+@app.route('/by_last_position/<dat_id>', methods=["POST"])
 def create_heatmap_by_last_position(dat_id):
     '''
     TODO validate parameter inputs
     '''
     # hardcoded file for testing purposes - michael, you should look into accepting filePath as a param
-    filePath = f"analysis/data/Data-{dat_id}.json"
+    filePath = request.json["file_path"] + f"/Data-{dat_id}.json"
 
     # hardcoded file name for testing purposes
     # should discuss a file naming convention, or allow user to input file name

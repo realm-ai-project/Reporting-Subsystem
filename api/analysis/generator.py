@@ -150,7 +150,7 @@ def createHeatmap4(data, filePath):
     H, _, _ = np.histogram2d(pos_x, pos_y, bins=[x_size, y_size])
     
     # Plot heatmap and save figures
-    sns.heatmap(np.log(H.T+1), yticklabels=20)
+    sns.heatmap(np.log(H.T+1), cmap="BuPu", yticklabels=20)
     plot_and_save(filePath)
 
 
