@@ -104,7 +104,7 @@ def create_heatmap_by_reward(range_type, percentage, dat_id):
         
     # Get data
     data = DATA_DICTIONARY[filePath]
-    fileSavePath = HEATMAP_RESULTS_DIRECTORY + fileName
+    fileSavePath = request.json["file_path"] + f"/{fileName}"
 
     # Create Heatmap
     createHeatmap2(data, float(percentage), highest, fileSavePath)
@@ -143,7 +143,7 @@ def create_heatmap_by_episode_length(range_type, percentage, dat_id):
         
     # Get data
     data = DATA_DICTIONARY[filePath]
-    fileSavePath = HEATMAP_RESULTS_DIRECTORY + fileName
+    fileSavePath = request.json["file_path"] + f"/{fileName}"
 
     # Create Heatmap
     createHeatmap3(data, float(percentage), highest, fileSavePath)
@@ -181,7 +181,7 @@ def create_heatmap_naive(dat_id):
         
     # Get data
     data = DATA_DICTIONARY[filePath]
-    fileSavePath = HEATMAP_RESULTS_DIRECTORY + fileName
+    fileSavePath = request.json["file_path"] + f"/{fileName}"
 
     # Create Heatmap
     createHeatmap1(data, fileSavePath)
@@ -215,7 +215,7 @@ def create_heatmap_by_last_position(dat_id):
         
     # Get data
     data = DATA_DICTIONARY[filePath]
-    fileSavePath = HEATMAP_RESULTS_DIRECTORY + fileName
+    fileSavePath = request.json["file_path"] + f"/{fileName}"
 
     # Create Heatmap
     createHeatmap4(data, fileSavePath)
