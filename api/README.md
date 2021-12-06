@@ -16,3 +16,7 @@ FLASK_ENV=development
 ### run api
 
 enter and run `flask run` under /app
+
+### Files description
+`generator.py` contains the code for creating heatmaps
+`functions.py` contains the code for file operations

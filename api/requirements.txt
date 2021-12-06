@@ -1,2 +1,7 @@
 python-dotenv
 flask-cors
+pandas
+numpy
+seaborn
+matplotlib
+scipy

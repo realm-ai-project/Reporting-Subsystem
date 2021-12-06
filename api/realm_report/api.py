@@ -1,8 +1,13 @@
-from analysis.functions import *
-from analysis.generator import *
+import base64
+from importlib.resources import path
+import os
+
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-import base64
+
+from realm_report.functions import getAllFilesFromDirectory, getAllDatFilesFromDirectory, getAllJsonFilesFromDirectory, loadJSONIntoMemory
+from realm_report.generator import createHeatmap1, createHeatmap2, createHeatmap3, createHeatmap4
+import realm_report.data
 
 app = Flask(__name__)
 CORS(app)
@@ -14,7 +19,7 @@ DATA_JSON_LOOKUP = set()
 DATA_DICTIONARY = {}
 
 # data location (hardcoded for now, would like user to be able to change this value)
-DATA_DIRECTORY = "analysis/data"
+TEST_DATA_DIRECTORY = "data"
 
 # heatmap result location (hardcoded for now, would like user to be able to change this value)
 HEATMAP_RESULTS_DIRECTORY = "analysis/heatmaps/"
@@ -27,26 +32,30 @@ def get_home():
 # you can change this michael - just for testing 
 @app.route('/allFiles')
 def get_all_files():
-    allFiles = getAllFilesFromDirectory("analysis/data")
+    with path(realm_report, TEST_DATA_DIRECTORY) as f:
+        allFiles = getAllFilesFromDirectory(f)
     return jsonify(allFiles)
 
 # you can change this michael - just for testing 
 @app.route('/datFiles')
 def get_dat_files():
-    datFiles = getAllDatFilesFromDirectory("analysis/data")
+    with path(realm_report, TEST_DATA_DIRECTORY) as f:
+        datFiles = getAllDatFilesFromDirectory(f)
     return jsonify(datFiles)
 
 # you can change this michael - just for testing 
 @app.route('/jsonFiles')
 def get_json_files():
-    jsonFiles = getAllJsonFilesFromDirectory("analysis/data")
+    with path(realm_report, TEST_DATA_DIRECTORY) as f:
+        jsonFiles = getAllJsonFilesFromDirectory(f)
     return jsonify(jsonFiles)
 
 # you can change this michael - just for testing 
 @app.route('/create/heatmap/1')
 def create_heatmap_1():
     # hardcoded file for testing purposes - michael, you should look into accepting filePath as a param
-    filePath = "analysis/data/Data-1.json"
+    with path(realm_report, TEST_DATA_DIRECTORY) as f:
+        filePath = os.path.join(f, 'Data-1.json')
 
     # hardcoded file name for testing purposes
     # should discuss a file naming convention, or allow user to input file name
@@ -64,7 +73,8 @@ def create_heatmap_1():
     # Get data
     data = DATA_DICTIONARY[filePath]
     fileSavePath = HEATMAP_RESULTS_DIRECTORY + fileName
-
+    os.makedirs(HEATMAP_RESULTS_DIRECTORY)
+    
     # Create Heatmap
     createHeatmap1(data, fileSavePath)
     
@@ -74,7 +84,7 @@ def create_heatmap_1():
 
 @app.route('/count_dat_files')
 def count_dat_files():
-    return {"count": len(getAllDatFilesFromDirectory("analysis/data"))}
+    return {"count": len(getAllDatFilesFromDirectory(request.json["file_path"]))}
 
 @app.route('/by_reward/<range_type>/<percentage>/<dat_id>', methods=["POST"])
 def create_heatmap_by_reward(range_type, percentage, dat_id):
@@ -255,3 +265,10 @@ def create_heatmap_by_last_position(dat_id):
 
 #     print("These JSON files have been loaded into memory:")
 #     print(DATA_JSON_LOOKUP)
+
+
+def main():
+    app.run(host='0.0.0.0', debug=True)
+
+if __name__=='__main__':
+    main()
