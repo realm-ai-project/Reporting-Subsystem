@@ -6,122 +6,133 @@ export default {
       icon: 'Home',
     },
     {
-      name: 'UI Elements',
-      icon: 'Layers',
-      children: [
-        {
-          name: 'Buttons',
-          url: '/elements/buttons',
-        },
-        {
-          name: 'Grid',
-          url: '/elements/grid',
-        },
-        {
-          name: 'Alerts',
-          url: '/elements/alerts',
-        },
-        {
-          name: 'Typography',
-          url: '/elements/typography',
-        },
-        {
-          name: 'Cards',
-          url: '/elements/cards',
-        },
-        {
-          name: 'Tabs',
-          url: '/elements/tabs',
-        },
-        {
-          name: 'Tables',
-          url: '/elements/tables',
-        },
-        {
-          name: 'Breadcrumbs',
-          url: '/elements/breadcrumbs',
-        },
-        {
-          name: 'Forms',
-          url: '/elements/forms',
-        },
-        {
-          name: 'Modals',
-          url: '/elements/modals',
-        },
-        {
-          name: 'Loaders',
-          url: '/elements/loaders',
-        },
-        {
-          name: 'Avatars',
-          url: '/elements/avatars',
-        },
-        {
-          name: 'Progress Bars',
-          url: '/elements/progressbars',
-        },
-        {
-          name: 'Pagination',
-          url: '/elements/pagination',
-        },
-      ],
-    },
-    {
-      name: 'Pages',
-      icon: 'File',
-      children: [
-        {
-          name: 'Blank',
-          url: '/pages/blank',
-        },
-        {
-          name: 'Sub Navigation',
-          url: '/pages/subnav',
-        },
-        {
-          name: '404',
-          url: '/pages/404',
-        },
-        {
-          name: 'Display',
-          url: '/pages/display',
-        },
-      ],
-    },
-    {
-      name: 'Apps',
-      icon: 'Cloud',
-      children: [
-        {
-          name: 'Analytics',
-          url: '/apps/analytics',
-        },
-        {
-          name: 'Invoice',
-          url: '/apps/invoice',
-        },
-        {
-          name: 'Activity Feed',
-          url: '/apps/feed',
-        },
-        {
-          name: 'CMS',
-          url: '/apps/cms',
-        },
-      ],
-    },
-    {
-      divider: true,
-    },
-    {
-      name: 'Widgets',
-      url: '/widgets',
+      name: 'Display',
+      url: '/display',
       icon: 'Package',
-      badge: {
-        text: 'NEW',
-      },
     },
+    {
+      name: 'Docs',
+      url: 'https://realm-ai-project.github.io/documentation',
+      icon: 'Book',
+      external: 'true',
+    },
+    //   {
+    //     name: 'UI Elements',
+    //     icon: 'Layers',
+    //     children: [
+    //       {
+    //         name: 'Buttons',
+    //         url: '/elements/buttons',
+    //       },
+    //       {
+    //         name: 'Grid',
+    //         url: '/elements/grid',
+    //       },
+    //       {
+    //         name: 'Alerts',
+    //         url: '/elements/alerts',
+    //       },
+    //       {
+    //         name: 'Typography',
+    //         url: '/elements/typography',
+    //       },
+    //       {
+    //         name: 'Cards',
+    //         url: '/elements/cards',
+    //       },
+    //       {
+    //         name: 'Tabs',
+    //         url: '/elements/tabs',
+    //       },
+    //       {
+    //         name: 'Tables',
+    //         url: '/elements/tables',
+    //       },
+    //       {
+    //         name: 'Breadcrumbs',
+    //         url: '/elements/breadcrumbs',
+    //       },
+    //       {
+    //         name: 'Forms',
+    //         url: '/elements/forms',
+    //       },
+    //       {
+    //         name: 'Modals',
+    //         url: '/elements/modals',
+    //       },
+    //       {
+    //         name: 'Loaders',
+    //         url: '/elements/loaders',
+    //       },
+    //       {
+    //         name: 'Avatars',
+    //         url: '/elements/avatars',
+    //       },
+    //       {
+    //         name: 'Progress Bars',
+    //         url: '/elements/progressbars',
+    //       },
+    //       {
+    //         name: 'Pagination',
+    //         url: '/elements/pagination',
+    //       },
+    //     ],
+    //   },
+    //   {
+    //     name: 'Pages',
+    //     icon: 'File',
+    //     children: [
+    //       {
+    //         name: 'Blank',
+    //         url: '/pages/blank',
+    //       },
+    //       {
+    //         name: 'Sub Navigation',
+    //         url: '/pages/subnav',
+    //       },
+    //       {
+    //         name: '404',
+    //         url: '/pages/404',
+    //       },
+    //       {
+    //         name: 'Display',
+    //         url: '/pages/display',
+    //       },
+    //     ],
+    //   },
+    //   {
+    //     name: 'Apps',
+    //     icon: 'Cloud',
+    //     children: [
+    //       {
+    //         name: 'Analytics',
+    //         url: '/apps/analytics',
+    //       },
+    //       {
+    //         name: 'Invoice',
+    //         url: '/apps/invoice',
+    //       },
+    //       {
+    //         name: 'Activity Feed',
+    //         url: '/apps/feed',
+    //       },
+    //       {
+    //         name: 'CMS',
+    //         url: '/apps/cms',
+    //       },
+    //     ],
+    //   },
+    //   {
+    //     divider: true,
+    //   },
+    //   {
+    //     name: 'Widgets',
+    //     url: '/widgets',
+    //     icon: 'Package',
+    //     badge: {
+    //       text: 'NEW',
+    //     },
+    //   },
   ],
   bottom: [],
 };

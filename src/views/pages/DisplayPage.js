@@ -162,7 +162,7 @@ class DisplayPage extends Component {
         <div>
           <Card>
             <CardBody>
-              <Breadcrumb>
+              {/* <Breadcrumb>
                 <BreadcrumbItem>
                   <a href="#!">src</a>
                 </BreadcrumbItem>
@@ -175,15 +175,22 @@ class DisplayPage extends Component {
                 <BreadcrumbItem active={true}>
                   <a href="#!">run3</a>
                 </BreadcrumbItem>
-              </Breadcrumb>
+              </Breadcrumb> */}
             </CardBody>
           </Card>
-          <label>
-            <Button color="primary" onClick={this.toggle}>
-              Select directory path
-            </Button>
-            {this.state.params.file_path}
-          </label>
+          <Button color="primary" onClick={this.toggle}>
+            Select directory path
+          </Button>
+          <a target="_blank" href="https://www.tensorflow.org/tensorboard" style={{ textDecoration: 'none' }}>
+            <Button color="success" outline className="mx-2">
+              TensorBoard
+            </Button>{' '}
+          </a>
+          <a target="_blank" href="https://wandb.ai/site" style={{ textDecoration: 'none' }}>
+            <Button color="primary" outline>
+              Weights and Biases
+            </Button>{' '}
+          </a>
           <Modal isOpen={this.state.modal} toggle={this.toggle}>
             <ModalHeader toggle={this.toggle}>Please Select Directory</ModalHeader>
             <ModalBody>

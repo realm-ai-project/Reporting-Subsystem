@@ -31,6 +31,11 @@ const pageList = [
     component: Dashboard,
   },
   {
+    name: 'Display',
+    path: '/display',
+    component: DisplayPage,
+  },
+  {
     name: 'Buttons',
     path: '/elements/buttons',
     component: Buttons,
@@ -104,11 +109,6 @@ const pageList = [
     name: 'Blank',
     path: '/pages/blank',
     component: BlankPage,
-  },
-  {
-    name: 'Runs Display',
-    path: '/pages/display',
-    component: DisplayPage,
   },
   {
     name: 'Sub Navigation',
