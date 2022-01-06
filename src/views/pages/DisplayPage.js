@@ -28,6 +28,7 @@ import {
   ModalFooter,
   ModalHeader,
   FormGroup,
+  Form,
   Input,
   Label,
 } from 'reactstrap';
@@ -38,7 +39,6 @@ class DisplayPage extends Component {
     super(props);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.fileInput = React.createRef();
-
     this.toggle = this.toggle.bind(this);
     this.state = {
       activeTab: '1',
@@ -49,6 +49,7 @@ class DisplayPage extends Component {
         dat_id: '1',
         file_path: null,
       },
+      tempFilePath: null,
       naiveImageList: [],
       byRewardImageList: [],
       modal: false,
@@ -58,13 +59,11 @@ class DisplayPage extends Component {
 
     this.down = this.down.bind(this);
     this.up = this.up.bind(this);
-    this.toggle = this.toggle.bind(this);
+    // this.toggle = this.toggle.bind(this);
   }
 
   handleChange = event => {
-    let oldState = this.state;
-    oldState.params.file_path = event.target.value;
-    this.setState(oldState);
+    this.setState({ tempFilePath: event.target.value });
   };
 
   toggleTab(tab) {
@@ -150,7 +149,23 @@ class DisplayPage extends Component {
     );
   }
 
+  // function to handle file path modal button interaction
+  handleSelectDirectoryEvent(pressedSubmit) {
+    if (pressedSubmit) {
+      let oldState = this.state;
+      oldState.params.file_path = this.state.tempFilePath;
+      this.setState(oldState);
+    } else {
+      this.setState({ tempFilePath: this.state.params.file_path });
+    }
+    this.setState(prevState => ({
+      modal: !prevState.modal,
+    }));
+  }
+
+  // function to toggle modal state
   toggle() {
+    this.setState({ tempFilePath: this.state.params.file_path });
     this.setState(prevState => ({
       modal: !prevState.modal,
     }));
@@ -201,21 +216,29 @@ class DisplayPage extends Component {
                   name="path"
                   id="path"
                   placeholder="/Users/documents"
-                  value={this.state.params.file_path}
+                  value={this.state.tempFilePath}
                   onChange={this.handleChange}
                 />
               </FormGroup>
             </ModalBody>
             <ModalFooter>
-              <Button color="primary" onClick={this.toggle}>
+              <Button color="primary" onClick={() => this.handleSelectDirectoryEvent(true)}>
                 Submit
               </Button>{' '}
-              <Button color="secondary" onClick={this.toggle}>
+              <Button color="secondary" onClick={() => this.handleSelectDirectoryEvent(false)}>
                 Cancel
               </Button>
             </ModalFooter>
           </Modal>
         </div>
+        <Card>
+          <CardBody>
+            <CardTitle>Selected File Path: </CardTitle>
+            <CardText>
+              <div>{this.state.params.file_path}</div>
+            </CardText>
+          </CardBody>
+        </Card>
         <Nav tabs>
           <NavItem>
             <NavLink
@@ -264,24 +287,22 @@ class DisplayPage extends Component {
         </Nav>
         <TabContent activeTab={this.state.activeTab}>
           <TabPane tabId="1">
-            <div style={{ display: 'flex', justifyContent: 'center' }}>
-              <Button
-                onClick={() => this.apiHandler(this.state.activeTab, this.state.params)}
-                size="sm"
-                className="pull-right"
-              >
-                Generate Heatmap
-              </Button>
-              <label>
-                dat_id
-                <input
-                  type="text"
-                  pattern="[0-9]*"
-                  onChange={event => this.updateStateParamsDatId(event.target.value)}
-                  value={this.state.params.dat_id}
-                />
-              </label>
-            </div>
+            <Form>
+              <Row form>
+                <Col md={2}>
+                  <FormGroup>
+                    <Label>dat_id</Label>
+                    <Input
+                      type="text"
+                      pattern="[0-9]*"
+                      onChange={event => this.updateStateParamsDatId(event.target.value)}
+                      value={this.state.params.dat_id}
+                    />
+                  </FormGroup>
+                </Col>
+              </Row>
+              <Button onClick={() => this.apiHandler(this.state.activeTab, this.state.params)}>Generate Heatmap</Button>
+            </Form>
             <Row>
               {this.state.naiveImageList.map((imgObj, index) => (
                 <div key={index} style={{ display: 'flex', flexDirection: 'row' }}>
@@ -317,44 +338,54 @@ class DisplayPage extends Component {
             </Row>
           </TabPane>
           <TabPane tabId="2">
-            <Card color="primary" outline>
-              <CardHeader>Select Parameters</CardHeader>
-              <label>
-                dat_id
-                <input
-                  type="text"
-                  pattern="[0-9]*"
-                  onChange={event => this.updateStateParamsDatId(event.target.value)}
-                  value={this.state.params.dat_id}
-                />
-              </label>
-              <FormGroup>
-                <Label for="exampleSelect">Range type</Label>
-                <Input
-                  id="exampleSelect"
-                  name="select"
-                  type="select"
-                  onChange={event => this.updateStateParamsRangeType(event.target.value)}
-                  value={this.state.params.range_type}
-                >
-                  <option>top</option>
-                  <option>bottom</option>
-                </Input>
-              </FormGroup>
-              <CardBody>
-                <Row>
-                  <ButtonGroup className="m-b" style={{ paddingRight: '5px' }}>
-                    <Button onClick={this.down}>Down</Button>
-                    <Button onClick={this.up}>Up</Button>
-                  </ButtonGroup>
-                  <h4> Percentage: {this.state.progress} %</h4>
-                </Row>
-                <Progress className="m-b" value={this.state.progress} />
-                <Button onClick={() => this.apiHandler(this.state.activeTab, this.state.params)} color="success">
-                  Generate Heat Map
-                </Button>
-              </CardBody>
-            </Card>
+            <Form>
+              <Row form>
+                <Col md={2}>
+                  <FormGroup>
+                    <Label>dat_id</Label>
+                    <Input
+                      type="text"
+                      pattern="[0-9]*"
+                      onChange={event => this.updateStateParamsDatId(event.target.value)}
+                      value={this.state.params.dat_id}
+                    />
+                  </FormGroup>
+                </Col>
+              </Row>
+              <Row form>
+                <Col md={2}>
+                  <FormGroup>
+                    <Label>Range type</Label>
+                    <Input
+                      type="select"
+                      onChange={event => this.updateStateParamsRangeType(event.target.value)}
+                      value={this.state.params.range_type}
+                    >
+                      <option>top</option>
+                      <option>bottom</option>
+                    </Input>
+                  </FormGroup>
+                </Col>
+              </Row>
+              <Row form>
+                <Col md={2}>
+                  <FormGroup>
+                    <Label>Percentage</Label>
+                    <CardBody>
+                      <Row>
+                        <ButtonGroup className="m-b" style={{ paddingRight: '5px' }}>
+                          <Button onClick={this.down}>Down</Button>
+                          <Button onClick={this.up}>Up</Button>
+                        </ButtonGroup>
+                        <h4> {this.state.progress} %</h4>
+                      </Row>
+                      <Progress className="m-b" value={this.state.progress} />
+                    </CardBody>
+                  </FormGroup>
+                </Col>
+              </Row>
+              <Button onClick={() => this.apiHandler(this.state.activeTab, this.state.params)}>Generate Heatmap</Button>
+            </Form>
             <Row>
               {this.state.byRewardImageList.map((imgObj, index) => (
                 <div key={index} style={{ display: 'flex', flexDirection: 'row' }}>
@@ -367,64 +398,56 @@ class DisplayPage extends Component {
                 </div>
               ))}
             </Row>
-            {/* <Row>
-              <Card outline color="secondary">
-                <CardImg src="/assets/gamescore.jpg" top width="100%" />
-                <CardBody>
-                  <CardTitle>Iteration 1 : Gamescore</CardTitle>
-                  <CardText>Top 10% </CardText>
-                  <Button color="primary">Run Again</Button>
-                </CardBody>
-              </Card>
-              <Card color="blue" outline>
-                <CardImg src="/assets/gamescore.jpg" top width="100%" />
-                <CardBody>
-                  <CardTitle>Iteration 1 : Gamescore</CardTitle>
-                  <CardText>Top 15% </CardText>
-                  <Button color="primary">Run Again</Button>
-                </CardBody>
-              </Card>
-            </Row> */}
           </TabPane>
           <TabPane tabId="3">
-            <Card color="primary" outline>
-              <CardHeader>Select Parameters</CardHeader>
-              <label>
-                dat_id
-                <input
-                  type="text"
-                  pattern="[0-9]*"
-                  onChange={event => this.updateStateParamsDatId(event.target.value)}
-                  value={this.state.params.dat_id}
-                />
-              </label>
-              <FormGroup>
-                <Label for="exampleSelect">Range type</Label>
-                <Input
-                  id="exampleSelect"
-                  name="select"
-                  type="select"
-                  onChange={event => this.updateStateParamsRangeType(event.target.value)}
-                  value={this.state.params.range_type}
-                >
-                  <option>top</option>
-                  <option>bottom</option>
-                </Input>
-              </FormGroup>
-              <CardBody>
-                <Row>
-                  <ButtonGroup className="m-b" style={{ paddingRight: '5px' }}>
-                    <Button onClick={this.down}>Down</Button>
-                    <Button onClick={this.up}>Up</Button>
-                  </ButtonGroup>
-                  <h4> Percentage: {this.state.progress} %</h4>
-                </Row>
-                <Progress className="m-b" value={this.state.progress} />
-                <Button onClick={() => this.apiHandler(this.state.activeTab, this.state.params)} color="success">
-                  Generate Heat Map
-                </Button>
-              </CardBody>
-            </Card>
+            <Form>
+              <Row form>
+                <Col md={2}>
+                  <FormGroup>
+                    <Label>dat_id</Label>
+                    <Input
+                      type="text"
+                      pattern="[0-9]*"
+                      onChange={event => this.updateStateParamsDatId(event.target.value)}
+                      value={this.state.params.dat_id}
+                    />
+                  </FormGroup>
+                </Col>
+              </Row>
+              <Row form>
+                <Col md={2}>
+                  <FormGroup>
+                    <Label>Range type</Label>
+                    <Input
+                      type="select"
+                      onChange={event => this.updateStateParamsRangeType(event.target.value)}
+                      value={this.state.params.range_type}
+                    >
+                      <option>top</option>
+                      <option>bottom</option>
+                    </Input>
+                  </FormGroup>
+                </Col>
+              </Row>
+              <Row form>
+                <Col md={2}>
+                  <FormGroup>
+                    <Label>Percentage</Label>
+                    <CardBody>
+                      <Row>
+                        <ButtonGroup className="m-b" style={{ paddingRight: '5px' }}>
+                          <Button onClick={this.down}>Down</Button>
+                          <Button onClick={this.up}>Up</Button>
+                        </ButtonGroup>
+                        <h4> {this.state.progress} %</h4>
+                      </Row>
+                      <Progress className="m-b" value={this.state.progress} />
+                    </CardBody>
+                  </FormGroup>
+                </Col>
+              </Row>
+              <Button onClick={() => this.apiHandler(this.state.activeTab, this.state.params)}>Generate Heatmap</Button>
+            </Form>
             <Row>
               {this.state.byEpisodeLengthList.map((imgObj, index) => (
                 <div key={index} style={{ display: 'flex', flexDirection: 'row' }}>
@@ -439,24 +462,22 @@ class DisplayPage extends Component {
             </Row>
           </TabPane>
           <TabPane tabId="4">
-            <div style={{ display: 'flex', justifyContent: 'center' }}>
-              <Button
-                onClick={() => this.apiHandler(this.state.activeTab, this.state.params)}
-                size="sm"
-                className="pull-right"
-              >
-                Generate Heatmap
-              </Button>
-              <label>
-                dat_id
-                <input
-                  type="text"
-                  pattern="[0-9]*"
-                  onChange={event => this.updateStateParamsDatId(event.target.value)}
-                  value={this.state.params.dat_id}
-                />
-              </label>
-            </div>
+            <Form>
+              <Row form>
+                <Col md={2}>
+                  <FormGroup>
+                    <Label>dat_id</Label>
+                    <Input
+                      type="text"
+                      pattern="[0-9]*"
+                      onChange={event => this.updateStateParamsDatId(event.target.value)}
+                      value={this.state.params.dat_id}
+                    />
+                  </FormGroup>
+                </Col>
+              </Row>
+              <Button onClick={() => this.apiHandler(this.state.activeTab, this.state.params)}>Generate Heatmap</Button>
+            </Form>
             <Row>
               {this.state.byLastPositionList.map((imgObj, index) => (
                 <div key={index} style={{ display: 'flex', flexDirection: 'row' }}>
