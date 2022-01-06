@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='realm_report',
-    version='0.0.1',
+    version='0.0.1-beta',
     description="REALM_AI Reporting Subsystem",
     install_requires=[
         "python-dotenv",
