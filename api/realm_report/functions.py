@@ -1,7 +1,9 @@
 import json
 import os
+import platform
 import re
 import struct
+import subprocess, shlex
 
 
 def convertDatToJson(datFilePath, jsonFilePath):
@@ -113,3 +115,37 @@ def getAllJsonFilesFromDirectory(directory):
         print("Error: %s : %s" % (directory, e.strerror))
         return []
         
+def getAllVideoFilesFromDirectory(directory):
+    try:
+        allVideoFiles = []
+        for file in os.listdir(directory):
+            if file.endswith(".mp4"):
+                allVideoFiles.append(os.path.join(directory, file))
+
+        # Sort by file number
+        allVideoFiles.sort(key=lambda f: int(re.sub('\D', '', f)))
+
+        return allVideoFiles
+
+    except OSError as e:
+        print("Error: %s : %s" % (directory, e.strerror))
+        return []
+
+def playVideo(filePath):
+    userOS = platform.system() # Possible outputs: Darwin, Linux, Darwin (macOS), Java
+
+    # os not detected
+    if userOS == "": 
+        return False
+
+    if userOS == "Windows":
+        cmd = '"C:\Program Files (x86)\Windows Media Player\wmplayer.exe" "%s"' % filePath
+        subprocess.run(shlex.split(cmd))
+
+    elif userOS == "Linux":
+        print("Linux")
+    elif userOS == "Darwin":
+        print("Darwin")
+
+    return True
+

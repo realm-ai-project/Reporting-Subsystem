@@ -32,7 +32,8 @@ import {
   Input,
   Label,
 } from 'reactstrap';
-import { generateHeatmap } from '../../api';
+import { generateHeatmap, getAllVideos, playVideo } from '../../api';
+import ReactPlayer from 'react-player';
 
 class DisplayPage extends Component {
   constructor(props) {
@@ -55,6 +56,7 @@ class DisplayPage extends Component {
       modal: false,
       byEpisodeLengthList: [],
       byLastPositionList: [],
+      videosList: [],
     };
 
     this.down = this.down.bind(this);
@@ -149,12 +151,22 @@ class DisplayPage extends Component {
     );
   }
 
+  async openVideo(videoFileLocation) {
+    await playVideo(videoFileLocation);
+  }
+
   // function to handle file path modal button interaction
-  handleSelectDirectoryEvent(pressedSubmit) {
+  async handleSelectDirectoryEvent(pressedSubmit) {
     if (pressedSubmit) {
       let oldState = this.state;
       oldState.params.file_path = this.state.tempFilePath;
+
+      // Get all videos based on the file path
+      const responseJSON = await getAllVideos(this.state.params.file_path);
+      oldState.videosList = responseJSON
       this.setState(oldState);
+      console.log(oldState.videosList)
+
     } else {
       this.setState({ tempFilePath: this.state.params.file_path });
     }
@@ -492,6 +504,16 @@ class DisplayPage extends Component {
             </Row>
           </TabPane>
         </TabContent>
+        <div>
+          <Card>
+            <CardBody>
+              <CardTitle>Videos: </CardTitle>
+              {this.state.videosList.map((video) => 
+                <button onClick={() => this.openVideo(video)}>{video}</button>)
+              }
+            </CardBody>
+          </Card>
+        </div>
       </div>
     );
   }
