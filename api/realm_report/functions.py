@@ -132,7 +132,7 @@ def getAllVideoFilesFromDirectory(directory):
         return []
 
 def playVideo(filePath):
-    userOS = platform.system() # Possible outputs: Darwin, Linux, Darwin (macOS), Java
+    userOS = platform.system() # Possible outputs: Windows, Linux, Darwin (macOS), Java
 
     # os not detected
     if userOS == "": 
@@ -144,8 +144,13 @@ def playVideo(filePath):
 
     elif userOS == "Linux":
         print("Linux")
+        cmd = 'xdg-open "%s"' % filePath
+        subprocess.run(shlex.split(cmd))
+
     elif userOS == "Darwin":
         print("Darwin")
-
+        cmd = 'open "%s"' % filePath
+        subprocess.run(shlex.split(cmd))
+        
     return True
 
