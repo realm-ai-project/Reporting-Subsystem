@@ -33,7 +33,6 @@ import {
   Label,
 } from 'reactstrap';
 import { generateHeatmap, getAllVideos, playVideo } from '../../api';
-import ReactPlayer from 'react-player';
 
 class DisplayPage extends Component {
   constructor(props) {
