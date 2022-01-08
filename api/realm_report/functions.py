@@ -143,12 +143,10 @@ def playVideo(filePath):
         subprocess.run(shlex.split(cmd))
 
     elif userOS == "Linux":
-        print("Linux")
         cmd = 'xdg-open "%s"' % filePath
         subprocess.run(shlex.split(cmd))
 
     elif userOS == "Darwin":
-        print("Darwin")
         cmd = 'open "%s"' % filePath
         subprocess.run(shlex.split(cmd))
         
