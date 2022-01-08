@@ -164,8 +164,6 @@ class DisplayPage extends Component {
       const responseJSON = await getAllVideos(this.state.params.file_path);
       oldState.videosList = responseJSON
       this.setState(oldState);
-      console.log(oldState.videosList)
-
     } else {
       this.setState({ tempFilePath: this.state.params.file_path });
     }
