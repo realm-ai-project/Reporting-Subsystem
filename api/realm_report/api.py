@@ -5,7 +5,7 @@ import os
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
-from realm_report.functions import getAllFilesFromDirectory, getAllDatFilesFromDirectory, getAllJsonFilesFromDirectory, loadJSONIntoMemory
+from realm_report.functions import *
 from realm_report.generator import createHeatmap1, createHeatmap2, createHeatmap3, createHeatmap4
 import realm_report.data
 
@@ -79,6 +79,17 @@ def create_heatmap_1():
     createHeatmap1(data, fileSavePath)
     
     return {'text': 'Heatmap 1 created: %s' % fileSavePath}
+
+@app.route('/getAllVideos', methods=["POST"])
+def get_all_videos():
+    return jsonify(getAllVideoFilesFromDirectory(request.json["file_path"]))
+
+@app.route('/playVideo', methods=["POST"])
+def play_video():
+    if playVideo(request.json["file_path"]):
+        return ('', 200)
+    else:
+        return ('', 400)
 
 # ROUTES BELOW ARE FROM REPORTING SUBSYSTEM DOCUMENTATION
 

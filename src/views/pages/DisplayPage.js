@@ -32,7 +32,7 @@ import {
   Input,
   Label,
 } from 'reactstrap';
-import { generateHeatmap } from '../../api';
+import { generateHeatmap, getAllVideos, playVideo } from '../../api';
 
 class DisplayPage extends Component {
   constructor(props) {
@@ -55,6 +55,7 @@ class DisplayPage extends Component {
       modal: false,
       byEpisodeLengthList: [],
       byLastPositionList: [],
+      videosList: [],
     };
 
     this.down = this.down.bind(this);
@@ -149,11 +150,19 @@ class DisplayPage extends Component {
     );
   }
 
+  async openVideo(videoFileLocation) {
+    await playVideo(videoFileLocation);
+  }
+
   // function to handle file path modal button interaction
-  handleSelectDirectoryEvent(pressedSubmit) {
+  async handleSelectDirectoryEvent(pressedSubmit) {
     if (pressedSubmit) {
       let oldState = this.state;
       oldState.params.file_path = this.state.tempFilePath;
+
+      // Get all videos based on the file path
+      const responseJSON = await getAllVideos(this.state.params.file_path);
+      oldState.videosList = responseJSON
       this.setState(oldState);
     } else {
       this.setState({ tempFilePath: this.state.params.file_path });
@@ -194,7 +203,7 @@ class DisplayPage extends Component {
             </CardBody>
           </Card>
           <Button color="primary" onClick={this.toggle}>
-            Select directory path
+            Select Directory Path
           </Button>
           <a target="_blank" href="https://www.tensorflow.org/tensorboard" style={{ textDecoration: 'none' }}>
             <Button color="success" outline className="mx-2">
@@ -233,7 +242,7 @@ class DisplayPage extends Component {
         </div>
         <Card>
           <CardBody>
-            <CardTitle>Selected File Path: </CardTitle>
+            <CardTitle>Selected Directory Path: </CardTitle>
             <CardText>
               <div>{this.state.params.file_path}</div>
             </CardText>
@@ -259,7 +268,7 @@ class DisplayPage extends Component {
                 this.toggleTab('2');
               }}
             >
-              Heatmaps by reward
+              Heatmaps by Reward
             </NavLink>
           </NavItem>
           <NavItem>
@@ -270,7 +279,7 @@ class DisplayPage extends Component {
                 this.toggleTab('3');
               }}
             >
-              Heatmaps by episode length
+              Heatmaps by Episode Length
             </NavLink>
           </NavItem>
           <NavItem>
@@ -281,7 +290,7 @@ class DisplayPage extends Component {
                 this.toggleTab('4');
               }}
             >
-              Heatmaps by last position
+              Heatmaps by Agent Last Position
             </NavLink>
           </NavItem>
         </Nav>
@@ -492,6 +501,16 @@ class DisplayPage extends Component {
             </Row>
           </TabPane>
         </TabContent>
+        <div>
+          <Card>
+            <CardBody>
+              <CardTitle>Videos: </CardTitle>
+              {this.state.videosList.map((video) => 
+                <button onClick={() => this.openVideo(video)}>{video}</button>)
+              }
+            </CardBody>
+          </Card>
+        </div>
       </div>
     );
   }

@@ -26,6 +26,38 @@ export async function generateHeatmap(option, params) {
   }
 }
 
+export async function getAllVideos(userDirectory) {
+  // naive heatmap for now
+  let url = 'http://localhost:5000/getAllVideos';
+
+  const body = {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ file_path: userDirectory }),
+  };
+  
+  return makeApiCall(url, body);
+}
+
+export async function playVideo(videoPath) {
+  // naive heatmap for now
+  let url = 'http://localhost:5000/playVideo';
+
+  const body = {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ file_path: videoPath }),
+  };
+  
+  return makeApiCall(url, body);
+}
+
 async function makeApiCall(url, requestBody) {
   const response = await fetch(url, requestBody);
   const responseJSON = response.json();
