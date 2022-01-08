@@ -120,7 +120,7 @@ def getAllVideoFilesFromDirectory(directory):
         allVideoFiles = []
         for file in os.listdir(directory):
             if file.endswith(".mp4"):
-                allVideoFiles.append(os.path.join(directory, file))
+                allVideoFiles.append(file)
 
         # Sort by file number
         allVideoFiles.sort(key=lambda f: int(re.sub('\D', '', f)))

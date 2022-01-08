@@ -205,7 +205,7 @@ class DisplayPage extends Component {
             </CardBody>
           </Card>
           <Button color="primary" onClick={this.toggle}>
-            Select directory path
+            Select Directory Path
           </Button>
           <a target="_blank" href="https://www.tensorflow.org/tensorboard" style={{ textDecoration: 'none' }}>
             <Button color="success" outline className="mx-2">
@@ -244,7 +244,7 @@ class DisplayPage extends Component {
         </div>
         <Card>
           <CardBody>
-            <CardTitle>Selected File Path: </CardTitle>
+            <CardTitle>Selected Directory Path: </CardTitle>
             <CardText>
               <div>{this.state.params.file_path}</div>
             </CardText>
@@ -270,7 +270,7 @@ class DisplayPage extends Component {
                 this.toggleTab('2');
               }}
             >
-              Heatmaps by reward
+              Heatmaps by Reward
             </NavLink>
           </NavItem>
           <NavItem>
@@ -281,7 +281,7 @@ class DisplayPage extends Component {
                 this.toggleTab('3');
               }}
             >
-              Heatmaps by episode length
+              Heatmaps by Episode Length
             </NavLink>
           </NavItem>
           <NavItem>
@@ -292,7 +292,7 @@ class DisplayPage extends Component {
                 this.toggleTab('4');
               }}
             >
-              Heatmaps by last position
+              Heatmaps by Agent Last Position
             </NavLink>
           </NavItem>
         </Nav>
