@@ -46,7 +46,9 @@ def createHeatmap1(data, filePath):
     # Find greatest common divisor 
     gcd = np.gcd(x_size, y_size)
     # Set aspect ratio of figure
-    plt.figure(figsize=(x_size//gcd, y_size//gcd))
+    # scale the height, scale width by same factor, can change this factor on needed basis
+    height_scale_factor = 15/(y_size//gcd)
+    plt.figure(figsize=((x_size//gcd)*height_scale_factor, (y_size//gcd)*height_scale_factor))
     H, _, _ = np.histogram2d(pos_x, pos_y, bins=[x_size, y_size])
     
     # Plot heatmap and save figures
@@ -82,7 +84,9 @@ def createHeatmap2(data, percentile, highest, filePath):
     # Find greatest common divisor 
     gcd = np.gcd(x_size, y_size)
     # Set aspect ratio of figure
-    plt.figure(figsize=(x_size//gcd, y_size//gcd))
+    # scale the height, scale width by same factor
+    height_scale_factor = 15/(y_size//gcd)
+    plt.figure(figsize=((x_size//gcd)*height_scale_factor, (y_size//gcd)*height_scale_factor))
 
     # Bin values
     H, _, _ = np.histogram2d(pos_x, pos_y, bins=[x_size, y_size])
@@ -125,7 +129,9 @@ def createHeatmap3(data, percentile, longest, filePath):
     # Find greatest common divisor 
     gcd = np.gcd(x_size, y_size)
     # Set aspect ratio of figure
-    plt.figure(figsize=(x_size//gcd, y_size//gcd))
+    # scale the height, scale width by same factor
+    height_scale_factor = 15/(y_size//gcd)
+    plt.figure(figsize=((x_size//gcd)*height_scale_factor, (y_size//gcd)*height_scale_factor))
 
     # Bin values
     H, _, _ = np.histogram2d(pos_x, pos_y, bins=[x_size, y_size])
@@ -163,7 +169,9 @@ def createHeatmap4(data, filePath):
     # Find greatest common divisor 
     gcd = np.gcd(x_size, y_size)
     # Set aspect ratio of figure
-    plt.figure(figsize=(x_size//gcd, y_size//gcd))
+    # scale the height, scale width by same factor
+    height_scale_factor = 15/(y_size//gcd)
+    plt.figure(figsize=((x_size//gcd)*height_scale_factor, (y_size//gcd)*height_scale_factor))
     H, _, _ = np.histogram2d(pos_x, pos_y, bins=[x_size, y_size])
     
     # Plot heatmap and save figures
@@ -200,7 +208,9 @@ def createHeatmap5(data, minReward, filePath):
     # Find greatest common divisor 
     gcd = np.gcd(x_size, y_size)
     # Set aspect ratio of figure
-    plt.figure(figsize=(x_size//gcd, y_size//gcd))
+    # scale the height, scale width by same factor
+    height_scale_factor = 15/(y_size//gcd)
+    plt.figure(figsize=((x_size//gcd)*height_scale_factor, (y_size//gcd)*height_scale_factor))
     # Bin values
     H, _, _ = np.histogram2d(pos_x, pos_y, bins=[x_size, y_size])
 
@@ -238,7 +248,9 @@ def createHeatmap6(data, minSteps, filePath):
     # Find greatest common divisor 
     gcd = np.gcd(x_size, y_size)
     # Set aspect ratio of figure
-    plt.figure(figsize=(x_size//gcd, y_size//gcd))
+    # scale the height, scale width by same factor
+    height_scale_factor = 15/(y_size//gcd)
+    plt.figure(figsize=((x_size//gcd)*height_scale_factor, (y_size//gcd)*height_scale_factor))
     # Bin values
     H, _, _ = np.histogram2d(pos_x, pos_y, bins=[x_size, y_size])
 
