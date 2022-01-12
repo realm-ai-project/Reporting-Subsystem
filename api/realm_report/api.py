@@ -1,4 +1,3 @@
-import base64
 from importlib.resources import path
 import os
 
@@ -50,39 +49,14 @@ def get_json_files():
         jsonFiles = getAllJsonFilesFromDirectory(f)
     return jsonify(jsonFiles)
 
-# you can change this michael - just for testing 
-@app.route('/create/heatmap/1')
-def create_heatmap_1():
-    # hardcoded file for testing purposes - michael, you should look into accepting filePath as a param
-    with path(realm_report, TEST_DATA_DIRECTORY) as f:
-        filePath = os.path.join(f, 'Data-1.json')
-
-    # hardcoded file name for testing purposes
-    # should discuss a file naming convention, or allow user to input file name
-    fileName = "heatmap1.jpg"
-
-    if filePath not in DATA_JSON_LOOKUP: # data needs to be loaded in
-        data = loadJSONIntoMemory(filePath)
-        if data == []:
-            return {'text': 'Heatmap 1 was not created: %s' % filePath}
-
-        DATA_DICTIONARY[filePath] = data
-        DATA_JSON_LOOKUP.add(filePath)
-        print("%s has been loaded into memory successfully" % filePath)
-        
-    # Get data
-    data = DATA_DICTIONARY[filePath]
-    fileSavePath = HEATMAP_RESULTS_DIRECTORY + fileName
-    os.makedirs(HEATMAP_RESULTS_DIRECTORY)
-    
-    # Create Heatmap
-    createHeatmap1(data, fileSavePath)
-    
-    return {'text': 'Heatmap 1 created: %s' % fileSavePath}
-
 @app.route('/getAllVideos', methods=["POST"])
 def get_all_videos():
     return jsonify(getAllVideoFilesFromDirectory(request.json["file_path"]))
+
+@app.route('/getAllHeatmaps', methods=["POST"])
+def get_all_heatmaps():
+    # get all heatmap images that exist in current file_path from request body
+    return jsonify(getAllHeatmapFilesFromDirectory(request.json["file_path"]))
 
 @app.route('/playVideo', methods=["POST"])
 def play_video():
@@ -108,7 +82,7 @@ def create_heatmap_by_reward(range_type, percentage, dat_id):
     elif range_type == "bottom":
         highest = False
     # hardcoded file for testing purposes - michael, you should look into accepting filePath as a param
-    filePath = request.json["file_path"] + f"/Data-{dat_id}.json"
+    filePath = request.json["file_path"] + f"/Data-{dat_id}.dat"
 
     # hardcoded file name for testing purposes
     # should discuss a file naming convention, or allow user to input file name
@@ -131,8 +105,7 @@ def create_heatmap_by_reward(range_type, percentage, dat_id):
     createHeatmap2(data, float(percentage), highest, fileSavePath)
 
     # get base64
-    with open(fileSavePath, "rb") as img_file:
-        base64_str = base64.b64encode(img_file.read()).decode("utf-8")
+    base64_str = getAndConvertJPGToBase64(fileSavePath)
     
     return {'name': fileName, "base64": base64_str}
 
@@ -147,7 +120,7 @@ def create_heatmap_by_episode_length(range_type, percentage, dat_id):
     elif range_type == "bottom":
         highest = False
     # hardcoded file for testing purposes - michael, you should look into accepting filePath as a param
-    filePath = request.json["file_path"] + f"/Data-{dat_id}.json"
+    filePath = request.json["file_path"] + f"/Data-{dat_id}.dat"
 
     # hardcoded file name for testing purposes
     # should discuss a file naming convention, or allow user to input file name
@@ -170,8 +143,7 @@ def create_heatmap_by_episode_length(range_type, percentage, dat_id):
     createHeatmap3(data, float(percentage), highest, fileSavePath)
     
     # get base64
-    with open(fileSavePath, "rb") as img_file:
-        base64_str = base64.b64encode(img_file.read()).decode("utf-8")
+    base64_str = getAndConvertJPGToBase64(fileSavePath)
     
     return {'name': fileName, "base64": base64_str}
 
@@ -184,11 +156,8 @@ def create_heatmap_naive(dat_id):
     # print("naive heatmap filepath")
     # print(request.json)
     
-    # hardcoded file for testing purposes - michael, you should look into accepting filePath as a param
-    filePath = request.json["file_path"] + f"/Data-{dat_id}.json"
-
-    # hardcoded file name for testing purposes
-    # should discuss a file naming convention, or allow user to input file name
+    filePath = request.json["file_path"] + f"/Data-{dat_id}.dat"
+    
     fileName = f"heatmap_naive_dat_id_{dat_id}.jpg"
 
     if filePath not in DATA_JSON_LOOKUP: # data needs to be loaded in
@@ -208,8 +177,7 @@ def create_heatmap_naive(dat_id):
     createHeatmap1(data, fileSavePath)
 
     # get base64
-    with open(fileSavePath, "rb") as img_file:
-        base64_str = base64.b64encode(img_file.read()).decode("utf-8")
+    base64_str = getAndConvertJPGToBase64(fileSavePath)
     
     return {'name': fileName, "base64": base64_str}
 
@@ -219,7 +187,7 @@ def create_heatmap_by_last_position(dat_id):
     TODO validate parameter inputs
     '''
     # hardcoded file for testing purposes - michael, you should look into accepting filePath as a param
-    filePath = request.json["file_path"] + f"/Data-{dat_id}.json"
+    filePath = request.json["file_path"] + f"/Data-{dat_id}.dat"
 
     # hardcoded file name for testing purposes
     # should discuss a file naming convention, or allow user to input file name
@@ -242,8 +210,7 @@ def create_heatmap_by_last_position(dat_id):
     createHeatmap4(data, fileSavePath)
 
     # get base64
-    with open(fileSavePath, "rb") as img_file:
-        base64_str = base64.b64encode(img_file.read()).decode("utf-8")
+    base64_str = getAndConvertJPGToBase64(fileSavePath)
     
     return {'name': fileName, "base64": base64_str}
 
