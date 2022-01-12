@@ -32,7 +32,7 @@ import {
   Input,
   Label,
 } from 'reactstrap';
-import { generateHeatmap, getAllVideos, playVideo } from '../../api';
+import { generateHeatmap, getAllVideos, playVideo, getAllHeatmaps } from '../../api';
 
 class DisplayPage extends Component {
   constructor(props) {
@@ -160,10 +160,36 @@ class DisplayPage extends Component {
       let oldState = this.state;
       oldState.params.file_path = this.state.tempFilePath;
 
+      // clear old heatmaps and videos list
+      this.state.naiveImageList = []
+      this.state.byRewardImageList = []
+      this.state.byEpisodeLengthList = []
+      this.state.byLastPositionList = []
+      this.state.videosList = []
+
       // Get all videos based on the file path
-      const responseJSON = await getAllVideos(this.state.params.file_path);
-      oldState.videosList = responseJSON
+      const responseVideosJSON = await getAllVideos(this.state.params.file_path);
+      oldState.videosList = responseVideosJSON
       this.setState(oldState);
+
+      // Get all heatmaps based on file path
+      const responseHeatmapsJSON = await getAllHeatmaps(this.state.params.file_path);
+      console.log(responseHeatmapsJSON)
+      responseHeatmapsJSON.naive.forEach((heatmapObj, index) => {
+        oldState.naiveImageList.push({ name: heatmapObj.name, base64: heatmapObj.base64 })
+      })
+      responseHeatmapsJSON.reward.forEach((heatmapObj, index) => {
+        oldState.byRewardImageList.push({ name: heatmapObj.name, base64: heatmapObj.base64 })
+      })
+      responseHeatmapsJSON.episode_length.forEach((heatmapObj, index) => {
+        oldState.byEpisodeLengthList.push({ name: heatmapObj.name, base64: heatmapObj.base64 })
+      })
+      responseHeatmapsJSON.last_position.forEach((heatmapObj, index) => {
+        oldState.byLastPositionList.push({ name: heatmapObj.name, base64: heatmapObj.base64 })
+      })
+      
+      this.setState(oldState);
+
     } else {
       this.setState({ tempFilePath: this.state.params.file_path });
     }

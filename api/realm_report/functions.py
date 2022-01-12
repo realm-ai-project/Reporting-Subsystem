@@ -1,3 +1,4 @@
+import base64
 import json
 import os
 import platform
@@ -5,8 +6,14 @@ import re
 import struct
 import subprocess, shlex
 
+# gets and converts a jpg to base 64, pass absoulte path as argument
+def getAndConvertJPGToBase64(filePath):
+    with open(filePath, "rb") as img_file:
+        base64_str = base64.b64encode(img_file.read()).decode("utf-8")
+    return base64_str
 
-def convertDatToJson(datFilePath, jsonFilePath):
+# returns dictionary of json data from the dat file
+def convertDatToJson(datFilePath):
     file = open(datFilePath, "rb")
     jsondict = {'episodes':[]}
     bytes = file.read(16)
@@ -32,16 +39,13 @@ def convertDatToJson(datFilePath, jsonFilePath):
             'step_num':num_positions # not in spec, but could be useful
             }
         jsondict['episodes'].append(episode_data)
+    
+    return jsondict
 
-    with open(jsonFilePath, "w") as outfile:
-        json.dump(jsondict, outfile)
-
+# converts dat to json as dictionary
 def loadJSONIntoMemory(filePath):
     try: 
-        with open(filePath) as json_file:
-            data = json.load(json_file)
-
-        return data
+        return convertDatToJson(filePath)
     except OSError as e:
         print("Error: %s : %s" % (filePath, e.strerror))
         return []
@@ -152,3 +156,26 @@ def playVideo(filePath):
         
     return True
 
+def getAllHeatmapFilesFromDirectory(directory):
+    heatmap_types = ["naive", "reward", "episode_length", "last_position"]
+    try:
+        allHeatmapFiles = {"naive": [], "reward": [], "episode_length": [], "last_position": []}
+        for file in os.listdir(directory):
+            if file.endswith(".jpg"):
+                # for given heatmap, find out which type of heatmap it is
+                for heatmap_type in heatmap_types:
+                    if heatmap_type in file:
+                        allHeatmapFiles[heatmap_type].append({"name": file, "base64": getAndConvertJPGToBase64(directory+"/"+file) })
+
+        # Sort each list by dat_id?
+        return allHeatmapFiles
+
+    except OSError as e:
+        print("Error: %s : %s" % (directory, e.strerror))
+        return []
+
+def checkFileExists(fileName, directory):
+    for file in os.listdir(directory):
+        if file == fileName:
+            return True
+    return False
