@@ -38,7 +38,7 @@ export async function getAllVideos(userDirectory) {
     },
     body: JSON.stringify({ file_path: userDirectory }),
   };
-  
+
   return makeApiCall(url, body);
 }
 
@@ -54,7 +54,7 @@ export async function playVideo(videoPath) {
     },
     body: JSON.stringify({ file_path: videoPath }),
   };
-  
+
   return makeApiCall(url, body);
 }
 
@@ -69,7 +69,22 @@ export async function getAllHeatmaps(userDirectory) {
     },
     body: JSON.stringify({ file_path: userDirectory }),
   };
-  
+
+  return makeApiCall(url, body);
+}
+
+export async function isValidDirectory(userDirectory) {
+  let url = 'http://localhost:5000/isValidDirectory';
+
+  const body = {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ file_path: userDirectory }),
+  };
+
   return makeApiCall(url, body);
 }
 

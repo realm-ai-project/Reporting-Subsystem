@@ -49,6 +49,15 @@ def get_json_files():
         jsonFiles = getAllJsonFilesFromDirectory(f)
     return jsonify(jsonFiles)
 
+@app.route('/isValidDirectory', methods=["POST"])
+def is_valid_directory():
+    error_message = ""
+    is_directory = True
+    if not os.path.isdir(request.json["file_path"]):
+        error_message = "path is not a valid directory"
+        is_directory = False
+    return jsonify({"isDirectory": is_directory, "error": error_message})
+
 @app.route('/getAllVideos', methods=["POST"])
 def get_all_videos():
     return jsonify(getAllVideoFilesFromDirectory(request.json["file_path"]))
