@@ -40,53 +40,6 @@ import { Accordion } from 'react-bootstrap';
 import Slider from '@mui/material/Slider';
 import { generateHeatmap, getAllVideos, playVideo, getAllHeatmaps, isValidDirectory } from '../../api';
 
-const marks = [
-  {
-    value: 0,
-    label: '0%',
-  },
-  {
-    value: 10,
-    label: '10%',
-  },
-  {
-    value: 20,
-    label: '20%',
-  },
-  {
-    value: 30,
-    label: '30%',
-  },
-  {
-    value: 40,
-    label: '40%',
-  },
-  {
-    value: 50,
-    label: '50%',
-  },
-  {
-    value: 60,
-    label: '60%',
-  },
-  {
-    value: 70,
-    label: '70%',
-  },
-  {
-    value: 80,
-    label: '80%',
-  },
-  {
-    value: 90,
-    label: '390%',
-  },
-  {
-    value: 100,
-    label: '100%',
-  },
-];
-
 class DisplayPage extends Component {
   constructor(props) {
     super(props);
@@ -610,7 +563,7 @@ class DisplayPage extends Component {
             <CardHeader className="my-1">Frequently Asked Questions</CardHeader>
             <Accordion>
               <Accordion.Item eventKey="0">
-                <Accordion.Header>How do I view Videos?</Accordion.Header>
+                <Accordion.Header>How do I view videos?</Accordion.Header>
                 <Accordion.Body>
                   Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
                   dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
@@ -627,6 +580,12 @@ class DisplayPage extends Component {
                   aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum
                   dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui
                   officia deserunt mollit anim id est laborum.
+                </Accordion.Body>
+              </Accordion.Item>
+              <Accordion.Item eventKey="2">
+                <Accordion.Header>Documentation</Accordion.Header>
+                <Accordion.Body>
+                  Visit our <a href="https://realm-ai-project.github.io/documentation">Documentation Site</a>.
                 </Accordion.Body>
               </Accordion.Item>
             </Accordion>
