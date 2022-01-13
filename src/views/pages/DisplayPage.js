@@ -294,6 +294,9 @@ class DisplayPage extends Component {
             </ModalFooter>
           </Modal>
         </div>
+        <Alert color="danger" isOpen={this.state.directoryErrorVisible} toggle={this.dismissDirectoryError}>
+          {this.state.directoryError}, please input a valid directory.
+        </Alert>
         {directorySelected}
         <Nav tabs>
           <NavItem>
