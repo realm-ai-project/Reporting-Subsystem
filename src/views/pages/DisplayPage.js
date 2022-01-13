@@ -65,6 +65,7 @@ class DisplayPage extends Component {
       byEpisodeLengthList: [],
       byLastPositionList: [],
       videosList: [],
+      videoFilesList: [],
       isDirectorySelected: false,
     };
 
@@ -185,6 +186,7 @@ class DisplayPage extends Component {
       this.state.byEpisodeLengthList = [];
       this.state.byLastPositionList = [];
       this.state.videosList = [];
+      this.state.videoFilesList = [];
 
       // check if valid directory, we need to make a backend call since the frontend can't access our file system
       const responseValidDirectoryJSON = await isValidDirectory(this.state.params.file_path);
@@ -196,7 +198,8 @@ class DisplayPage extends Component {
         oldState.directoryError = '';
         // Get all videos based on the file path
         const responseVideosJSON = await getAllVideos(this.state.params.file_path);
-        oldState.videosList = responseVideosJSON;
+        oldState.videosList = responseVideosJSON.fullPaths;
+        oldState.videoFilesList = responseVideosJSON.fileNames;
         this.setState(oldState);
 
         // Get all heatmaps based on file path
@@ -556,8 +559,8 @@ class DisplayPage extends Component {
           <CardBody>
             <CardTitle tag="h5">Videos</CardTitle>
             <hr />
-            {this.state.videosList.map(video => (
-              <button onClick={() => this.openVideo(video)}>{video}</button>
+            {this.state.videoFilesList.map((videoFileName, index) => (
+              <button onClick={() => this.openVideo(this.state.videosList[index])}>{videoFileName}</button>
             ))}
           </CardBody>
         </Card>

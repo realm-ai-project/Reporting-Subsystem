@@ -60,7 +60,7 @@ def is_valid_directory():
 
 @app.route('/getAllVideos', methods=["POST"])
 def get_all_videos():
-    return jsonify(getAllVideoFilesFromDirectory(request.json["file_path"]))
+    return {"fullPaths": getAllVideoFilesFromDirectory(request.json["file_path"], True), "fileNames":  getAllVideoFilesFromDirectory(request.json["file_path"], False)}
 
 @app.route('/getAllHeatmaps', methods=["POST"])
 def get_all_heatmaps():

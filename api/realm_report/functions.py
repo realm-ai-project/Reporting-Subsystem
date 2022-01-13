@@ -119,12 +119,15 @@ def getAllJsonFilesFromDirectory(directory):
         print("Error: %s : %s" % (directory, e.strerror))
         return []
         
-def getAllVideoFilesFromDirectory(directory):
+def getAllVideoFilesFromDirectory(directory, fullPath):
     try:
         allVideoFiles = []
         for file in os.listdir(directory):
             if file.endswith(".mp4"):
-                allVideoFiles.append(file)
+                if fullPath:
+                    allVideoFiles.append(os.path.join(directory, file))
+                else:
+                    allVideoFiles.append(file)
 
         # Sort by file number
         allVideoFiles.sort(key=lambda f: int(re.sub('\D', '', f)))
