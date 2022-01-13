@@ -3,6 +3,7 @@ import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import { Carousel } from 'react-responsive-carousel';
 import classnames from 'classnames';
 import {
+  Alert,
   Breadcrumb,
   BreadcrumbItem,
   Card,
@@ -37,7 +38,7 @@ import {
 import { Accordion } from 'react-bootstrap';
 
 import Slider from '@mui/material/Slider';
-import { generateHeatmap, getAllVideos, playVideo } from '../../api';
+import { generateHeatmap, getAllVideos, playVideo, getAllHeatmaps, isValidDirectory } from '../../api';
 
 const marks = [
   {
@@ -94,15 +95,17 @@ class DisplayPage extends Component {
     this.toggle = this.toggle.bind(this);
     this.updatePercentage = this.updatePercentage.bind(this);
     this.state = {
+      directoryErrorVisible: false,
+      directoryError: '',
       activeTab: '1',
       progress: 40,
       params: {
         range_type: 'top',
         percentage: 0.01,
         dat_id: '1',
-        file_path: null,
+        file_path: '',
       },
-      tempFilePath: null,
+      tempFilePath: '',
       naiveImageList: [],
       byRewardImageList: [],
       modal: false,
@@ -114,7 +117,12 @@ class DisplayPage extends Component {
 
     this.down = this.down.bind(this);
     this.up = this.up.bind(this);
+    this.dismissDirectoryError = this.dismissDirectoryError.bind(this);
     // this.toggle = this.toggle.bind(this);
+  }
+
+  dismissDirectoryError() {
+    this.setState({ directoryErrorVisible: false, directoryError: '' });
   }
 
   handleChange = event => {
@@ -218,10 +226,42 @@ class DisplayPage extends Component {
       let oldState = this.state;
       oldState.params.file_path = this.state.tempFilePath;
 
-      // Get all videos based on the file path
-      const responseJSON = await getAllVideos(this.state.params.file_path);
-      oldState.videosList = responseJSON;
-      this.setState(oldState);
+      // clear old heatmaps and videos list
+      this.state.naiveImageList = [];
+      this.state.byRewardImageList = [];
+      this.state.byEpisodeLengthList = [];
+      this.state.byLastPositionList = [];
+      this.state.videosList = [];
+
+      // check if valid directory, we need to make a backend call since the frontend can't access our file system
+      const responseValidDirectoryJSON = await isValidDirectory(this.state.params.file_path);
+      if (responseValidDirectoryJSON.isDirectory == false) {
+        // show error popup
+        this.setState({ directoryErrorVisible: true, directoryError: responseValidDirectoryJSON.error });
+      } else {
+        oldState.directoryErrorVisible = false;
+        oldState.directoryError = '';
+        // Get all videos based on the file path
+        const responseVideosJSON = await getAllVideos(this.state.params.file_path);
+        oldState.videosList = responseVideosJSON;
+        this.setState(oldState);
+
+        // Get all heatmaps based on file path
+        const responseHeatmapsJSON = await getAllHeatmaps(this.state.params.file_path);
+        responseHeatmapsJSON.naive.forEach((heatmapObj, index) => {
+          oldState.naiveImageList.push({ name: heatmapObj.name, base64: heatmapObj.base64 });
+        });
+        responseHeatmapsJSON.reward.forEach((heatmapObj, index) => {
+          oldState.byRewardImageList.push({ name: heatmapObj.name, base64: heatmapObj.base64 });
+        });
+        responseHeatmapsJSON.episode_length.forEach((heatmapObj, index) => {
+          oldState.byEpisodeLengthList.push({ name: heatmapObj.name, base64: heatmapObj.base64 });
+        });
+        responseHeatmapsJSON.last_position.forEach((heatmapObj, index) => {
+          oldState.byLastPositionList.push({ name: heatmapObj.name, base64: heatmapObj.base64 });
+        });
+        this.setState(oldState);
+      }
     } else {
       this.setState({ tempFilePath: this.state.params.file_path });
     }
