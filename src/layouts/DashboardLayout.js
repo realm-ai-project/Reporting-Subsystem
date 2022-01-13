@@ -61,22 +61,14 @@ export default class DashboardLayout extends Component {
         <div className={`app ${sidebarCollapsedClass}`}>
           <PageAlert />
           <div className="app-body">
-            <SidebarNav
-              nav={nav}
-              logo={Logo}
-              logoText="REALM_AI"
-              isSidebarCollapsed={sidebarCollapsed}
-              toggleSidebar={this.toggleSideCollapse}
-              {...this.props}
-            />
-            <Page>
+            <Page className="m-0">
               <Header
                 toggleSidebar={this.toggleSideCollapse}
                 isSidebarCollapsed={sidebarCollapsed}
                 routes={routes}
                 {...this.props}
               >
-                <HeaderNav />
+                {/* <HeaderNav /> */}
               </Header>
               <PageContent>
                 <Switch>
@@ -97,11 +89,6 @@ export default class DashboardLayout extends Component {
               </span>
             </span>
           </Footer>
-          {/* <Chat.Container>
-            {this.state.showChat1 && (
-              <Chat.ChatBox name="Messages" status="online" image={avatar1} close={this.closeChat} />
-            )}
-          </Chat.Container> */}
         </div>
       </ContextProviders>
     );
@@ -120,7 +107,7 @@ function HeaderNav() {
         </form>
       </NavItem> */}
       {/* <UncontrolledDropdown nav inNavbar> */}
-        {/* <DropdownToggle nav caret>
+      {/* <DropdownToggle nav caret>
           New
         </DropdownToggle>
         <DropdownMenu right>

@@ -31,8 +31,60 @@ import {
   Form,
   Input,
   Label,
+  Collapse,
 } from 'reactstrap';
+
+import { Accordion } from 'react-bootstrap';
+
+import Slider from '@mui/material/Slider';
 import { generateHeatmap, getAllVideos, playVideo } from '../../api';
+
+const marks = [
+  {
+    value: 0,
+    label: '0%',
+  },
+  {
+    value: 10,
+    label: '10%',
+  },
+  {
+    value: 20,
+    label: '20%',
+  },
+  {
+    value: 30,
+    label: '30%',
+  },
+  {
+    value: 40,
+    label: '40%',
+  },
+  {
+    value: 50,
+    label: '50%',
+  },
+  {
+    value: 60,
+    label: '60%',
+  },
+  {
+    value: 70,
+    label: '70%',
+  },
+  {
+    value: 80,
+    label: '80%',
+  },
+  {
+    value: 90,
+    label: '390%',
+  },
+  {
+    value: 100,
+    label: '100%',
+  },
+];
 
 class DisplayPage extends Component {
   constructor(props) {
@@ -40,6 +92,7 @@ class DisplayPage extends Component {
     this.handleSubmit = this.handleSubmit.bind(this);
     this.fileInput = React.createRef();
     this.toggle = this.toggle.bind(this);
+    this.updatePercentage = this.updatePercentage.bind(this);
     this.state = {
       activeTab: '1',
       progress: 40,
@@ -56,6 +109,7 @@ class DisplayPage extends Component {
       byEpisodeLengthList: [],
       byLastPositionList: [],
       videosList: [],
+      isDirectorySelected: false,
     };
 
     this.down = this.down.bind(this);
@@ -85,6 +139,10 @@ class DisplayPage extends Component {
     if (this.state.progress < 100) {
       this.setState(prevState => ({ progress: prevState.progress + 10 }));
     }
+  }
+
+  updatePercentage(event) {
+    this.setState({ progress: event.target.value });
   }
 
   // abstraction to let us set base64 image in react state
@@ -162,7 +220,7 @@ class DisplayPage extends Component {
 
       // Get all videos based on the file path
       const responseJSON = await getAllVideos(this.state.params.file_path);
-      oldState.videosList = responseJSON
+      oldState.videosList = responseJSON;
       this.setState(oldState);
     } else {
       this.setState({ tempFilePath: this.state.params.file_path });
@@ -170,6 +228,11 @@ class DisplayPage extends Component {
     this.setState(prevState => ({
       modal: !prevState.modal,
     }));
+    if (this.state.tempFilePath != null) {
+      this.setState(prevState => ({
+        isDirectorySelected: true,
+      }));
+    }
   }
 
   // function to toggle modal state
@@ -181,37 +244,33 @@ class DisplayPage extends Component {
   }
 
   render() {
+    let directorySelected;
+    if (this.state.isDirectorySelected) {
+      directorySelected = (
+        <Card>
+          <CardBody>
+            <CardTitle>Selected Directory Path: </CardTitle>
+            <hr />
+            <CardText>
+              <div>{this.state.params.file_path}</div>
+            </CardText>
+          </CardBody>
+        </Card>
+      );
+    }
     return (
       <div>
         <div>
-          <Card>
-            <CardBody>
-              {/* <Breadcrumb>
-                <BreadcrumbItem>
-                  <a href="#!">src</a>
-                </BreadcrumbItem>
-                <BreadcrumbItem>
-                  <a href="#!">data</a>
-                </BreadcrumbItem>
-                <BreadcrumbItem>
-                  <a href="#!">files</a>
-                </BreadcrumbItem>
-                <BreadcrumbItem active={true}>
-                  <a href="#!">run3</a>
-                </BreadcrumbItem>
-              </Breadcrumb> */}
-            </CardBody>
-          </Card>
           <Button color="primary" onClick={this.toggle}>
             Select Directory Path
           </Button>
           <a target="_blank" href="https://www.tensorflow.org/tensorboard" style={{ textDecoration: 'none' }}>
-            <Button color="success" outline className="mx-2">
+            <Button color="warning" className="m-2">
               TensorBoard
             </Button>{' '}
           </a>
           <a target="_blank" href="https://wandb.ai/site" style={{ textDecoration: 'none' }}>
-            <Button color="primary" outline>
+            <Button color="success" className="my-2">
               Weights and Biases
             </Button>{' '}
           </a>
@@ -219,7 +278,9 @@ class DisplayPage extends Component {
             <ModalHeader toggle={this.toggle}>Please Select Directory</ModalHeader>
             <ModalBody>
               <FormGroup>
-                <Label for="path">Path</Label>
+                <Label for="path" className="mb-2">
+                  Path
+                </Label>
                 <Input
                   type="text"
                   name="path"
@@ -240,14 +301,7 @@ class DisplayPage extends Component {
             </ModalFooter>
           </Modal>
         </div>
-        <Card>
-          <CardBody>
-            <CardTitle>Selected Directory Path: </CardTitle>
-            <CardText>
-              <div>{this.state.params.file_path}</div>
-            </CardText>
-          </CardBody>
-        </Card>
+        {directorySelected}
         <Nav tabs>
           <NavItem>
             <NavLink
@@ -298,77 +352,67 @@ class DisplayPage extends Component {
           <TabPane tabId="1">
             <Form>
               <Row form>
-                <Col md={2}>
+                <Col md={3}>
                   <FormGroup>
-                    <Label>dat_id</Label>
+                    <Label className="mb-2">Enter specified dat_id</Label>
                     <Input
                       type="text"
                       pattern="[0-9]*"
                       onChange={event => this.updateStateParamsDatId(event.target.value)}
                       value={this.state.params.dat_id}
+                      className="mb-2"
                     />
                   </FormGroup>
+                  <Button onClick={() => this.apiHandler(this.state.activeTab, this.state.params)}>
+                    Generate Heatmap
+                  </Button>
                 </Col>
               </Row>
-              <Button onClick={() => this.apiHandler(this.state.activeTab, this.state.params)}>Generate Heatmap</Button>
             </Form>
             <Row>
               {this.state.naiveImageList.map((imgObj, index) => (
                 <div key={index} style={{ display: 'flex', flexDirection: 'row' }}>
                   <Card>
-                    <CardImg src={`data:image/png;base64,${imgObj.base64}`} style={{ flex: 1 }} />
+                    <CardImg
+                      src={`data:image/png;base64,${imgObj.base64}`}
+                      style={{
+                        minHeight: '10%',
+                        maxHeight: 500,
+                      }}
+                    />
                     <CardBody>
                       <CardTitle>{imgObj.name}</CardTitle>
                     </CardBody>
                   </Card>
                 </div>
               ))}
-              {/* {this.state.naiveImage ? <img src={`data:image/png;base64,${this.state.naiveImage}`} /> : ''} */}
-              {/* <div style={{ textAlign: '-webkit-center' }}>
-                  <Carousel width="30%">
-                    <Card>
-                      <CardImg src="/assets/gamescore.jpg" top width="100%" />
-                      <CardBody>
-                        <CardTitle>Iteration 1 : Gamescore</CardTitle>
-                        <CardText>Top 10% </CardText>
-                        <Button color="primary">Run Again</Button>
-                      </CardBody>
-                    </Card>
-                    <Card>
-                      <CardImg src="/assets/gamescore.jpg" top width="100%" />
-                      <CardBody>
-                        <CardTitle>Iteration 1 : Gamescore</CardTitle>
-                        <CardText>Top 15% </CardText>
-                        <Button color="primary">Run Again</Button>
-                      </CardBody>
-                    </Card>
-                  </Carousel>
-                </div> */}
             </Row>
           </TabPane>
           <TabPane tabId="2">
             <Form>
               <Row form>
-                <Col md={2}>
+                <Col md={3}>
                   <FormGroup>
-                    <Label>dat_id</Label>
+                    <Label className="mb-2">Enter specified dat_id</Label>
                     <Input
                       type="text"
                       pattern="[0-9]*"
                       onChange={event => this.updateStateParamsDatId(event.target.value)}
                       value={this.state.params.dat_id}
+                      className="mb-2"
                     />
                   </FormGroup>
                 </Col>
               </Row>
               <Row form>
-                <Col md={2}>
+                <Col md={3}>
                   <FormGroup>
-                    <Label>Range type</Label>
+                    <Label className="mb-2">Range type</Label>
                     <Input
                       type="select"
                       onChange={event => this.updateStateParamsRangeType(event.target.value)}
                       value={this.state.params.range_type}
+                      className="mb-2"
                     >
                       <option>top</option>
                       <option>bottom</option>
@@ -377,18 +421,22 @@ class DisplayPage extends Component {
                 </Col>
               </Row>
               <Row form>
-                <Col md={2}>
+                <Col md={3}>
                   <FormGroup>
-                    <Label>Percentage</Label>
-                    <CardBody>
+                    <Label className="mb-2">Percentage</Label>
+                    <CardBody className="mb-2">
                       <Row>
-                        <ButtonGroup className="m-b" style={{ paddingRight: '5px' }}>
-                          <Button onClick={this.down}>Down</Button>
-                          <Button onClick={this.up}>Up</Button>
-                        </ButtonGroup>
-                        <h4> {this.state.progress} %</h4>
+                        <Slider
+                          onChange={this.updatePercentage}
+                          defaultValue={30}
+                          step={10}
+                          marks
+                          min={10}
+                          max={100}
+                          valueLabelDisplay="on"
+                          className="mt-2"
+                        />
                       </Row>
-                      <Progress className="m-b" value={this.state.progress} />
                     </CardBody>
                   </FormGroup>
                 </Col>
@@ -411,26 +459,28 @@ class DisplayPage extends Component {
           <TabPane tabId="3">
             <Form>
               <Row form>
-                <Col md={2}>
+                <Col md={3}>
                   <FormGroup>
-                    <Label>dat_id</Label>
+                    <Label className="mb-2">Enter specified dat_id</Label>
                     <Input
                       type="text"
                       pattern="[0-9]*"
                       onChange={event => this.updateStateParamsDatId(event.target.value)}
                       value={this.state.params.dat_id}
+                      className="mb-2"
                     />
                   </FormGroup>
                 </Col>
               </Row>
               <Row form>
-                <Col md={2}>
+                <Col md={3}>
                   <FormGroup>
-                    <Label>Range type</Label>
+                    <Label className="mb-2">Range type</Label>
                     <Input
                       type="select"
                       onChange={event => this.updateStateParamsRangeType(event.target.value)}
                       value={this.state.params.range_type}
+                      className="mb-2"
                     >
                       <option>top</option>
                       <option>bottom</option>
@@ -439,18 +489,22 @@ class DisplayPage extends Component {
                 </Col>
               </Row>
               <Row form>
-                <Col md={2}>
+                <Col md={3}>
                   <FormGroup>
-                    <Label>Percentage</Label>
-                    <CardBody>
+                    <Label className="mb-2">Percentage</Label>
+                    <CardBody className="mb-2">
                       <Row>
-                        <ButtonGroup className="m-b" style={{ paddingRight: '5px' }}>
-                          <Button onClick={this.down}>Down</Button>
-                          <Button onClick={this.up}>Up</Button>
-                        </ButtonGroup>
-                        <h4> {this.state.progress} %</h4>
+                        <Slider
+                          onChange={this.updatePercentage}
+                          defaultValue={30}
+                          step={10}
+                          marks
+                          min={10}
+                          max={100}
+                          valueLabelDisplay="on"
+                          className="mt-2"
+                        />
                       </Row>
-                      <Progress className="m-b" value={this.state.progress} />
                     </CardBody>
                   </FormGroup>
                 </Col>
@@ -473,14 +527,15 @@ class DisplayPage extends Component {
           <TabPane tabId="4">
             <Form>
               <Row form>
-                <Col md={2}>
+                <Col md={3}>
                   <FormGroup>
-                    <Label>dat_id</Label>
+                    <Label className="mb-2">Enter specified dat_id</Label>
                     <Input
                       type="text"
                       pattern="[0-9]*"
                       onChange={event => this.updateStateParamsDatId(event.target.value)}
                       value={this.state.params.dat_id}
+                      className="mb-2"
                     />
                   </FormGroup>
                 </Col>
@@ -501,14 +556,40 @@ class DisplayPage extends Component {
             </Row>
           </TabPane>
         </TabContent>
+        <Card className="my-4">
+          <CardBody>
+            <CardTitle tag="h5">Videos</CardTitle>
+            <hr />
+            {this.state.videosList.map(video => (
+              <button onClick={() => this.openVideo(video)}>{video}</button>
+            ))}
+          </CardBody>
+        </Card>
         <div>
           <Card>
-            <CardBody>
-              <CardTitle>Videos: </CardTitle>
-              {this.state.videosList.map((video) => 
-                <button onClick={() => this.openVideo(video)}>{video}</button>)
-              }
-            </CardBody>
+            <CardHeader className="my-1">Frequently Asked Questions</CardHeader>
+            <Accordion>
+              <Accordion.Item eventKey="0">
+                <Accordion.Header>How do I view Videos?</Accordion.Header>
+                <Accordion.Body>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
+                  dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+                  aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum
+                  dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui
+                  officia deserunt mollit anim id est laborum.
+                </Accordion.Body>
+              </Accordion.Item>
+              <Accordion.Item eventKey="1">
+                <Accordion.Header>How can I improve results?</Accordion.Header>
+                <Accordion.Body>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
+                  dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+                  aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum
+                  dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui
+                  officia deserunt mollit anim id est laborum.
+                </Accordion.Body>
+              </Accordion.Item>
+            </Accordion>
           </Card>
         </div>
       </div>

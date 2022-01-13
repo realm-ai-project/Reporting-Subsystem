@@ -31,7 +31,7 @@ const pageList = [
     component: Dashboard,
   },
   {
-    name: 'Display',
+    name: 'RealmAI',
     path: '/display',
     component: DisplayPage,
   },

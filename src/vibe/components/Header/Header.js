@@ -26,7 +26,7 @@ export default class Header extends Component {
         matchPath(this.props.location.pathname, {
           path: prop.path,
           exact: true,
-          strict: false
+          strict: false,
         })
       ) {
         name = prop.name;
@@ -42,11 +42,7 @@ export default class Header extends Component {
         <SkipToContentLink focusId="primary-content" />
         <div className="top-nav">
           <Navbar color="faded" light expand="md">
-            <ToggleSidebarButton
-              toggleSidebar={this.props.toggleSidebar}
-              isSidebarCollapsed={this.props.isSidebarCollapsed}
-            />
-            <div className="page-heading">{this.getPageTitle()}</div>
+            <div className="page-heading m-1">{this.getPageTitle()}</div>
             <NavbarToggler onClick={this.toggle} />
             <Collapse isOpen={this.state.isOpen} navbar>
               <Nav className="ml-auto" navbar>

@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 setup(
     name='realm_report',
     version='0.0.1-beta',
-    description="REALM_AI Reporting Subsystem",
+    description="RealmAI Reporting Subsystem",
     install_requires=[
         "python-dotenv",
         "flask-cors",

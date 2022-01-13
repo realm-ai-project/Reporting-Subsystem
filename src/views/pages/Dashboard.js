@@ -22,7 +22,7 @@ class Dashboard extends Component {
     return (
       <div>
         <div className="m-b">
-          <h2>Welcome to REALM_AI!</h2>
+          <h2>Welcome to RealmAI!</h2>
         </div>
         <Row>
           <Col md={4} xs={12}>

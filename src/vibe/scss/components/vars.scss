@@ -43,14 +43,11 @@ $btnBorderRadius: 4px;
 // Sidebar
 $sidenavBgColor: #162c50;
 $collapseSpeed: 0.2s;
-$sidebarWidth: 240px;
+$sidebarWidth: 0px;
 $sidenavBgHover: darken($sidenavBgColor, 6%);
 $sideNavTextColor: lighten($sidenavBgColor, 50%);
 $sideNavSeparatorColor: desaturate(lighten($sidenavBgColor, 20%), 10%);
-$activeNavBorderColor: lighten(
-  saturate(adjust-hue($sidenavBgColor, -10), 60%),
-  35%
-);
+$activeNavBorderColor: lighten(saturate(adjust-hue($sidenavBgColor, -10), 60%), 35%);
 $sidebarMobileOverlay: rgba(33, 53, 86, 0.4);
 
 // Page Content
