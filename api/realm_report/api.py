@@ -1,5 +1,7 @@
+from collections import deque
 from importlib.resources import path
 import os
+import pickle
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
@@ -49,15 +51,45 @@ def get_json_files():
         jsonFiles = getAllJsonFilesFromDirectory(f)
     return jsonify(jsonFiles)
 
+def _cache_recent_directories(directory):
+    with path(realm_report, TEST_DATA_DIRECTORY) as d:
+        f = os.path.join(d, "recent_dir.pkl")
+        recent_dir = pickle.load(open(f, "rb")) if os.path.isfile(f) else []
+        if directory in recent_dir:
+            recent_dir.remove(directory)
+        recent_dir.append(directory)
+        pickle.dump(recent_dir[:-25:-1], open(f, "wb"))
+
 @app.route('/isValidDirectory', methods=["POST"])
 def is_valid_directory():
     error_message = ""
     is_directory = True
-    if not os.path.isdir(request.json["file_path"]):
+    filepath = request.json["file_path"]
+    if not os.path.isdir(filepath):
         error_message = "path is not a valid directory"
         is_directory = False
+    else:
+        _cache_recent_directories(filepath)
     return jsonify({"isDirectory": is_directory, "error": error_message})
 
+@app.route('/recentDirectories', methods=["GET", "POST"])
+def get_recent_directories():
+    with path(realm_report, TEST_DATA_DIRECTORY) as d:
+        f = os.path.join(d, "recent_dir.pkl")
+        if not os.path.isfile(f):
+            return jsonify({"recent_directories":[]})
+        else:
+            recent_dir = pickle.load(open(f, "rb"))
+            return jsonify({"recent_directories":recent_dir})
+
+@app.route('/clearRecentDirectories', methods=["POST"])
+def clear_recent_directories():
+    with path(realm_report, TEST_DATA_DIRECTORY) as d:
+        f = os.path.join(d, "recent_dir.pkl")
+        if os.path.isfile(f):
+            os.remove(f)
+    return 'done'
+    
 @app.route('/getAllVideos', methods=["POST"])
 def get_all_videos():
     return {"fullPaths": getAllVideoFilesFromDirectory(request.json["file_path"], True), "fileNames":  getAllVideoFilesFromDirectory(request.json["file_path"], False)}
