@@ -123,7 +123,7 @@ def getAllVideoFilesFromDirectory(directory, fullPath):
     try:
         allVideoFiles = []
         for file in os.listdir(directory):
-            if file.endswith(".mp4"):
+            if file.endswith(".mp4") or file.endswith(".webm"):
                 if fullPath:
                     allVideoFiles.append(os.path.join(directory, file))
                 else:
@@ -182,3 +182,20 @@ def checkFileExists(fileName, directory):
         if file == fileName:
             return True
     return False
+
+def checkRunDirectoryStructure(directory):
+    # run directories should follow a cosnsitent internal structure
+    # these are the things we check for, RealmAI/Data, RealmAI/Videos. The tenserboard data should be in a seperate subdirectory from RealmAI
+    data_dir_exists = False
+    video_dir_exists = False
+    for file_parent in os.listdir(directory):
+        if file_parent == "RealmAI":
+            for file_child in os.listdir(directory+"/RealmAI"):
+                if file_child == "Data":
+                    data_dir_exists = True
+                if file_child == "Videos":
+                    video_dir_exists = True
+    return data_dir_exists and video_dir_exists
+
+def constructDatFileName(dat_id):
+    return f"data-{dat_id}.dat"

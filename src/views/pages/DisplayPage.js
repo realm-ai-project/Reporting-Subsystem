@@ -446,7 +446,10 @@ class DisplayPage extends Component {
               {this.state.byRewardImageList.map((imgObj, index) => (
                 <div key={index} style={{ display: 'flex', flexDirection: 'row' }}>
                   <Card>
-                    <CardImg src={`data:image/png;base64,${imgObj.base64}`} style={{ flex: 1 }} />
+                    <CardImg
+                      src={`data:image/png;base64,${imgObj.base64}`}
+                      style={{ flex: 1, minHeight: '10%', maxHeight: 500 }}
+                    />
                     <CardBody>
                       <CardTitle>{imgObj.name}</CardTitle>
                     </CardBody>
@@ -514,7 +517,10 @@ class DisplayPage extends Component {
               {this.state.byEpisodeLengthList.map((imgObj, index) => (
                 <div key={index} style={{ display: 'flex', flexDirection: 'row' }}>
                   <Card>
-                    <CardImg src={`data:image/png;base64,${imgObj.base64}`} style={{ flex: 1 }} />
+                    <CardImg
+                      src={`data:image/png;base64,${imgObj.base64}`}
+                      style={{ flex: 1, minHeight: '10%', maxHeight: 500 }}
+                    />
                     <CardBody>
                       <CardTitle>{imgObj.name}</CardTitle>
                     </CardBody>
@@ -545,7 +551,10 @@ class DisplayPage extends Component {
               {this.state.byLastPositionList.map((imgObj, index) => (
                 <div key={index} style={{ display: 'flex', flexDirection: 'row' }}>
                   <Card>
-                    <CardImg src={`data:image/png;base64,${imgObj.base64}`} style={{ flex: 1 }} />
+                    <CardImg
+                      src={`data:image/png;base64,${imgObj.base64}`}
+                      style={{ flex: 1, minHeight: '10%', maxHeight: 500 }}
+                    />
                     <CardBody>
                       <CardTitle>{imgObj.name}</CardTitle>
                     </CardBody>

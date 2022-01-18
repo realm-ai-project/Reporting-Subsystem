@@ -92,7 +92,7 @@ def createHeatmap2(data, percentile, highest, filePath):
     H, _, _ = np.histogram2d(pos_x, pos_y, bins=[x_size, y_size])
 
     # Plot heatmap and save figures
-    sns.heatmap(np.log(H.T+1), yticklabels=20)
+    sns.heatmap(np.log(H.T+1), cmap="BuPu", yticklabels=20)
 
     if highest:
         print("Heatmap 2: Top %f%% highest gamescore episodes" % (percentile*100))
@@ -137,7 +137,7 @@ def createHeatmap3(data, percentile, longest, filePath):
     H, _, _ = np.histogram2d(pos_x, pos_y, bins=[x_size, y_size])
 
     # Plot heatmap and save figures
-    sns.heatmap(np.log(H.T+1), yticklabels=20)
+    sns.heatmap(np.log(H.T+1), cmap="BuPu", yticklabels=20)
 
     if longest:
         print("Heatmap 3: Top %f%% longest duration episodes" % (percentile*100))
@@ -215,7 +215,7 @@ def createHeatmap5(data, minReward, filePath):
     H, _, _ = np.histogram2d(pos_x, pos_y, bins=[x_size, y_size])
 
     # Plot heatmap and save figures
-    sns.heatmap(np.log(H.T+1), yticklabels=20)
+    sns.heatmap(np.log(H.T+1), cmap="BuPu", yticklabels=20)
     plot_and_save(filePath)
 
 
@@ -255,5 +255,5 @@ def createHeatmap6(data, minSteps, filePath):
     H, _, _ = np.histogram2d(pos_x, pos_y, bins=[x_size, y_size])
 
     # Plot heatmap and save figures
-    sns.heatmap(np.log(H.T+1), yticklabels=20)
+    sns.heatmap(np.log(H.T+1), cmap="BuPu", yticklabels=20)
     plot_and_save(filePath)

@@ -13,11 +13,15 @@ import realm_report.data
 app = Flask(__name__)
 CORS(app)
 
+#  -------- Global --------
+
 # keeps track of the json files that are loaded into memory
 DATA_JSON_LOOKUP = set() 
 
 # data dictionary - {key = file name, value = json data loaded in memory}
 DATA_DICTIONARY = {}
+
+#  -------- Constants --------
 
 # data location (hardcoded for now, would like user to be able to change this value)
 TEST_DATA_DIRECTORY = "data"
@@ -25,6 +29,11 @@ TEST_DATA_DIRECTORY = "data"
 # heatmap result location (hardcoded for now, would like user to be able to change this value)
 HEATMAP_RESULTS_DIRECTORY = "analysis/heatmaps/"
 
+DATA_SUBDIRECTORY = "/RealmAI/Data"
+
+VIDEOS_SUBDIRECTORY = "/RealmAI/Videos"
+
+#  -------- Routes --------
 
 @app.route('/home')
 def get_home():
@@ -63,14 +72,18 @@ def _cache_recent_directories(directory):
 @app.route('/isValidDirectory', methods=["POST"])
 def is_valid_directory():
     error_message = ""
-    is_directory = True
+    is_valid_run_dir = True
     filepath = request.json["file_path"]
     if not os.path.isdir(filepath):
         error_message = "path is not a valid directory"
-        is_directory = False
+        is_valid_run_dir = False
+    # check the internal directory structure
+    elif not checkRunDirectoryStructure(filepath):
+        error_message = "path is not a valid runs directory with proper structure"
+        is_valid_run_dir = False
     else:
         _cache_recent_directories(filepath)
-    return jsonify({"isDirectory": is_directory, "error": error_message})
+    return jsonify({"isDirectory": is_valid_run_dir, "error": error_message})
 
 @app.route('/recentDirectories', methods=["GET", "POST"])
 def get_recent_directories():
@@ -92,12 +105,12 @@ def clear_recent_directories():
     
 @app.route('/getAllVideos', methods=["POST"])
 def get_all_videos():
-    return {"fullPaths": getAllVideoFilesFromDirectory(request.json["file_path"], True), "fileNames":  getAllVideoFilesFromDirectory(request.json["file_path"], False)}
+    return {"fullPaths": getAllVideoFilesFromDirectory(request.json["file_path"]+VIDEOS_SUBDIRECTORY, True), "fileNames":  getAllVideoFilesFromDirectory(request.json["file_path"]+VIDEOS_SUBDIRECTORY, False)}
 
 @app.route('/getAllHeatmaps', methods=["POST"])
 def get_all_heatmaps():
     # get all heatmap images that exist in current file_path from request body
-    return jsonify(getAllHeatmapFilesFromDirectory(request.json["file_path"]))
+    return jsonify(getAllHeatmapFilesFromDirectory(request.json["file_path"]+DATA_SUBDIRECTORY))
 
 @app.route('/playVideo', methods=["POST"])
 def play_video():
@@ -110,7 +123,7 @@ def play_video():
 
 @app.route('/count_dat_files')
 def count_dat_files():
-    return {"count": len(getAllDatFilesFromDirectory(request.json["file_path"]))}
+    return {"count": len(getAllDatFilesFromDirectory(request.json["file_path"]+DATA_SUBDIRECTORY))}
 
 @app.route('/by_reward/<range_type>/<percentage>/<dat_id>', methods=["POST"])
 def create_heatmap_by_reward(range_type, percentage, dat_id):
@@ -123,7 +136,8 @@ def create_heatmap_by_reward(range_type, percentage, dat_id):
     elif range_type == "bottom":
         highest = False
     # hardcoded file for testing purposes - michael, you should look into accepting filePath as a param
-    filePath = request.json["file_path"] + f"/Data-{dat_id}.dat"
+    absDataDirPath = request.json["file_path"]+DATA_SUBDIRECTORY
+    filePath = absDataDirPath + "/" + constructDatFileName(dat_id)
 
     # hardcoded file name for testing purposes
     # should discuss a file naming convention, or allow user to input file name
@@ -140,7 +154,7 @@ def create_heatmap_by_reward(range_type, percentage, dat_id):
         
     # Get data
     data = DATA_DICTIONARY[filePath]
-    fileSavePath = request.json["file_path"] + f"/{fileName}"
+    fileSavePath = absDataDirPath + f"/{fileName}"
 
     # Create Heatmap
     createHeatmap2(data, float(percentage), highest, fileSavePath)
@@ -161,7 +175,8 @@ def create_heatmap_by_episode_length(range_type, percentage, dat_id):
     elif range_type == "bottom":
         highest = False
     # hardcoded file for testing purposes - michael, you should look into accepting filePath as a param
-    filePath = request.json["file_path"] + f"/Data-{dat_id}.dat"
+    absDataDirPath = request.json["file_path"]+DATA_SUBDIRECTORY
+    filePath = absDataDirPath + "/" + constructDatFileName(dat_id)
 
     # hardcoded file name for testing purposes
     # should discuss a file naming convention, or allow user to input file name
@@ -178,7 +193,7 @@ def create_heatmap_by_episode_length(range_type, percentage, dat_id):
         
     # Get data
     data = DATA_DICTIONARY[filePath]
-    fileSavePath = request.json["file_path"] + f"/{fileName}"
+    fileSavePath = absDataDirPath + f"/{fileName}"
 
     # Create Heatmap
     createHeatmap3(data, float(percentage), highest, fileSavePath)
@@ -196,8 +211,10 @@ def create_heatmap_naive(dat_id):
     # get file path from request body
     # print("naive heatmap filepath")
     # print(request.json)
-    
-    filePath = request.json["file_path"] + f"/Data-{dat_id}.dat"
+    absDataDirPath = request.json["file_path"]+DATA_SUBDIRECTORY
+    filePath = absDataDirPath + "/" + constructDatFileName(dat_id)
+
+    print(f"naive heatmap, filepath is: {filePath}")
     
     fileName = f"heatmap_naive_dat_id_{dat_id}.jpg"
 
@@ -212,7 +229,7 @@ def create_heatmap_naive(dat_id):
         
     # Get data
     data = DATA_DICTIONARY[filePath]
-    fileSavePath = request.json["file_path"] + f"/{fileName}"
+    fileSavePath = absDataDirPath + f"/{fileName}"
 
     # Create Heatmap
     createHeatmap1(data, fileSavePath)
@@ -228,7 +245,8 @@ def create_heatmap_by_last_position(dat_id):
     TODO validate parameter inputs
     '''
     # hardcoded file for testing purposes - michael, you should look into accepting filePath as a param
-    filePath = request.json["file_path"] + f"/Data-{dat_id}.dat"
+    absDataDirPath = request.json["file_path"]+DATA_SUBDIRECTORY
+    filePath = absDataDirPath + "/" + constructDatFileName(dat_id)
 
     # hardcoded file name for testing purposes
     # should discuss a file naming convention, or allow user to input file name
@@ -245,7 +263,7 @@ def create_heatmap_by_last_position(dat_id):
         
     # Get data
     data = DATA_DICTIONARY[filePath]
-    fileSavePath = request.json["file_path"] + f"/{fileName}"
+    fileSavePath = absDataDirPath + f"/{fileName}"
 
     # Create Heatmap
     createHeatmap4(data, fileSavePath)
