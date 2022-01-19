@@ -5,6 +5,7 @@ import pickle
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+from tensorboard import program
 
 from realm_report.functions import *
 from realm_report.generator import createHeatmap1, createHeatmap2, createHeatmap3, createHeatmap4
@@ -20,6 +21,9 @@ DATA_JSON_LOOKUP = set()
 
 # data dictionary - {key = file name, value = json data loaded in memory}
 DATA_DICTIONARY = {}
+
+# keeps track of launched tensorboard instances
+tb_instances = {}
 
 #  -------- Constants --------
 
@@ -102,7 +106,17 @@ def clear_recent_directories():
         if os.path.isfile(f):
             os.remove(f)
     return 'done'
-    
+
+@app.route('/launchTensorboard', methods=["POST"])
+def launch_tensorboard():
+    fp = request.json["file_path"]
+    assert os.path.isdir(fp), "{} does not exist!".format(fp)
+    if fp not in tb_instances:
+        tb = program.TensorBoard()
+        tb.configure(argv=[None, "--logdir", request.json["file_path"]])
+        tb_instances[fp] = tb.launch()
+    return tb_instances[fp]
+
 @app.route('/getAllVideos', methods=["POST"])
 def get_all_videos():
     return {"fullPaths": getAllVideoFilesFromDirectory(request.json["file_path"]+VIDEOS_SUBDIRECTORY, True), "fileNames":  getAllVideoFilesFromDirectory(request.json["file_path"]+VIDEOS_SUBDIRECTORY, False)}

@@ -11,7 +11,8 @@ setup(
         "numpy",
         "seaborn",
         "matplotlib",
-        "scipy"
+        "scipy",
+        "tensorboard"
     ],
     python_requires=">=3.6.1",
     packages=find_packages(),
