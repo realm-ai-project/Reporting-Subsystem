@@ -38,7 +38,7 @@ import {
 import { Accordion } from 'react-bootstrap';
 
 import Slider from '@mui/material/Slider';
-import { generateHeatmap, getAllVideos, playVideo, getAllHeatmaps, isValidDirectory } from '../../api';
+import { generateHeatmap, getAllVideos, playVideo, getAllHeatmaps, isValidDirectory, getRecentlySelectedDirectories } from '../../api';
 
 class DisplayPage extends Component {
   constructor(props) {
@@ -66,6 +66,7 @@ class DisplayPage extends Component {
       byLastPositionList: [],
       videosList: [],
       videoFilesList: [],
+      recentlySelectedDirectories: [],
       isDirectorySelected: false,
     };
 
@@ -174,6 +175,10 @@ class DisplayPage extends Component {
     await playVideo(videoFileLocation);
   }
 
+  fillInPathWithSelectedRecentDirectory(directory) {
+    this.setState({ tempFilePath: directory });
+  }
+
   // function to handle file path modal button interaction
   async handleSelectDirectoryEvent(pressedSubmit) {
     if (pressedSubmit) {
@@ -232,7 +237,12 @@ class DisplayPage extends Component {
   }
 
   // function to toggle modal state
-  toggle() {
+  async toggle() {
+    // Get recently selected directories
+    let directories = [];
+    directories = await getRecentlySelectedDirectories();
+    this.state.recentlySelectedDirectories = directories.recent_directories
+
     this.setState({ tempFilePath: this.state.params.file_path });
     this.setState(prevState => ({
       modal: !prevState.modal,
@@ -286,6 +296,17 @@ class DisplayPage extends Component {
                   onChange={this.handleChange}
                 />
               </FormGroup>
+              <br/>
+              <Accordion>
+                <Accordion.Item eventKey="0">
+                  <Accordion.Header>Recently Selected Directories</Accordion.Header>
+                  <Accordion.Body>
+                  {this.state.recentlySelectedDirectories.map((directory) => (
+                  <button onClick={() => this.fillInPathWithSelectedRecentDirectory(directory)}>{directory}</button>
+                  ))}
+                  </Accordion.Body>
+                </Accordion.Item>
+              </Accordion>
             </ModalBody>
             <ModalFooter>
               <Button color="primary" onClick={() => this.handleSelectDirectoryEvent(true)}>
