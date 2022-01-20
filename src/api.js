@@ -88,6 +88,21 @@ export async function isValidDirectory(userDirectory) {
   return makeApiCall(url, body);
 }
 
+export async function getTenserboardHost(userDirectory) {
+  let url = 'http://localhost:5000/launchTensorboard';
+
+  const body = {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ file_path: userDirectory }),
+  };
+
+  return makeApiCall(url, body);
+}
+
 export async function getRecentlySelectedDirectories() {
   let url = 'http://localhost:5000/recentDirectories';
 

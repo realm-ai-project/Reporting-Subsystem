@@ -115,7 +115,7 @@ def launch_tensorboard():
         tb = program.TensorBoard()
         tb.configure(argv=[None, "--logdir", request.json["file_path"]])
         tb_instances[fp] = tb.launch()
-    return tb_instances[fp]
+    return jsonify({"localHost": tb_instances[fp]})
 
 @app.route('/getAllVideos', methods=["POST"])
 def get_all_videos():

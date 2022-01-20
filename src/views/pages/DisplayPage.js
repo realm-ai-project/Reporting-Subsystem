@@ -45,6 +45,7 @@ import {
   getAllHeatmaps,
   isValidDirectory,
   getRecentlySelectedDirectories,
+  getTenserboardHost,
 } from '../../api';
 
 class DisplayPage extends Component {
@@ -80,6 +81,7 @@ class DisplayPage extends Component {
     this.down = this.down.bind(this);
     this.up = this.up.bind(this);
     this.dismissDirectoryError = this.dismissDirectoryError.bind(this);
+    this.onClickTenserboardButton = this.onClickTenserboardButton.bind(this);
     // this.toggle = this.toggle.bind(this);
   }
 
@@ -164,6 +166,16 @@ class DisplayPage extends Component {
     }
 
     this.setState(oldState);
+  }
+
+  async onClickTenserboardButton() {
+    const responseValidDirectoryJSON = await isValidDirectory(this.state.params.file_path);
+    if (responseValidDirectoryJSON.isDirectory == false) {
+      this.setState({ directoryErrorVisible: true, directoryError: responseValidDirectoryJSON.error });
+      return;
+    }
+    const responseJSON = await getTenserboardHost(this.state.params.file_path);
+    window.open(responseJSON.localHost);
   }
 
   // TODO add error checking and validation for form inputs
@@ -306,8 +318,8 @@ class DisplayPage extends Component {
           <Button color="primary" onClick={this.toggle}>
             Select Directory Path
           </Button>
-          <a target="_blank" href="https://www.tensorflow.org/tensorboard" style={{ textDecoration: 'none' }}>
-            <Button color="warning" className="m-2">
+          <a target="_blank" style={{ textDecoration: 'none' }}>
+            <Button color="warning" className="m-2" onClick={this.onClickTenserboardButton}>
               TensorBoard
             </Button>{' '}
           </a>
