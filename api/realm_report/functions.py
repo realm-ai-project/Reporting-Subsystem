@@ -184,7 +184,7 @@ def checkFileExists(fileName, directory):
     return False
 
 def checkRunDirectoryStructure(directory):
-    # run directories should follow a cosnsitent internal structure
+    # run directories should follow a consistent internal structure
     # these are the things we check for, RealmAI/Data, RealmAI/Videos. The tenserboard data should be in a seperate subdirectory from RealmAI
     data_dir_exists = False
     video_dir_exists = False

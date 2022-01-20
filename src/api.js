@@ -88,6 +88,14 @@ export async function isValidDirectory(userDirectory) {
   return makeApiCall(url, body);
 }
 
+export async function getRecentlySelectedDirectories() {
+  let url = 'http://localhost:5000/recentDirectories';
+
+  const response = await fetch(url);
+  const responseJSON = response.json();
+  return responseJSON;
+}
+
 async function makeApiCall(url, requestBody) {
   const response = await fetch(url, requestBody);
   const responseJSON = response.json();
