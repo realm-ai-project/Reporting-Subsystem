@@ -157,6 +157,14 @@ def create_heatmap_by_reward(range_type, percentage, dat_id):
     # should discuss a file naming convention, or allow user to input file name
     fileName = f"heatmap_reward_{range_type}_{percentage}_dat_id_{dat_id}.jpg"
 
+    # Verify if file exists, overwrite heatmap file
+    if checkFileExists(fileName, absDataDirPath):
+        # remove from in memory lookup
+        if filePath in DATA_JSON_LOOKUP:
+            DATA_JSON_LOOKUP.remove(filePath)
+        # delete heatmap jpg file
+        deleteFileIfExists(fileName, absDataDirPath)
+
     if filePath not in DATA_JSON_LOOKUP: # data needs to be loaded in
         data = loadJSONIntoMemory(filePath)
         if data == []:
@@ -196,6 +204,14 @@ def create_heatmap_by_episode_length(range_type, percentage, dat_id):
     # should discuss a file naming convention, or allow user to input file name
     fileName = f"heatmap_episode_length_{range_type}_{percentage}_dat_id_{dat_id}.jpg"
 
+    # Verify if file exists, overwrite heatmap file
+    if checkFileExists(fileName, absDataDirPath):
+        # remove from in memory lookup
+        if filePath in DATA_JSON_LOOKUP:
+            DATA_JSON_LOOKUP.remove(filePath)
+        # delete heatmap jpg file
+        deleteFileIfExists(fileName, absDataDirPath)
+
     if filePath not in DATA_JSON_LOOKUP: # data needs to be loaded in
         data = loadJSONIntoMemory(filePath)
         if data == []:
@@ -222,16 +238,20 @@ def create_heatmap_naive(dat_id):
     '''
     TODO validate parameter inputs
     '''
-    # get file path from request body
-    # print("naive heatmap filepath")
-    # print(request.json)
+
     absDataDirPath = request.json["file_path"]+DATA_SUBDIRECTORY
     filePath = absDataDirPath + "/" + constructDatFileName(dat_id)
-
-    print(f"naive heatmap, filepath is: {filePath}")
     
     fileName = f"heatmap_naive_dat_id_{dat_id}.jpg"
 
+    # Verify if file exists, overwrite heatmap file
+    if checkFileExists(fileName, absDataDirPath):
+        # remove from in memory lookup
+        if filePath in DATA_JSON_LOOKUP:
+            DATA_JSON_LOOKUP.remove(filePath)
+        # delete heatmap jpg file
+        deleteFileIfExists(fileName, absDataDirPath)
+    
     if filePath not in DATA_JSON_LOOKUP: # data needs to be loaded in
         data = loadJSONIntoMemory(filePath)
         if data == []:
@@ -265,6 +285,14 @@ def create_heatmap_by_last_position(dat_id):
     # hardcoded file name for testing purposes
     # should discuss a file naming convention, or allow user to input file name
     fileName = f"heatmap_last_position_dat_id_{dat_id}.jpg"
+
+    # Verify if file exists, overwrite heatmap file
+    if checkFileExists(fileName, absDataDirPath):
+        # remove from in memory lookup
+        if filePath in DATA_JSON_LOOKUP:
+            DATA_JSON_LOOKUP.remove(filePath)
+        # delete heatmap jpg file
+        deleteFileIfExists(fileName, absDataDirPath)
 
     if filePath not in DATA_JSON_LOOKUP: # data needs to be loaded in
         data = loadJSONIntoMemory(filePath)

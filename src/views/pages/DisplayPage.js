@@ -38,7 +38,14 @@ import {
 import { Accordion } from 'react-bootstrap';
 
 import Slider from '@mui/material/Slider';
-import { generateHeatmap, getAllVideos, playVideo, getAllHeatmaps, isValidDirectory, getRecentlySelectedDirectories } from '../../api';
+import {
+  generateHeatmap,
+  getAllVideos,
+  playVideo,
+  getAllHeatmaps,
+  isValidDirectory,
+  getRecentlySelectedDirectories,
+} from '../../api';
 
 class DisplayPage extends Component {
   constructor(props) {
@@ -108,25 +115,54 @@ class DisplayPage extends Component {
     this.setState({ progress: event.target.value });
   }
 
+  // check if heatmap is already created and in list, if it does return the index, otherwise return -1
+  checkHeatmapExistsInMemory(heatmapName, arr) {
+    for (var i = 0; i < arr.length; i++) {
+      if (heatmapName == arr[i].name) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
   // abstraction to let us set base64 image in react state
   async apiHandler(option, params) {
     let oldState = this.state;
+    let responseJSON;
+    let imageList;
+
+    // make api call based on option
     if (option == '1' || option == '4') {
-      const responseJSON = await generateHeatmap(option, params);
+      // make api call
+      responseJSON = await generateHeatmap(option, params);
+      // keep reference to correct list
       if (option == '1') {
-        oldState.naiveImageList.push({ name: responseJSON.name, base64: responseJSON.base64 });
+        imageList = oldState.naiveImageList;
       } else {
-        oldState.byLastPositionList.push({ name: responseJSON.name, base64: responseJSON.base64 });
+        imageList = oldState.byLastPositionList;
       }
     } else if (option == '2' || option == '3') {
       oldState.params.percentage = this.state.progress / 100;
-      const responseJSON = await generateHeatmap(option, params);
+      responseJSON = await generateHeatmap(option, params);
       if (option == '2') {
-        oldState.byRewardImageList.push({ name: responseJSON.name, base64: responseJSON.base64 });
+        imageList = oldState.byRewardImageList;
       } else {
-        oldState.byEpisodeLengthList.push({ name: responseJSON.name, base64: responseJSON.base64 });
+        imageList = oldState.byEpisodeLengthList;
       }
+    } else {
+      // if option not valid return
+      return;
     }
+
+    // given response, check if heatmap returned already exists in image list
+    let newHeatmapObj = { name: responseJSON.name, base64: responseJSON.base64 };
+    let existingIndex = this.checkHeatmapExistsInMemory(responseJSON.name, imageList);
+    if (existingIndex >= 0) {
+      imageList[existingIndex] = newHeatmapObj;
+    } else {
+      imageList.push(newHeatmapObj);
+    }
+
     this.setState(oldState);
   }
 
@@ -241,7 +277,7 @@ class DisplayPage extends Component {
     // Get recently selected directories
     let directories = [];
     directories = await getRecentlySelectedDirectories();
-    this.state.recentlySelectedDirectories = directories.recent_directories
+    this.state.recentlySelectedDirectories = directories.recent_directories;
 
     this.setState({ tempFilePath: this.state.params.file_path });
     this.setState(prevState => ({
@@ -296,14 +332,14 @@ class DisplayPage extends Component {
                   onChange={this.handleChange}
                 />
               </FormGroup>
-              <br/>
+              <br />
               <Accordion>
                 <Accordion.Item eventKey="0">
                   <Accordion.Header>Recently Selected Directories</Accordion.Header>
                   <Accordion.Body>
-                  {this.state.recentlySelectedDirectories.map((directory) => (
-                  <button onClick={() => this.fillInPathWithSelectedRecentDirectory(directory)}>{directory}</button>
-                  ))}
+                    {this.state.recentlySelectedDirectories.map(directory => (
+                      <button onClick={() => this.fillInPathWithSelectedRecentDirectory(directory)}>{directory}</button>
+                    ))}
                   </Accordion.Body>
                 </Accordion.Item>
               </Accordion>

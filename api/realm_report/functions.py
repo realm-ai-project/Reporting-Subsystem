@@ -178,10 +178,18 @@ def getAllHeatmapFilesFromDirectory(directory):
         return []
 
 def checkFileExists(fileName, directory):
-    for file in os.listdir(directory):
-        if file == fileName:
-            return True
+    if fileName in os.listdir(directory):
+        return True
     return False
+
+def deleteFileIfExists(fileName, directory):
+    if not checkFileExists(fileName, directory):
+        return False
+    try:
+        os.remove(directory+"/"+fileName)
+    except:
+        return False
+    return True
 
 def checkRunDirectoryStructure(directory):
     # run directories should follow a consistent internal structure
