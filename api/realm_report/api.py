@@ -71,7 +71,7 @@ def _cache_recent_directories(directory):
         if directory in recent_dir:
             recent_dir.remove(directory)
         recent_dir.append(directory)
-        pickle.dump(recent_dir[:-25:-1], open(f, "wb"))
+        pickle.dump(recent_dir[-25:], open(f, "wb"))
 
 @app.route('/isValidDirectory', methods=["POST"])
 def is_valid_directory():
@@ -96,7 +96,7 @@ def get_recent_directories():
         if not os.path.isfile(f):
             return jsonify({"recent_directories":[]})
         else:
-            recent_dir = pickle.load(open(f, "rb"))
+            recent_dir = pickle.load(open(f, "rb"))[::-1]
             return jsonify({"recent_directories":recent_dir})
 
 @app.route('/clearRecentDirectories', methods=["POST"])
