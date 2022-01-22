@@ -1,15 +1,17 @@
-from collections import deque
-from importlib.resources import path
 import os
 import pickle
+from collections import deque
+from importlib.resources import path
+from pathlib import Path
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from tensorboard import program
 
-from realm_report.functions import *
-from realm_report.generator import createHeatmap1, createHeatmap2, createHeatmap3, createHeatmap4
 import realm_report.data
+from realm_report.functions import *
+from realm_report.generator import (createHeatmap1, createHeatmap2,
+                                    createHeatmap3, createHeatmap4)
 
 app = Flask(__name__)
 CORS(app)
@@ -139,8 +141,8 @@ def play_video():
 def count_dat_files():
     return {"count": len(getAllDatFilesFromDirectory(request.json["file_path"]+DATA_SUBDIRECTORY))}
 
-@app.route('/by_reward/<range_type>/<percentage>/<dat_id>', methods=["POST"])
-def create_heatmap_by_reward(range_type, percentage, dat_id):
+@app.route('/by_reward/<range_type>/<percentage>', methods=["POST"])
+def create_heatmap_by_reward(range_type, percentage):
     '''
     TODO validate parameter inputs
     '''
@@ -149,45 +151,23 @@ def create_heatmap_by_reward(range_type, percentage, dat_id):
         highest = True
     elif range_type == "bottom":
         highest = False
-    # hardcoded file for testing purposes - michael, you should look into accepting filePath as a param
-    absDataDirPath = request.json["file_path"]+DATA_SUBDIRECTORY
-    filePath = absDataDirPath + "/" + constructDatFileName(dat_id)
 
-    # hardcoded file name for testing purposes
-    # should discuss a file naming convention, or allow user to input file name
-    fileName = f"heatmap_reward_{range_type}_{percentage}_dat_id_{dat_id}.jpg"
+    absDataDirPath = Path(request.json["file_path"] + DATA_SUBDIRECTORY)
+    fileName = f"heatmap_reward_{range_type}_{percentage}.jpg"
+    fileSavePath = absDataDirPath / fileName
 
-    # Verify if file exists, overwrite heatmap file
-    if checkFileExists(fileName, absDataDirPath):
-        # remove from in memory lookup
-        if filePath in DATA_JSON_LOOKUP:
-            DATA_JSON_LOOKUP.remove(filePath)
-        # delete heatmap jpg file
-        deleteFileIfExists(fileName, absDataDirPath)
-
-    if filePath not in DATA_JSON_LOOKUP: # data needs to be loaded in
-        data = loadJSONIntoMemory(filePath)
+    if not checkFileExists(fileName, absDataDirPath): # Create Heatmap
+        datFilePaths = getAllDatFilesFromDirectory(absDataDirPath)
+        data = loadJSONIntoMemory(datFilePaths)
         if data == []:
-            return {'text': 'Heatmap was not created: %s' % filePath}
+            return {'text': 'Heatmap was not created: %s' % absDataDirPath}
+        createHeatmap2(data, float(percentage), highest, fileSavePath)
 
-        DATA_DICTIONARY[filePath] = data
-        DATA_JSON_LOOKUP.add(filePath)
-        print("%s has been loaded into memory successfully" % filePath)
-        
-    # Get data
-    data = DATA_DICTIONARY[filePath]
-    fileSavePath = absDataDirPath + f"/{fileName}"
-
-    # Create Heatmap
-    createHeatmap2(data, float(percentage), highest, fileSavePath)
-
-    # get base64
     base64_str = getAndConvertJPGToBase64(fileSavePath)
-    
     return {'name': fileName, "base64": base64_str}
 
-@app.route('/by_episode_length/<range_type>/<percentage>/<dat_id>', methods=["POST"])
-def create_heatmap_by_episode_length(range_type, percentage, dat_id):
+@app.route('/by_episode_length/<range_type>/<percentage>', methods=["POST"])
+def create_heatmap_by_episode_length(range_type, percentage):
     '''
     TODO validate parameter inputs
     '''
@@ -196,123 +176,58 @@ def create_heatmap_by_episode_length(range_type, percentage, dat_id):
         highest = True
     elif range_type == "bottom":
         highest = False
-    # hardcoded file for testing purposes - michael, you should look into accepting filePath as a param
-    absDataDirPath = request.json["file_path"]+DATA_SUBDIRECTORY
-    filePath = absDataDirPath + "/" + constructDatFileName(dat_id)
+    
+    absDataDirPath = Path(request.json["file_path"] + DATA_SUBDIRECTORY)
+    fileName = f"heatmap_episode_length_{range_type}_{percentage}.jpg"
+    fileSavePath = absDataDirPath / fileName
 
-    # hardcoded file name for testing purposes
-    # should discuss a file naming convention, or allow user to input file name
-    fileName = f"heatmap_episode_length_{range_type}_{percentage}_dat_id_{dat_id}.jpg"
-
-    # Verify if file exists, overwrite heatmap file
-    if checkFileExists(fileName, absDataDirPath):
-        # remove from in memory lookup
-        if filePath in DATA_JSON_LOOKUP:
-            DATA_JSON_LOOKUP.remove(filePath)
-        # delete heatmap jpg file
-        deleteFileIfExists(fileName, absDataDirPath)
-
-    if filePath not in DATA_JSON_LOOKUP: # data needs to be loaded in
-        data = loadJSONIntoMemory(filePath)
+    if not checkFileExists(fileName, absDataDirPath): # Create Heatmap
+        datFilePaths = getAllDatFilesFromDirectory(absDataDirPath)
+        data = loadJSONIntoMemory(datFilePaths)
         if data == []:
-            return {'text': 'Heatmap was not created: %s' % filePath}
+            return {'text': 'Heatmap was not created: %s' % absDataDirPath}
+        createHeatmap3(data, float(percentage), highest, fileSavePath)
 
-        DATA_DICTIONARY[filePath] = data
-        DATA_JSON_LOOKUP.add(filePath)
-        print("%s has been loaded into memory successfully" % filePath)
-        
-    # Get data
-    data = DATA_DICTIONARY[filePath]
-    fileSavePath = absDataDirPath + f"/{fileName}"
-
-    # Create Heatmap
-    createHeatmap3(data, float(percentage), highest, fileSavePath)
-    
-    # get base64
     base64_str = getAndConvertJPGToBase64(fileSavePath)
-    
     return {'name': fileName, "base64": base64_str}
 
-@app.route('/naive/<dat_id>', methods=["POST"])
-def create_heatmap_naive(dat_id):
+@app.route('/naive', methods=["POST"])
+def create_heatmap_naive():
     '''
     TODO validate parameter inputs
     '''
 
-    absDataDirPath = request.json["file_path"]+DATA_SUBDIRECTORY
-    filePath = absDataDirPath + "/" + constructDatFileName(dat_id)
-    
-    fileName = f"heatmap_naive_dat_id_{dat_id}.jpg"
+    absDataDirPath = Path(request.json["file_path"] + DATA_SUBDIRECTORY)
+    fileName = "heatmap_naive.jpg"
+    fileSavePath = absDataDirPath / fileName
 
-    # Verify if file exists, overwrite heatmap file
-    if checkFileExists(fileName, absDataDirPath):
-        # remove from in memory lookup
-        if filePath in DATA_JSON_LOOKUP:
-            DATA_JSON_LOOKUP.remove(filePath)
-        # delete heatmap jpg file
-        deleteFileIfExists(fileName, absDataDirPath)
-    
-    if filePath not in DATA_JSON_LOOKUP: # data needs to be loaded in
-        data = loadJSONIntoMemory(filePath)
+    if not checkFileExists(fileName, absDataDirPath): # Create Heatmap
+        datFilePaths = getAllDatFilesFromDirectory(absDataDirPath)
+        data = loadJSONIntoMemory(datFilePaths)
         if data == []:
-            return {'text': 'Heatmap was not created: %s' % filePath}
+            return {'text': 'Heatmap was not created: %s' % absDataDirPath}
+        createHeatmap1(data, fileSavePath)
 
-        DATA_DICTIONARY[filePath] = data
-        DATA_JSON_LOOKUP.add(filePath)
-        print("%s has been loaded into memory successfully" % filePath)
-        
-    # Get data
-    data = DATA_DICTIONARY[filePath]
-    fileSavePath = absDataDirPath + f"/{fileName}"
-
-    # Create Heatmap
-    createHeatmap1(data, fileSavePath)
-
-    # get base64
     base64_str = getAndConvertJPGToBase64(fileSavePath)
-    
     return {'name': fileName, "base64": base64_str}
 
-@app.route('/by_last_position/<dat_id>', methods=["POST"])
-def create_heatmap_by_last_position(dat_id):
+@app.route('/by_last_position', methods=["POST"])
+def create_heatmap_by_last_position():
     '''
     TODO validate parameter inputs
     '''
-    # hardcoded file for testing purposes - michael, you should look into accepting filePath as a param
-    absDataDirPath = request.json["file_path"]+DATA_SUBDIRECTORY
-    filePath = absDataDirPath + "/" + constructDatFileName(dat_id)
+    absDataDirPath = Path(request.json["file_path"] + DATA_SUBDIRECTORY)
+    fileName = "heatmap_last_position.jpg"
+    fileSavePath = absDataDirPath / fileName
 
-    # hardcoded file name for testing purposes
-    # should discuss a file naming convention, or allow user to input file name
-    fileName = f"heatmap_last_position_dat_id_{dat_id}.jpg"
-
-    # Verify if file exists, overwrite heatmap file
-    if checkFileExists(fileName, absDataDirPath):
-        # remove from in memory lookup
-        if filePath in DATA_JSON_LOOKUP:
-            DATA_JSON_LOOKUP.remove(filePath)
-        # delete heatmap jpg file
-        deleteFileIfExists(fileName, absDataDirPath)
-
-    if filePath not in DATA_JSON_LOOKUP: # data needs to be loaded in
-        data = loadJSONIntoMemory(filePath)
+    if not checkFileExists(fileName, absDataDirPath): # Create Heatmap
+        datFilePaths = getAllDatFilesFromDirectory(absDataDirPath)
+        data = loadJSONIntoMemory(datFilePaths)
         if data == []:
-            return {'text': 'Heatmap was not created: %s' % filePath}
+            return {'text': 'Heatmap was not created: %s' % absDataDirPath}
+        createHeatmap4(data, fileSavePath)
 
-        DATA_DICTIONARY[filePath] = data
-        DATA_JSON_LOOKUP.add(filePath)
-        print("%s has been loaded into memory successfully" % filePath)
-        
-    # Get data
-    data = DATA_DICTIONARY[filePath]
-    fileSavePath = absDataDirPath + f"/{fileName}"
-
-    # Create Heatmap
-    createHeatmap4(data, fileSavePath)
-
-    # get base64
     base64_str = getAndConvertJPGToBase64(fileSavePath)
-    
     return {'name': fileName, "base64": base64_str}
 
 # @app.before_first_request # couldn't get this to be on flask init
