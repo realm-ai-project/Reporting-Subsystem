@@ -5,6 +5,7 @@ import platform
 import re
 import struct
 import subprocess, shlex
+from pathlib import Path
 
 # gets and converts a jpg to base 64, pass absoulte path as argument
 def getAndConvertJPGToBase64(filePath):
@@ -13,41 +14,45 @@ def getAndConvertJPGToBase64(filePath):
     return base64_str
 
 # returns dictionary of json data from the dat file
-def convertDatToJson(datFilePath):
-    file = open(datFilePath, "rb")
+def convertDatToJson(datFilePaths):
     jsondict = {'episodes':[]}
-    bytes = file.read(16)
-    while bytes:
-        # Read from .dat file
-        (episode, duration, reward, num_positions) = struct.unpack("iffi", bytes)
-        # print("Episode: %d, duration: %f, reward: %f, positions: %d" % (episode, duration, reward, num_positions))
-        positions = []
-        for i in range(num_positions):
-            bytes = file.read(8)
-            (x, y) = struct.unpack("ff", bytes)
-            positions.append((x,y))
+    for path in datFilePaths:
+        file = open(path, "rb")
+        jsondict = {'episodes':[]}
         bytes = file.read(16)
+        while bytes:
+            # Read from .dat file
+            (episode, duration, reward, num_positions) = struct.unpack("iffi", bytes)
+            # print("Episode: %d, duration: %f, reward: %f, positions: %d" % (episode, duration, reward, num_positions))
+            positions = []
+            for i in range(num_positions):
+                bytes = file.read(8)
+                (x, y) = struct.unpack("ff", bytes)
+                positions.append((x,y))
+            bytes = file.read(16)
 
-        # Write to json
-        pos_x, pos_y = zip(*positions)
-        episode_data = {
-            'episode_number':episode, 
-            'duration':duration, 
-            'reward':reward, 
-            'pos_x': pos_x,
-            'pos_y': pos_y,
-            'step_num':num_positions # not in spec, but could be useful
-            }
-        jsondict['episodes'].append(episode_data)
-    
+            # Write to json
+            pos_x, pos_y = zip(*positions)
+            episode_data = {
+                'episode_number':episode, 
+                'duration':duration, 
+                'reward':reward, 
+                'pos_x': pos_x,
+                'pos_y': pos_y,
+                'step_num':num_positions # not in spec, but could be useful
+                }
+            jsondict['episodes'].append(episode_data)
+
+        file.close()
+        
     return jsondict
 
 # converts dat to json as dictionary
-def loadJSONIntoMemory(filePath):
+def loadJSONIntoMemory(filePaths):
     try: 
-        return convertDatToJson(filePath)
+        return convertDatToJson(filePaths)
     except OSError as e:
-        print("Error: %s : %s" % (filePath, e.strerror))
+        print("Error: %s : %s" % (filePaths, e.strerror))
         return []
 
 def removeFile(filePath):

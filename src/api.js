@@ -12,16 +12,16 @@ export async function generateHeatmap(option, params) {
     body: JSON.stringify({ file_path: params.file_path }),
   };
   if (option === '1') {
-    url += 'naive/' + params.dat_id;
+    url += 'naive'
     return makeApiCall(url, body);
   } else if (option === '2') {
-    url += 'by_reward/' + params.range_type + '/' + params.percentage + '/' + params.dat_id;
+    url += 'by_reward/' + params.range_type + '/' + params.percentage;
     return makeApiCall(url, body);
   } else if (option === '3') {
-    url += 'by_episode_length/' + params.range_type + '/' + params.percentage + '/' + params.dat_id;
+    url += 'by_episode_length/' + params.range_type + '/' + params.percentage;
     return makeApiCall(url, body);
   } else if (option === '4') {
-    url += 'by_last_position/' + params.dat_id;
+    url += 'by_last_position';
     return makeApiCall(url, body);
   }
 }
