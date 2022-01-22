@@ -42,6 +42,7 @@ export default class Header extends Component {
         <SkipToContentLink focusId="primary-content" />
         <div className="top-nav">
           <Navbar color="faded" light expand="md">
+            <img src="/favicon.png" style={{ width: '26px', marginRight: '4px' }} />
             <div className="page-heading m-1">{this.getPageTitle()}</div>
             <NavbarToggler onClick={this.toggle} />
             <Collapse isOpen={this.state.isOpen} navbar>
