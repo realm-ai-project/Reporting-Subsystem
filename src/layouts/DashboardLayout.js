@@ -75,13 +75,13 @@ export default class DashboardLayout extends Component {
                   {routes.map((page, key) => (
                     <Route path={page.path} component={page.component} key={key} />
                   ))}
-                  <Redirect from="/" to="/home" />
+                  <Redirect from="/" to="/display" />
                 </Switch>
               </PageContent>
             </Page>
           </div>
           <Footer>
-            <span>Copyright © 2021 38 Milk Kings. All rights reserved.</span>
+            <span>Copyright © 2022 38 Milk Kings. All rights reserved.</span>
             <span className="ml-auto hidden-xs">
               Made with{' '}
               <span role="img" aria-label="taco">
