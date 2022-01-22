@@ -462,23 +462,25 @@ class DisplayPage extends Component {
                 </Row>
               </Form>
               <Row>
-                {this.state.naiveImageList.map((imgObj, index) => (
-                  <div key={index} style={{ display: 'flex', flexDirection: 'row' }}>
-                    <Card onClick={() => this.expandImage(`data:image/png;base64,${imgObj.base64}`)}>
-                      <CardImg
-                        src={`data:image/png;base64,${imgObj.base64}`}
-                        style={{
-                          minHeight: '10%',
-                          maxHeight: 500,
-                          cursor: 'pointer',
-                        }}
-                      />
-                      <CardBody>
-                        <CardTitle>{imgObj.name}</CardTitle>
-                      </CardBody>
-                    </Card>
-                  </div>
-                ))}
+                <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+                  {this.state.naiveImageList.map((imgObj, index) => (
+                    <div key={index}>
+                      <Card onClick={() => this.expandImage(`data:image/png;base64,${imgObj.base64}`)}>
+                        <CardImg
+                          src={`data:image/png;base64,${imgObj.base64}`}
+                          style={{
+                            minHeight: '10%',
+                            maxHeight: 500,
+                            cursor: 'pointer',
+                          }}
+                        />
+                        <CardBody>
+                          <CardTitle>{imgObj.name}</CardTitle>
+                        </CardBody>
+                      </Card>
+                    </div>
+                  ))}
+                </div>
                 <Modal isOpen={this.state.selectedImage} toggle={this.closeImageModal}>
                   <Card>
                     <CardImg
@@ -551,19 +553,21 @@ class DisplayPage extends Component {
                 </Button>
               </Form>
               <Row>
-                {this.state.byRewardImageList.map((imgObj, index) => (
-                  <div key={index} style={{ display: 'flex', flexDirection: 'row' }}>
-                    <Card onClick={() => this.expandImage(`data:image/png;base64,${imgObj.base64}`)}>
-                      <CardImg
-                        src={`data:image/png;base64,${imgObj.base64}`}
-                        style={{ flex: 1, minHeight: '10%', maxHeight: 500, cursor: 'pointer' }}
-                      />
-                      <CardBody>
-                        <CardTitle>{imgObj.name}</CardTitle>
-                      </CardBody>
-                    </Card>
-                  </div>
-                ))}
+                <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+                  {this.state.byRewardImageList.map((imgObj, index) => (
+                    <div key={index}>
+                      <Card onClick={() => this.expandImage(`data:image/png;base64,${imgObj.base64}`)}>
+                        <CardImg
+                          src={`data:image/png;base64,${imgObj.base64}`}
+                          style={{ flex: 1, minHeight: '10%', maxHeight: 500, cursor: 'pointer' }}
+                        />
+                        <CardBody>
+                          <CardTitle>{imgObj.name}</CardTitle>
+                        </CardBody>
+                      </Card>
+                    </div>
+                  ))}
+                </div>
               </Row>
             </TabPane>
             <TabPane tabId="3">
@@ -624,19 +628,21 @@ class DisplayPage extends Component {
                 </Button>
               </Form>
               <Row>
-                {this.state.byEpisodeLengthList.map((imgObj, index) => (
-                  <div key={index} style={{ display: 'flex', flexDirection: 'row' }}>
-                    <Card onClick={() => this.expandImage(`data:image/png;base64,${imgObj.base64}`)}>
-                      <CardImg
-                        src={`data:image/png;base64,${imgObj.base64}`}
-                        style={{ flex: 1, minHeight: '10%', maxHeight: 500, cursor: 'pointer' }}
-                      />
-                      <CardBody>
-                        <CardTitle>{imgObj.name}</CardTitle>
-                      </CardBody>
-                    </Card>
-                  </div>
-                ))}
+                <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+                  {this.state.byEpisodeLengthList.map((imgObj, index) => (
+                    <div key={index}>
+                      <Card onClick={() => this.expandImage(`data:image/png;base64,${imgObj.base64}`)}>
+                        <CardImg
+                          src={`data:image/png;base64,${imgObj.base64}`}
+                          style={{ flex: 1, minHeight: '10%', maxHeight: 500, cursor: 'pointer' }}
+                        />
+                        <CardBody>
+                          <CardTitle>{imgObj.name}</CardTitle>
+                        </CardBody>
+                      </Card>
+                    </div>
+                  ))}
+                </div>
               </Row>
             </TabPane>
             <TabPane tabId="4">
@@ -660,19 +666,21 @@ class DisplayPage extends Component {
                 </Button>
               </Form>
               <Row>
-                {this.state.byLastPositionList.map((imgObj, index) => (
-                  <div key={index} style={{ display: 'flex', flexDirection: 'row' }}>
-                    <Card onClick={() => this.expandImage(`data:image/png;base64,${imgObj.base64}`)}>
-                      <CardImg
-                        src={`data:image/png;base64,${imgObj.base64}`}
-                        style={{ flex: 1, minHeight: '10%', maxHeight: 500, cursor: 'pointer' }}
-                      />
-                      <CardBody>
-                        <CardTitle>{imgObj.name}</CardTitle>
-                      </CardBody>
-                    </Card>
-                  </div>
-                ))}
+                <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+                  {this.state.byLastPositionList.map((imgObj, index) => (
+                    <div key={index}>
+                      <Card onClick={() => this.expandImage(`data:image/png;base64,${imgObj.base64}`)}>
+                        <CardImg
+                          src={`data:image/png;base64,${imgObj.base64}`}
+                          style={{ flex: 1, minHeight: '10%', maxHeight: 500, cursor: 'pointer' }}
+                        />
+                        <CardBody>
+                          <CardTitle>{imgObj.name}</CardTitle>
+                        </CardBody>
+                      </Card>
+                    </div>
+                  ))}
+                </div>
               </Row>
             </TabPane>
           </TabContent>
@@ -682,29 +690,31 @@ class DisplayPage extends Component {
             <CardBody>
               <CardTitle tag="h5">Videos</CardTitle>
               <hr />
-              {this.state.videoFilesList.map((videoFileName, index) => (
-                <div>
-                  <Card
-                    onClick={() => this.openVideo(this.state.videosList[index])}
-                    style={{ maxWidth: '230px', width: 'auto', height: 'auto', cursor: 'pointer' }}
-                  >
-                    <CardImg
-                      src={'/assets/play-button.png'}
-                      style={{
-                        backgroundColor: '#696969',
-                        maxWidth: '230px',
-                        width: 'auto',
-                        height: 'auto',
-                        padding: '8px',
-                      }}
-                    />
-                    <CardBody>
-                      <CardTitle>{videoFileName}</CardTitle>
-                      {/* <button onClick={() => this.openVideo(this.state.videosList[index])}>{videoFileName}</button> */}
-                    </CardBody>
-                  </Card>
-                </div>
-              ))}
+              <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+                {this.state.videoFilesList.map((videoFileName, index) => (
+                  <div>
+                    <Card
+                      className="m-2"
+                      onClick={() => this.openVideo(this.state.videosList[index])}
+                      style={{ maxWidth: '160px', width: 'auto', height: 'auto', cursor: 'pointer' }}
+                    >
+                      <CardImg
+                        src={'/assets/play-button.png'}
+                        style={{
+                          backgroundColor: '#696969',
+                          maxWidth: '160px',
+                          width: 'auto',
+                          height: 'auto',
+                          padding: '8px',
+                        }}
+                      />
+                      <CardBody>
+                        <CardTitle>{videoFileName}</CardTitle>
+                      </CardBody>
+                    </Card>
+                  </div>
+                ))}
+              </div>
             </CardBody>
           </Card>
         )}
