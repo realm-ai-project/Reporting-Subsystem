@@ -442,25 +442,11 @@ class DisplayPage extends Component {
         {this.state.isDirectorySelected && (
           <TabContent activeTab={this.state.activeTab}>
             <TabPane tabId="1">
-              <Form>
-                <Row form>
-                  <Col md={3}>
-                    <FormGroup>
-                      <Label className="mb-2">Enter specified dat_id</Label>
-                      <Input
-                        type="text"
-                        pattern="[0-9]*"
-                        onChange={event => this.updateStateParamsDatId(event.target.value)}
-                        value={this.state.params.dat_id}
-                        className="mb-2"
-                      />
-                    </FormGroup>
-                    <Button onClick={() => this.apiHandler(this.state.activeTab, this.state.params)}>
-                      Generate Heatmap
-                    </Button>
-                  </Col>
-                </Row>
-              </Form>
+              <Col md={3}>
+                <Button onClick={() => this.apiHandler(this.state.activeTab, this.state.params)}>
+                  Generate Heatmap
+                </Button>
+              </Col>
               <Row>
                 <div style={{ display: 'flex', flexWrap: 'wrap' }}>
                   {this.state.naiveImageList.map((imgObj, index) => (
@@ -497,20 +483,6 @@ class DisplayPage extends Component {
             </TabPane>
             <TabPane tabId="2">
               <Form>
-                <Row form>
-                  <Col md={3}>
-                    <FormGroup>
-                      <Label className="mb-2">Enter specified dat_id</Label>
-                      <Input
-                        type="text"
-                        pattern="[0-9]*"
-                        onChange={event => this.updateStateParamsDatId(event.target.value)}
-                        value={this.state.params.dat_id}
-                        className="mb-2"
-                      />
-                    </FormGroup>
-                  </Col>
-                </Row>
                 <Row form>
                   <Col md={3}>
                     <FormGroup>
@@ -575,20 +547,6 @@ class DisplayPage extends Component {
                 <Row form>
                   <Col md={3}>
                     <FormGroup>
-                      <Label className="mb-2">Enter specified dat_id</Label>
-                      <Input
-                        type="text"
-                        pattern="[0-9]*"
-                        onChange={event => this.updateStateParamsDatId(event.target.value)}
-                        value={this.state.params.dat_id}
-                        className="mb-2"
-                      />
-                    </FormGroup>
-                  </Col>
-                </Row>
-                <Row form>
-                  <Col md={3}>
-                    <FormGroup>
                       <Label className="mb-2">Range type</Label>
                       <Input
                         type="select"
@@ -646,25 +604,11 @@ class DisplayPage extends Component {
               </Row>
             </TabPane>
             <TabPane tabId="4">
-              <Form>
-                <Row form>
-                  <Col md={3}>
-                    <FormGroup>
-                      <Label className="mb-2">Enter specified dat_id</Label>
-                      <Input
-                        type="text"
-                        pattern="[0-9]*"
-                        onChange={event => this.updateStateParamsDatId(event.target.value)}
-                        value={this.state.params.dat_id}
-                        className="mb-2"
-                      />
-                    </FormGroup>
-                  </Col>
-                </Row>
+              <Col md={3}>
                 <Button onClick={() => this.apiHandler(this.state.activeTab, this.state.params)}>
                   Generate Heatmap
                 </Button>
-              </Form>
+              </Col>
               <Row>
                 <div style={{ display: 'flex', flexWrap: 'wrap' }}>
                   {this.state.byLastPositionList.map((imgObj, index) => (
@@ -725,21 +669,14 @@ class DisplayPage extends Component {
               <Accordion.Item eventKey="0">
                 <Accordion.Header>How do I view videos?</Accordion.Header>
                 <Accordion.Body>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
-                  dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-                  aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum
-                  dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui
-                  officia deserunt mollit anim id est laborum.
+                  Select a directory path and any videos generated by RealmAI will appear in the above video card. By clicking
+                  on any of the videos, the video will start playing in your default OS video player.
                 </Accordion.Body>
               </Accordion.Item>
               <Accordion.Item eventKey="1">
                 <Accordion.Header>How can I improve results?</Accordion.Header>
                 <Accordion.Body>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
-                  dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-                  aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum
-                  dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui
-                  officia deserunt mollit anim id est laborum.
+                  Ken maybe write a small blurb on using the python gui to tune better/read the ml agents documentation.
                 </Accordion.Body>
               </Accordion.Item>
               <Accordion.Item eventKey="2">
