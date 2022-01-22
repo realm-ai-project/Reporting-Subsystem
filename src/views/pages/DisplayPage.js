@@ -55,6 +55,8 @@ class DisplayPage extends Component {
     this.fileInput = React.createRef();
     this.toggle = this.toggle.bind(this);
     this.updatePercentage = this.updatePercentage.bind(this);
+    this.expandImage = this.expandImage.bind(this);
+    this.closeImageModal = this.closeImageModal.bind(this);
     this.state = {
       directoryErrorVisible: false,
       directoryError: '',
@@ -76,13 +78,13 @@ class DisplayPage extends Component {
       videoFilesList: [],
       recentlySelectedDirectories: [],
       isDirectorySelected: false,
+      selectedImage: null,
     };
 
     this.down = this.down.bind(this);
     this.up = this.up.bind(this);
     this.dismissDirectoryError = this.dismissDirectoryError.bind(this);
     this.onClickTenserboardButton = this.onClickTenserboardButton.bind(this);
-    // this.toggle = this.toggle.bind(this);
   }
 
   dismissDirectoryError() {
@@ -217,6 +219,16 @@ class DisplayPage extends Component {
         <button type="submit">Submit</button>
       </form>
     );
+  }
+
+  // Opens Modal with the image not truncated
+  expandImage(base64image) {
+    console.log(base64image);
+    this.setState({ selectedImage: base64image });
+  }
+
+  closeImageModal() {
+    this.setState({ selectedImage: null });
   }
 
   async openVideo(videoFileLocation) {
@@ -370,222 +382,276 @@ class DisplayPage extends Component {
           {this.state.directoryError}, please input a valid directory.
         </Alert>
         {directorySelected}
-        <Nav tabs>
-          <NavItem>
-            <NavLink
-              href="#"
-              className={classnames({ active: this.state.activeTab === '1' })}
-              onClick={() => {
-                this.toggleTab('1');
-              }}
-            >
-              Naive Heatmap
-            </NavLink>
-          </NavItem>
-          <NavItem>
-            <NavLink
-              href="#"
-              className={classnames({ active: this.state.activeTab === '2' })}
-              onClick={() => {
-                this.toggleTab('2');
-              }}
-            >
-              Heatmaps by Reward
-            </NavLink>
-          </NavItem>
-          <NavItem>
-            <NavLink
-              href="#"
-              className={classnames({ active: this.state.activeTab === '3' })}
-              onClick={() => {
-                this.toggleTab('3');
-              }}
-            >
-              Heatmaps by Episode Length
-            </NavLink>
-          </NavItem>
-          <NavItem>
-            <NavLink
-              href="#"
-              className={classnames({ active: this.state.activeTab === '4' })}
-              onClick={() => {
-                this.toggleTab('4');
-              }}
-            >
-              Heatmaps by Agent Last Position
-            </NavLink>
-          </NavItem>
-        </Nav>
-        <TabContent activeTab={this.state.activeTab}>
-          <TabPane tabId="1">
-            <Col md={3}>
-              <Button onClick={() => this.apiHandler(this.state.activeTab, this.state.params)}>
-                Generate Heatmap
-              </Button>
-            </Col>
-            <Row>
-              {this.state.naiveImageList.map((imgObj, index) => (
-                <div key={index} style={{ display: 'flex', flexDirection: 'row' }}>
+        {!this.state.isDirectorySelected && (
+          <Card className="my-4">
+            <CardBody>
+              <CardTitle tag="h1">Welcome to RealmAI</CardTitle>
+              <hr />
+              Select a directory to start!
+            </CardBody>
+          </Card>
+        )}
+        {this.state.isDirectorySelected && (
+          <Nav tabs>
+            <NavItem>
+              <NavLink
+                href="#"
+                className={classnames({ active: this.state.activeTab === '1' })}
+                onClick={() => {
+                  this.toggleTab('1');
+                }}
+              >
+                Naive Heatmap
+              </NavLink>
+            </NavItem>
+            <NavItem>
+              <NavLink
+                href="#"
+                className={classnames({ active: this.state.activeTab === '2' })}
+                onClick={() => {
+                  this.toggleTab('2');
+                }}
+              >
+                Heatmaps by Reward
+              </NavLink>
+            </NavItem>
+            <NavItem>
+              <NavLink
+                href="#"
+                className={classnames({ active: this.state.activeTab === '3' })}
+                onClick={() => {
+                  this.toggleTab('3');
+                }}
+              >
+                Heatmaps by Episode Length
+              </NavLink>
+            </NavItem>
+            <NavItem>
+              <NavLink
+                href="#"
+                className={classnames({ active: this.state.activeTab === '4' })}
+                onClick={() => {
+                  this.toggleTab('4');
+                }}
+              >
+                Heatmaps by Agent Last Position
+              </NavLink>
+            </NavItem>
+          </Nav>
+        )}
+        {this.state.isDirectorySelected && (
+          <TabContent activeTab={this.state.activeTab}>
+            <TabPane tabId="1">
+              <Col md={3}>
+                <Button onClick={() => this.apiHandler(this.state.activeTab, this.state.params)}>
+                  Generate Heatmap
+                </Button>
+              </Col>
+              <Row>
+                {this.state.naiveImageList.map((imgObj, index) => (
+                  <div key={index} style={{ display: 'flex', flexDirection: 'row' }}>
+                    <Card onClick={() => this.expandImage(`data:image/png;base64,${imgObj.base64}`)}>
+                      <CardImg
+                        src={`data:image/png;base64,${imgObj.base64}`}
+                        style={{
+                          minHeight: '10%',
+                          maxHeight: 500,
+                          cursor: 'pointer',
+                        }}
+                      />
+                      <CardBody>
+                        <CardTitle>{imgObj.name}</CardTitle>
+                      </CardBody>
+                    </Card>
+                  </div>
+                ))}
+                <Modal isOpen={this.state.selectedImage} toggle={this.closeImageModal}>
                   <Card>
                     <CardImg
-                      src={`data:image/png;base64,${imgObj.base64}`}
+                      src={this.state.selectedImage}
                       style={{
                         minHeight: '10%',
-                        maxHeight: 500,
+                        cursor: 'pointer',
+                      }}
+                    />
+                    <CardBody />
+                  </Card>
+                </Modal>
+              </Row>
+            </TabPane>
+            <TabPane tabId="2">
+              <Form>
+                <Row form>
+                  <Col md={3}>
+                    <FormGroup>
+                      <Label className="mb-2">Range type</Label>
+                      <Input
+                        type="select"
+                        onChange={event => this.updateStateParamsRangeType(event.target.value)}
+                        value={this.state.params.range_type}
+                        className="mb-2"
+                      >
+                        <option>top</option>
+                        <option>bottom</option>
+                      </Input>
+                    </FormGroup>
+                  </Col>
+                </Row>
+                <Row form>
+                  <Col md={3}>
+                    <FormGroup>
+                      <Label className="mb-2">Percentage</Label>
+                      <CardBody className="mb-2">
+                        <Row>
+                          <Slider
+                            onChange={this.updatePercentage}
+                            defaultValue={30}
+                            step={10}
+                            marks
+                            min={10}
+                            max={100}
+                            valueLabelDisplay="on"
+                            className="mt-2"
+                          />
+                        </Row>
+                      </CardBody>
+                    </FormGroup>
+                  </Col>
+                </Row>
+                <Button onClick={() => this.apiHandler(this.state.activeTab, this.state.params)}>
+                  Generate Heatmap
+                </Button>
+              </Form>
+              <Row>
+                {this.state.byRewardImageList.map((imgObj, index) => (
+                  <div key={index} style={{ display: 'flex', flexDirection: 'row' }}>
+                    <Card onClick={() => this.expandImage(`data:image/png;base64,${imgObj.base64}`)}>
+                      <CardImg
+                        src={`data:image/png;base64,${imgObj.base64}`}
+                        style={{ flex: 1, minHeight: '10%', maxHeight: 500, cursor: 'pointer' }}
+                      />
+                      <CardBody>
+                        <CardTitle>{imgObj.name}</CardTitle>
+                      </CardBody>
+                    </Card>
+                  </div>
+                ))}
+              </Row>
+            </TabPane>
+            <TabPane tabId="3">
+              <Form>
+                <Row form>
+                  <Col md={3}>
+                    <FormGroup>
+                      <Label className="mb-2">Range type</Label>
+                      <Input
+                        type="select"
+                        onChange={event => this.updateStateParamsRangeType(event.target.value)}
+                        value={this.state.params.range_type}
+                        className="mb-2"
+                      >
+                        <option>top</option>
+                        <option>bottom</option>
+                      </Input>
+                    </FormGroup>
+                  </Col>
+                </Row>
+                <Row form>
+                  <Col md={3}>
+                    <FormGroup>
+                      <Label className="mb-2">Percentage</Label>
+                      <CardBody className="mb-2">
+                        <Row>
+                          <Slider
+                            onChange={this.updatePercentage}
+                            defaultValue={30}
+                            step={10}
+                            marks
+                            min={10}
+                            max={100}
+                            valueLabelDisplay="on"
+                            className="mt-2"
+                          />
+                        </Row>
+                      </CardBody>
+                    </FormGroup>
+                  </Col>
+                </Row>
+                <Button onClick={() => this.apiHandler(this.state.activeTab, this.state.params)}>
+                  Generate Heatmap
+                </Button>
+              </Form>
+              <Row>
+                {this.state.byEpisodeLengthList.map((imgObj, index) => (
+                  <div key={index} style={{ display: 'flex', flexDirection: 'row' }}>
+                    <Card onClick={() => this.expandImage(`data:image/png;base64,${imgObj.base64}`)}>
+                      <CardImg
+                        src={`data:image/png;base64,${imgObj.base64}`}
+                        style={{ flex: 1, minHeight: '10%', maxHeight: 500, cursor: 'pointer' }}
+                      />
+                      <CardBody>
+                        <CardTitle>{imgObj.name}</CardTitle>
+                      </CardBody>
+                    </Card>
+                  </div>
+                ))}
+              </Row>
+            </TabPane>
+            <TabPane tabId="4">
+              <Col md={3}>
+                <Button onClick={() => this.apiHandler(this.state.activeTab, this.state.params)}>
+                  Generate Heatmap
+                </Button>
+              </Col>
+              <Row>
+                {this.state.byLastPositionList.map((imgObj, index) => (
+                  <div key={index} style={{ display: 'flex', flexDirection: 'row' }}>
+                    <Card onClick={() => this.expandImage(`data:image/png;base64,${imgObj.base64}`)}>
+                      <CardImg
+                        src={`data:image/png;base64,${imgObj.base64}`}
+                        style={{ flex: 1, minHeight: '10%', maxHeight: 500, cursor: 'pointer' }}
+                      />
+                      <CardBody>
+                        <CardTitle>{imgObj.name}</CardTitle>
+                      </CardBody>
+                    </Card>
+                  </div>
+                ))}
+              </Row>
+            </TabPane>
+          </TabContent>
+        )}
+        {this.state.isDirectorySelected && (
+          <Card className="my-4">
+            <CardBody>
+              <CardTitle tag="h5">Videos</CardTitle>
+              <hr />
+              {this.state.videoFilesList.map((videoFileName, index) => (
+                <div>
+                  <Card
+                    onClick={() => this.openVideo(this.state.videosList[index])}
+                    style={{ maxWidth: '230px', width: 'auto', height: 'auto', cursor: 'pointer' }}
+                  >
+                    <CardImg
+                      src={'/assets/play-button.png'}
+                      style={{
+                        backgroundColor: '#696969',
+                        maxWidth: '230px',
+                        width: 'auto',
+                        height: 'auto',
+                        padding: '8px',
                       }}
                     />
                     <CardBody>
-                      <CardTitle>{imgObj.name}</CardTitle>
+                      <CardTitle>{videoFileName}</CardTitle>
+                      {/* <button onClick={() => this.openVideo(this.state.videosList[index])}>{videoFileName}</button> */}
                     </CardBody>
                   </Card>
                 </div>
               ))}
-            </Row>
-          </TabPane>
-          <TabPane tabId="2">
-            <Form>
-              <Row form>
-                <Col md={3}>
-                  <FormGroup>
-                    <Label className="mb-2">Range type</Label>
-                    <Input
-                      type="select"
-                      onChange={event => this.updateStateParamsRangeType(event.target.value)}
-                      value={this.state.params.range_type}
-                      className="mb-2"
-                    >
-                      <option>top</option>
-                      <option>bottom</option>
-                    </Input>
-                  </FormGroup>
-                </Col>
-              </Row>
-              <Row form>
-                <Col md={3}>
-                  <FormGroup>
-                    <Label className="mb-2">Percentage</Label>
-                    <CardBody className="mb-2">
-                      <Row>
-                        <Slider
-                          onChange={this.updatePercentage}
-                          defaultValue={30}
-                          step={10}
-                          marks
-                          min={10}
-                          max={100}
-                          valueLabelDisplay="on"
-                          className="mt-2"
-                        />
-                      </Row>
-                    </CardBody>
-                  </FormGroup>
-                </Col>
-              </Row>
-              <Button onClick={() => this.apiHandler(this.state.activeTab, this.state.params)}>Generate Heatmap</Button>
-            </Form>
-            <Row>
-              {this.state.byRewardImageList.map((imgObj, index) => (
-                <div key={index} style={{ display: 'flex', flexDirection: 'row' }}>
-                  <Card>
-                    <CardImg
-                      src={`data:image/png;base64,${imgObj.base64}`}
-                      style={{ flex: 1, minHeight: '10%', maxHeight: 500 }}
-                    />
-                    <CardBody>
-                      <CardTitle>{imgObj.name}</CardTitle>
-                    </CardBody>
-                  </Card>
-                </div>
-              ))}
-            </Row>
-          </TabPane>
-          <TabPane tabId="3">
-            <Form>
-              <Row form>
-                <Col md={3}>
-                  <FormGroup>
-                    <Label className="mb-2">Range type</Label>
-                    <Input
-                      type="select"
-                      onChange={event => this.updateStateParamsRangeType(event.target.value)}
-                      value={this.state.params.range_type}
-                      className="mb-2"
-                    >
-                      <option>top</option>
-                      <option>bottom</option>
-                    </Input>
-                  </FormGroup>
-                </Col>
-              </Row>
-              <Row form>
-                <Col md={3}>
-                  <FormGroup>
-                    <Label className="mb-2">Percentage</Label>
-                    <CardBody className="mb-2">
-                      <Row>
-                        <Slider
-                          onChange={this.updatePercentage}
-                          defaultValue={30}
-                          step={10}
-                          marks
-                          min={10}
-                          max={100}
-                          valueLabelDisplay="on"
-                          className="mt-2"
-                        />
-                      </Row>
-                    </CardBody>
-                  </FormGroup>
-                </Col>
-              </Row>
-              <Button onClick={() => this.apiHandler(this.state.activeTab, this.state.params)}>Generate Heatmap</Button>
-            </Form>
-            <Row>
-              {this.state.byEpisodeLengthList.map((imgObj, index) => (
-                <div key={index} style={{ display: 'flex', flexDirection: 'row' }}>
-                  <Card>
-                    <CardImg
-                      src={`data:image/png;base64,${imgObj.base64}`}
-                      style={{ flex: 1, minHeight: '10%', maxHeight: 500 }}
-                    />
-                    <CardBody>
-                      <CardTitle>{imgObj.name}</CardTitle>
-                    </CardBody>
-                  </Card>
-                </div>
-              ))}
-            </Row>
-          </TabPane>
-          <TabPane tabId="4">
-            <Col md={3}>
-              <Button onClick={() => this.apiHandler(this.state.activeTab, this.state.params)}>Generate Heatmap</Button>
-            </Col>
-            <Row>
-              {this.state.byLastPositionList.map((imgObj, index) => (
-                <div key={index} style={{ display: 'flex', flexDirection: 'row' }}>
-                  <Card>
-                    <CardImg
-                      src={`data:image/png;base64,${imgObj.base64}`}
-                      style={{ flex: 1, minHeight: '10%', maxHeight: 500 }}
-                    />
-                    <CardBody>
-                      <CardTitle>{imgObj.name}</CardTitle>
-                    </CardBody>
-                  </Card>
-                </div>
-              ))}
-            </Row>
-          </TabPane>
-        </TabContent>
-        <Card className="my-4">
-          <CardBody>
-            <CardTitle tag="h5">Videos</CardTitle>
-            <hr />
-            {this.state.videoFilesList.map((videoFileName, index) => (
-              <button onClick={() => this.openVideo(this.state.videosList[index])}>{videoFileName}</button>
-            ))}
-          </CardBody>
-        </Card>
+            </CardBody>
+          </Card>
+        )}
         <div>
           <Card>
             <CardHeader className="my-1">Frequently Asked Questions</CardHeader>
