@@ -8,7 +8,32 @@ import seaborn as sns
 
 matplotlib.use('agg')
 
-def plot_and_save(filePath):
+def plot_and_save(pos_x, pos_y, filePath):
+    x_size, y_size = int(max(pos_x) - min(pos_x)), int(max(pos_y) - min(pos_y))
+    
+    # Find greatest common divisor 
+    # gcd = np.gcd(x_size, y_size)
+    
+    # Set aspect ratio of figure
+    aspect_ratio = x_size/y_size
+    
+    # max_width, max_height = 6.4, 4.8 # default figsize of matplotlib, in inches
+    max_width, max_height = 8, 6 # our own max size in inches
+    if max_width/aspect_ratio>max_height:
+        height = max_height
+        width = aspect_ratio*height
+        assert width<=max_width
+    else:
+        width = max_width
+        height = width/aspect_ratio
+        assert height<=max_height
+
+    plt.figure(figsize=(width, height))
+    H, _, _ = np.histogram2d(pos_x, pos_y, bins=[x_size, y_size])
+    
+    # Plot heatmap and save figures
+    ax = sns.heatmap(np.log(H.T+1), cmap="BuPu", cbar=False, xticklabels=False, yticklabels=False)
+    
     plt.savefig(filePath)
     plt.close()
 
@@ -42,18 +67,7 @@ def createHeatmap1(data, filePath):
 
     # Bin values
     pos_x, pos_y = np.concatenate(pos_x), np.concatenate(pos_y)
-    x_size, y_size = int(max(pos_x) - min(pos_x)), int(max(pos_y) - min(pos_y))
-    # Find greatest common divisor 
-    gcd = np.gcd(x_size, y_size)
-    # Set aspect ratio of figure
-    # scale the height, scale width by same factor, can change this factor on needed basis
-    height_scale_factor = 15/(y_size//gcd)
-    plt.figure(figsize=((x_size//gcd)*height_scale_factor, (y_size//gcd)*height_scale_factor))
-    H, _, _ = np.histogram2d(pos_x, pos_y, bins=[x_size, y_size])
-    
-    # Plot heatmap and save figures
-    ax = sns.heatmap(np.log(H.T+1), cmap="BuPu", yticklabels=20)
-    plot_and_save(filePath)
+    plot_and_save(pos_x, pos_y, filePath)
 
 
 """
@@ -79,27 +93,12 @@ def createHeatmap2(data, percentile, highest, filePath):
 
     # Concatenate all positional data across filtered episodes
     pos_x, pos_y = np.concatenate(filtered_df['pos_x'].to_numpy()), np.concatenate(filtered_df['pos_y'].to_numpy())
-    x_size, y_size = int(max(pos_x) - min(pos_x)), int(max(pos_y) - min(pos_y))
-
-    # Find greatest common divisor 
-    gcd = np.gcd(x_size, y_size)
-    # Set aspect ratio of figure
-    # scale the height, scale width by same factor
-    height_scale_factor = 15/(y_size//gcd)
-    plt.figure(figsize=((x_size//gcd)*height_scale_factor, (y_size//gcd)*height_scale_factor))
-
-    # Bin values
-    H, _, _ = np.histogram2d(pos_x, pos_y, bins=[x_size, y_size])
-
-    # Plot heatmap and save figures
-    sns.heatmap(np.log(H.T+1), cmap="BuPu", yticklabels=20)
 
     if highest:
         print("Heatmap 2: Top %f%% highest gamescore episodes" % (percentile*100))
-        plot_and_save(filePath)
     else:
         print("Heatmap 2: Bottom %f%% lowest gamescore episodes" % (percentile*100))
-        plot_and_save(filePath)
+    plot_and_save(pos_x, pos_y, filePath)
 
 
 """
@@ -125,26 +124,12 @@ def createHeatmap3(data, percentile, longest, filePath):
 
     # Concatenate all positional data across filtered episodes
     pos_x, pos_y = np.concatenate(filtered_df['pos_x'].to_numpy()), np.concatenate(filtered_df['pos_y'].to_numpy())
-    x_size, y_size = int(max(pos_x) - min(pos_x)), int(max(pos_y) - min(pos_y))
-    # Find greatest common divisor 
-    gcd = np.gcd(x_size, y_size)
-    # Set aspect ratio of figure
-    # scale the height, scale width by same factor
-    height_scale_factor = 15/(y_size//gcd)
-    plt.figure(figsize=((x_size//gcd)*height_scale_factor, (y_size//gcd)*height_scale_factor))
-
-    # Bin values
-    H, _, _ = np.histogram2d(pos_x, pos_y, bins=[x_size, y_size])
-
-    # Plot heatmap and save figures
-    sns.heatmap(np.log(H.T+1), cmap="BuPu", yticklabels=20)
 
     if longest:
         print("Heatmap 3: Top %f%% longest duration episodes" % (percentile*100))
-        plot_and_save(filePath)
     else:
         print("Heatmap 3: Top %f%% shortest duration episodes" % (percentile*100))
-        plot_and_save(filePath)
+    plot_and_save(pos_x, pos_y, filePath)
 
 
 """
@@ -163,20 +148,7 @@ def createHeatmap4(data, filePath):
         pos_y.append(eps['pos_y'][-1])
     pos_x, pos_y = np.array(pos_x), np.array(pos_y)
 
-    # Bin values
-    pos_x, pos_y = np.array(pos_x), np.array(pos_y)
-    x_size, y_size = int(max(pos_x) - min(pos_x)), int(max(pos_y) - min(pos_y))
-    # Find greatest common divisor 
-    gcd = np.gcd(x_size, y_size)
-    # Set aspect ratio of figure
-    # scale the height, scale width by same factor
-    height_scale_factor = 15/(y_size//gcd)
-    plt.figure(figsize=((x_size//gcd)*height_scale_factor, (y_size//gcd)*height_scale_factor))
-    H, _, _ = np.histogram2d(pos_x, pos_y, bins=[x_size, y_size])
-    
-    # Plot heatmap and save figures
-    sns.heatmap(np.log(H.T+1), cmap="BuPu", yticklabels=20)
-    plot_and_save(filePath)
+    plot_and_save(pos_x, pos_y, filePath)
 
 
 """
@@ -204,19 +176,8 @@ def createHeatmap5(data, minReward, filePath):
 
     # Concatenate all positional data across filtered episodes
     pos_x, pos_y = np.concatenate(filtered_df['pos_x'].to_numpy()), np.concatenate(filtered_df['pos_y'].to_numpy())
-    x_size, y_size = int(max(pos_x) - min(pos_x)), int(max(pos_y) - min(pos_y))
-    # Find greatest common divisor 
-    gcd = np.gcd(x_size, y_size)
-    # Set aspect ratio of figure
-    # scale the height, scale width by same factor
-    height_scale_factor = 15/(y_size//gcd)
-    plt.figure(figsize=((x_size//gcd)*height_scale_factor, (y_size//gcd)*height_scale_factor))
-    # Bin values
-    H, _, _ = np.histogram2d(pos_x, pos_y, bins=[x_size, y_size])
 
-    # Plot heatmap and save figures
-    sns.heatmap(np.log(H.T+1), cmap="BuPu", yticklabels=20)
-    plot_and_save(filePath)
+    plot_and_save(pos_x, pos_y, filePath)
 
 
 """
@@ -244,16 +205,5 @@ def createHeatmap6(data, minSteps, filePath):
 
     # Concatenate all positional data across filtered episodes
     pos_x, pos_y = np.concatenate(filtered_df['pos_x'].to_numpy()), np.concatenate(filtered_df['pos_y'].to_numpy())
-    x_size, y_size = int(max(pos_x) - min(pos_x)), int(max(pos_y) - min(pos_y))
-    # Find greatest common divisor 
-    gcd = np.gcd(x_size, y_size)
-    # Set aspect ratio of figure
-    # scale the height, scale width by same factor
-    height_scale_factor = 15/(y_size//gcd)
-    plt.figure(figsize=((x_size//gcd)*height_scale_factor, (y_size//gcd)*height_scale_factor))
-    # Bin values
-    H, _, _ = np.histogram2d(pos_x, pos_y, bins=[x_size, y_size])
-
-    # Plot heatmap and save figures
-    sns.heatmap(np.log(H.T+1), cmap="BuPu", yticklabels=20)
-    plot_and_save(filePath)
+   
+    plot_and_save(pos_x, pos_y, filePath)
