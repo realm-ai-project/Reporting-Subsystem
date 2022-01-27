@@ -12,7 +12,7 @@ setup(
         "seaborn",
         "matplotlib",
         "scipy",
-        "tensorboard"
+        "tensorboard">=2,
     ],
     python_requires=">=3.6.1",
     packages=find_packages(),

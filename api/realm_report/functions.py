@@ -151,7 +151,7 @@ def playVideo(filePath):
         return False
 
     if userOS == "Windows":
-        cmd = '"C:\Program Files (x86)\Windows Media Player\wmplayer.exe" "%s"' % filePath
+        cmd = '"%s"' % filePath
         subprocess.run(shlex.split(cmd))
 
     elif userOS == "Linux":
