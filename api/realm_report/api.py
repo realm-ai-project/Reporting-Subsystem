@@ -66,13 +66,20 @@ def get_json_files():
         jsonFiles = getAllJsonFilesFromDirectory(f)
     return jsonify(jsonFiles)
 
-def _cache_recent_directories(directory):
+def _cache_recent_directories(directory, remove_only=False):
     with path(realm_report, TEST_DATA_DIRECTORY) as d:
         f = os.path.join(d, "recent_dir.pkl")
-        recent_dir = pickle.load(open(f, "rb")) if os.path.isfile(f) else []
+        if not os.path.isfile(f):
+            if remove_only: 
+                return
+            else: 
+                recent_dir = []
+        else:
+            recent_dir = pickle.load(open(f, "rb"))
         if directory in recent_dir:
             recent_dir.remove(directory)
-        recent_dir.append(directory)
+        if not remove_only:
+            recent_dir.append(directory)
         pickle.dump(recent_dir[-25:], open(f, "wb"))
 
 @app.route('/isValidDirectory', methods=["POST"])
@@ -87,8 +94,7 @@ def is_valid_directory():
     elif not checkRunDirectoryStructure(filepath):
         error_message = "path is not a valid runs directory with proper structure"
         is_valid_run_dir = False
-    else:
-        _cache_recent_directories(filepath)
+    _cache_recent_directories(filepath, remove_only= not is_valid_run_dir)
     return jsonify({"isDirectory": is_valid_run_dir, "error": error_message})
 
 @app.route('/recentDirectories', methods=["GET", "POST"])
