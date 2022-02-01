@@ -190,10 +190,7 @@ def checkFileExists(fileName, directory):
 def deleteFileIfExists(fileName, directory):
     if not checkFileExists(fileName, directory):
         return False
-    try:
-        os.remove(directory+"/"+fileName)
-    except:
-        return False
+    os.remove(Path(directory, fileName))
     return True
 
 def checkRunDirectoryStructure(directory):

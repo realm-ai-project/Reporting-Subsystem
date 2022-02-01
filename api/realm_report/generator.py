@@ -34,6 +34,7 @@ def plot_and_save(pos_x, pos_y, filePath):
     # Plot heatmap and save figures
     ax = sns.heatmap(np.log(H.T+1), cmap="BuPu", cbar=False, xticklabels=False, yticklabels=False)
     
+    # We can overwrite files this way
     plt.savefig(filePath)
     plt.close()
 
