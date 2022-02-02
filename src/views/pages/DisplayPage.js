@@ -58,6 +58,11 @@ class DisplayPage extends Component {
     this.expandImage = this.expandImage.bind(this);
     this.closeImageModal = this.closeImageModal.bind(this);
     this.state = {
+      loadingTenserboard: false,
+      loadingNaiveHeatmap: false,
+      loadingByRewardHeatmap: false,
+      loadingByEpisodeLengthHeatmap: false,
+      loadingByLastPositionHeatmap: false,
       directoryErrorVisible: false,
       directoryError: '',
       activeTab: '1',
@@ -85,6 +90,7 @@ class DisplayPage extends Component {
     this.up = this.up.bind(this);
     this.dismissDirectoryError = this.dismissDirectoryError.bind(this);
     this.onClickTenserboardButton = this.onClickTenserboardButton.bind(this);
+    this.apiHandler = this.apiHandler.bind(this);
   }
 
   dismissDirectoryError() {
@@ -129,35 +135,8 @@ class DisplayPage extends Component {
     return -1;
   }
 
-  // abstraction to let us set base64 image in react state
-  async apiHandler(option, params) {
-    let oldState = this.state;
-    let responseJSON;
-    let imageList;
-
-    // make api call based on option
-    if (option == '1' || option == '4') {
-      // make api call
-      responseJSON = await generateHeatmap(option, params);
-      // keep reference to correct list
-      if (option == '1') {
-        imageList = oldState.naiveImageList;
-      } else {
-        imageList = oldState.byLastPositionList;
-      }
-    } else if (option == '2' || option == '3') {
-      oldState.params.percentage = this.state.progress / 100;
-      responseJSON = await generateHeatmap(option, params);
-      if (option == '2') {
-        imageList = oldState.byRewardImageList;
-      } else {
-        imageList = oldState.byEpisodeLengthList;
-      }
-    } else {
-      // if option not valid return
-      return;
-    }
-
+  // explicitly used in apiHandler, to invoke a callback for manipulating spinners
+  async updateHeatmapImageListWithData(responseJSON, imageList) {
     // given response, check if heatmap returned already exists in image list
     let newHeatmapObj = { name: responseJSON.name, base64: responseJSON.base64, created_at: responseJSON.created_at };
     let existingIndex = this.checkHeatmapExistsInMemory(responseJSON.name, imageList);
@@ -166,18 +145,68 @@ class DisplayPage extends Component {
     } else {
       imageList.push(newHeatmapObj);
     }
+  }
 
-    this.setState(oldState);
+  async apiHandler() {
+    let option = this.state.activeTab;
+    let params = this.state.params;
+
+    if (option == '1') {
+      this.setState({ loadingNaiveHeatmap: true }, () => {
+        generateHeatmap(option, params).then(responseJSON => {
+          this.updateHeatmapImageListWithData(responseJSON, this.state.naiveImageList).then(result => {
+            this.setState({ loadingNaiveHeatmap: false });
+          });
+        });
+      });
+    }
+    if (option == '2') {
+      this.state.params.percentage = this.state.progress / 100;
+      this.setState({ loadingByRewardHeatmap: true }, () => {
+        generateHeatmap(option, params).then(responseJSON => {
+          this.updateHeatmapImageListWithData(responseJSON, this.state.byRewardImageList).then(result => {
+            this.setState({ loadingByRewardHeatmap: false });
+          });
+        });
+      });
+    }
+    if (option == '3') {
+      this.state.params.percentage = this.state.progress / 100;
+      this.setState({ loadingByEpisodeLengthHeatmap: true }, () => {
+        generateHeatmap(option, params).then(responseJSON => {
+          this.updateHeatmapImageListWithData(responseJSON, this.state.byEpisodeLengthList).then(result => {
+            this.setState({ loadingByEpisodeLengthHeatmap: false });
+          });
+        });
+      });
+    }
+    if (option == '4') {
+      this.setState({ loadingByLastPositionHeatmap: true }, () => {
+        generateHeatmap(option, params).then(responseJSON => {
+          this.updateHeatmapImageListWithData(responseJSON, this.state.byLastPositionList).then(result => {
+            this.setState({ loadingByLastPositionHeatmap: false });
+          });
+        });
+      });
+    }
   }
 
   async onClickTenserboardButton() {
-    const responseValidDirectoryJSON = await isValidDirectory(this.state.params.file_path);
-    if (responseValidDirectoryJSON.isDirectory == false) {
-      this.setState({ directoryErrorVisible: true, directoryError: responseValidDirectoryJSON.error });
-      return;
-    }
-    const responseJSON = await getTenserboardHost(this.state.params.file_path);
-    window.open(responseJSON.localHost);
+    this.setState({ loadingTenserboard: true }, async () => {
+      const responseValidDirectoryJSON = await isValidDirectory(this.state.params.file_path);
+      if (responseValidDirectoryJSON.isDirectory == false) {
+        this.setState({
+          directoryErrorVisible: true,
+          directoryError: responseValidDirectoryJSON.error,
+          loadingTenserboard: false,
+        });
+        return;
+      }
+      getTenserboardHost(this.state.params.file_path).then(responseJSON => {
+        this.setState({ loadingTenserboard: false });
+        window.open(responseJSON.localHost);
+      });
+    });
   }
 
   // TODO add error checking and validation for form inputs
@@ -347,7 +376,13 @@ class DisplayPage extends Component {
             Select Directory Path
           </Button>
           <a target="_blank" style={{ textDecoration: 'none' }}>
-            <Button color="warning" className="m-2" onClick={this.onClickTenserboardButton}>
+            <Button
+              color="warning"
+              className="m-2"
+              onClick={this.onClickTenserboardButton}
+              disabled={this.state.loadingTenserboard}
+            >
+              {this.state.loadingTenserboard && <i class="fa fa-circle-o-notch fa-spin fa-lg fa-fw"></i>}
               TensorBoard
             </Button>{' '}
           </a>
@@ -465,7 +500,8 @@ class DisplayPage extends Component {
           <TabContent activeTab={this.state.activeTab}>
             <TabPane tabId="1">
               <Col md={3}>
-                <Button onClick={() => this.apiHandler(this.state.activeTab, this.state.params)}>
+                <Button onClick={this.apiHandler} disabled={this.state.loadingNaiveHeatmap}>
+                  {this.state.loadingNaiveHeatmap && <i class="fa fa-circle-o-notch fa-spin fa-lg fa-fw"></i>}
                   Generate Heatmap
                 </Button>
               </Col>
@@ -545,7 +581,8 @@ class DisplayPage extends Component {
                     </FormGroup>
                   </Col>
                 </Row>
-                <Button onClick={() => this.apiHandler(this.state.activeTab, this.state.params)}>
+                <Button onClick={this.apiHandler} disabled={this.state.loadingByRewardHeatmap}>
+                  {this.state.loadingByRewardHeatmap && <i class="fa fa-circle-o-notch fa-spin fa-lg fa-fw"></i>}
                   Generate Heatmap
                 </Button>
               </Form>
@@ -609,7 +646,8 @@ class DisplayPage extends Component {
                     </FormGroup>
                   </Col>
                 </Row>
-                <Button onClick={() => this.apiHandler(this.state.activeTab, this.state.params)}>
+                <Button onClick={this.apiHandler} disabled={this.state.loadingByEpisodeLengthHeatmap}>
+                  {this.state.loadingByEpisodeLengthHeatmap && <i class="fa fa-circle-o-notch fa-spin fa-lg fa-fw"></i>}
                   Generate Heatmap
                 </Button>
               </Form>
@@ -636,7 +674,8 @@ class DisplayPage extends Component {
             </TabPane>
             <TabPane tabId="4">
               <Col md={3}>
-                <Button onClick={() => this.apiHandler(this.state.activeTab, this.state.params)}>
+                <Button onClick={this.apiHandler} disabled={this.state.loadingByLastPositionHeatmap}>
+                  {this.state.loadingByLastPositionHeatmap && <i class="fa fa-circle-o-notch fa-spin fa-lg fa-fw"></i>}
                   Generate Heatmap
                 </Button>
               </Col>
