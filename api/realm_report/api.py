@@ -163,9 +163,9 @@ def create_heatmap_by_reward(range_type, percentage):
     fileSavePath = absDataDirPath / fileName
 
     datFilePaths = getAllDatFilesFromDirectory(absDataDirPath)
-    data = loadJSONIntoMemory(datFilePaths)
-    if data == []:
-        return {'text': 'Heatmap was not created: %s' % absDataDirPath}
+    err, data = loadJSONIntoMemory(datFilePaths)
+    if err is not None:
+        return {'name': fileName, 'error': getErrorGeneric(err) }
     createHeatmap2(data, float(percentage), highest, fileSavePath)
 
     base64_str = getAndConvertJPGToBase64(fileSavePath)
@@ -188,9 +188,9 @@ def create_heatmap_by_episode_length(range_type, percentage):
     fileSavePath = absDataDirPath / fileName
 
     datFilePaths = getAllDatFilesFromDirectory(absDataDirPath)
-    data = loadJSONIntoMemory(datFilePaths)
-    if data == []:
-        return {'text': 'Heatmap was not created: %s' % absDataDirPath}
+    err, data = loadJSONIntoMemory(datFilePaths)
+    if err is not None:
+        return {'name': fileName, 'error': getErrorGeneric(err) }
     createHeatmap3(data, float(percentage), highest, fileSavePath)
 
     base64_str = getAndConvertJPGToBase64(fileSavePath)
@@ -208,9 +208,9 @@ def create_heatmap_naive():
     fileSavePath = absDataDirPath / fileName
 
     datFilePaths = getAllDatFilesFromDirectory(absDataDirPath)
-    data = loadJSONIntoMemory(datFilePaths)
-    if data == []:
-        return {'text': 'Heatmap was not created: %s' % absDataDirPath}
+    err, data = loadJSONIntoMemory(datFilePaths)
+    if err is not None:
+        return {'name': fileName, 'error': getErrorGeneric(err) }
     createHeatmap1(data, fileSavePath)
 
     base64_str = getAndConvertJPGToBase64(fileSavePath)
@@ -227,9 +227,9 @@ def create_heatmap_by_last_position():
     fileSavePath = absDataDirPath / fileName
 
     datFilePaths = getAllDatFilesFromDirectory(absDataDirPath)
-    data = loadJSONIntoMemory(datFilePaths)
-    if data == []:
-        return {'text': 'Heatmap was not created: %s' % absDataDirPath}
+    err, data = loadJSONIntoMemory(datFilePaths)
+    if err is not None:
+        return {'name': fileName, 'error': getErrorGeneric(err) }
     createHeatmap4(data, fileSavePath)
 
     base64_str = getAndConvertJPGToBase64(fileSavePath)

@@ -8,6 +8,13 @@ import time
 import subprocess, shlex
 from pathlib import Path
 
+#  -------- Constants --------
+
+# map error message segments to more generic error messages for API return
+error_map = {"not enough values": "not enough data"}
+
+#  -------- Functions --------
+
 # gets the created at date given a absolute filepath
 def getCreatedAtTime(filePath):
     return time.ctime(os.path.getctime(filePath))
@@ -52,13 +59,17 @@ def convertDatToJson(datFilePaths):
         
     return jsondict
 
-# converts dat to json as dictionary
+
+# converts dat to json as dictionary, returns (error string, list of data)
 def loadJSONIntoMemory(filePaths):
-    try: 
-        return convertDatToJson(filePaths)
+    try:
+        return (None, convertDatToJson(filePaths))
     except OSError as e:
         print("Error: %s : %s" % (filePaths, e.strerror))
-        return []
+        return (str(e), [])
+    except ValueError as e:
+        print("Value Error: %s" % e)
+        return (str(e), [])
 
 def removeFile(filePath):
     try:
@@ -215,3 +226,9 @@ def checkRunDirectoryStructure(directory):
 
 def constructDatFileName(dat_id):
     return f"data-{dat_id}.dat"
+
+def getErrorGeneric(error_string):
+    for error_key in error_map:
+        if error_key in error_string:
+            return error_map[error_key]
+    return "undefined error encountered"

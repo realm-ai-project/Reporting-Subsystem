@@ -36,6 +36,8 @@ import {
 } from 'reactstrap';
 
 import { Accordion } from 'react-bootstrap';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import Slider from '@mui/material/Slider';
 import {
@@ -136,7 +138,7 @@ class DisplayPage extends Component {
   }
 
   // explicitly used in apiHandler, to invoke a callback for manipulating spinners
-  async updateHeatmapImageListWithData(responseJSON, imageList) {
+  updateHeatmapImageListWithData(responseJSON, imageList) {
     // given response, check if heatmap returned already exists in image list
     let newHeatmapObj = { name: responseJSON.name, base64: responseJSON.base64, created_at: responseJSON.created_at };
     let existingIndex = this.checkHeatmapExistsInMemory(responseJSON.name, imageList);
@@ -147,6 +149,12 @@ class DisplayPage extends Component {
     }
   }
 
+  // toast notification functionsq
+  toastSuccess = (heatmap_file_name, timestamp) =>
+    toast.success('Succesfully generated ' + heatmap_file_name + ' on ' + timestamp);
+
+  toastError = (heatmap_file_name, error) => toast.error('Error generating ' + heatmap_file_name + ': ' + error);
+
   async apiHandler() {
     let option = this.state.activeTab;
     let params = this.state.params;
@@ -154,9 +162,13 @@ class DisplayPage extends Component {
     if (option == '1') {
       this.setState({ loadingNaiveHeatmap: true }, () => {
         generateHeatmap(option, params).then(responseJSON => {
-          this.updateHeatmapImageListWithData(responseJSON, this.state.naiveImageList).then(result => {
-            this.setState({ loadingNaiveHeatmap: false });
-          });
+          if (responseJSON.hasOwnProperty('error')) {
+            this.toastError(responseJSON.name, responseJSON.error);
+          } else {
+            this.updateHeatmapImageListWithData(responseJSON, this.state.naiveImageList);
+            this.toastSuccess(responseJSON.name, responseJSON.created_at);
+          }
+          this.setState({ loadingNaiveHeatmap: false });
         });
       });
     }
@@ -164,9 +176,13 @@ class DisplayPage extends Component {
       this.state.params.percentage = this.state.progress / 100;
       this.setState({ loadingByRewardHeatmap: true }, () => {
         generateHeatmap(option, params).then(responseJSON => {
-          this.updateHeatmapImageListWithData(responseJSON, this.state.byRewardImageList).then(result => {
-            this.setState({ loadingByRewardHeatmap: false });
-          });
+          if (responseJSON.hasOwnProperty('error')) {
+            this.toastError(responseJSON.name, responseJSON.error);
+          } else {
+            this.updateHeatmapImageListWithData(responseJSON, this.state.byRewardImageList);
+            this.toastSuccess(responseJSON.name, responseJSON.created_at);
+          }
+          this.setState({ loadingByRewardHeatmap: false });
         });
       });
     }
@@ -174,18 +190,26 @@ class DisplayPage extends Component {
       this.state.params.percentage = this.state.progress / 100;
       this.setState({ loadingByEpisodeLengthHeatmap: true }, () => {
         generateHeatmap(option, params).then(responseJSON => {
-          this.updateHeatmapImageListWithData(responseJSON, this.state.byEpisodeLengthList).then(result => {
-            this.setState({ loadingByEpisodeLengthHeatmap: false });
-          });
+          if (responseJSON.hasOwnProperty('error')) {
+            this.toastError(responseJSON.name, responseJSON.error);
+          } else {
+            this.updateHeatmapImageListWithData(responseJSON, this.state.byEpisodeLengthList);
+            this.toastSuccess(responseJSON.name, responseJSON.created_at);
+          }
+          this.setState({ loadingByEpisodeLengthHeatmap: false });
         });
       });
     }
     if (option == '4') {
       this.setState({ loadingByLastPositionHeatmap: true }, () => {
         generateHeatmap(option, params).then(responseJSON => {
-          this.updateHeatmapImageListWithData(responseJSON, this.state.byLastPositionList).then(result => {
-            this.setState({ loadingByLastPositionHeatmap: false });
-          });
+          if (responseJSON.hasOwnProperty('error')) {
+            this.toastError(responseJSON.name, responseJSON.error);
+          } else {
+            this.updateHeatmapImageListWithData(responseJSON, this.state.byLastPositionList);
+            this.toastSuccess(responseJSON.name, responseJSON.created_at);
+          }
+          this.setState({ loadingByLastPositionHeatmap: false });
         });
       });
     }
@@ -372,6 +396,18 @@ class DisplayPage extends Component {
     return (
       <div>
         <div>
+          <ToastContainer
+            position="top-right"
+            autoClose={false}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            style={{ width: 'fit-content' }}
+          />
           <Button color="primary" onClick={this.toggle}>
             Select Directory Path
           </Button>
