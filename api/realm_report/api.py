@@ -169,7 +169,8 @@ def create_heatmap_by_reward(range_type, percentage):
     createHeatmap2(data, float(percentage), highest, fileSavePath)
 
     base64_str = getAndConvertJPGToBase64(fileSavePath)
-    return {'name': fileName, "base64": base64_str}
+    created_at = getCreatedAtTime(fileSavePath)
+    return {'name': fileName, "base64": base64_str, "created_at": created_at}
 
 @app.route('/by_episode_length/<range_type>/<percentage>', methods=["POST"])
 def create_heatmap_by_episode_length(range_type, percentage):
@@ -193,7 +194,8 @@ def create_heatmap_by_episode_length(range_type, percentage):
     createHeatmap3(data, float(percentage), highest, fileSavePath)
 
     base64_str = getAndConvertJPGToBase64(fileSavePath)
-    return {'name': fileName, "base64": base64_str}
+    created_at = getCreatedAtTime(fileSavePath)
+    return {'name': fileName, "base64": base64_str, "created_at": created_at}
 
 @app.route('/naive', methods=["POST"])
 def create_heatmap_naive():
@@ -212,7 +214,8 @@ def create_heatmap_naive():
     createHeatmap1(data, fileSavePath)
 
     base64_str = getAndConvertJPGToBase64(fileSavePath)
-    return {'name': fileName, "base64": base64_str}
+    created_at = getCreatedAtTime(fileSavePath)
+    return {'name': fileName, "base64": base64_str, "created_at": created_at}
 
 @app.route('/by_last_position', methods=["POST"])
 def create_heatmap_by_last_position():
@@ -230,7 +233,8 @@ def create_heatmap_by_last_position():
     createHeatmap4(data, fileSavePath)
 
     base64_str = getAndConvertJPGToBase64(fileSavePath)
-    return {'name': fileName, "base64": base64_str}
+    created_at = getCreatedAtTime(fileSavePath)
+    return {'name': fileName, "base64": base64_str, "created_at": created_at}
 
 # @app.before_first_request # couldn't get this to be on flask init
 # def init():

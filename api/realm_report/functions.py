@@ -4,8 +4,13 @@ import os
 import platform
 import re
 import struct
+import time
 import subprocess, shlex
 from pathlib import Path
+
+# gets the created at date given a absolute filepath
+def getCreatedAtTime(filePath):
+    return time.ctime(os.path.getctime(filePath))
 
 # gets and converts a jpg to base 64, pass absoulte path as argument
 def getAndConvertJPGToBase64(filePath):
@@ -173,7 +178,8 @@ def getAllHeatmapFilesFromDirectory(directory):
                 # for given heatmap, find out which type of heatmap it is
                 for heatmap_type in heatmap_types:
                     if heatmap_type in file:
-                        allHeatmapFiles[heatmap_type].append({"name": file, "base64": getAndConvertJPGToBase64(directory+"/"+file) })
+                        abs_file_path = Path(directory) / file
+                        allHeatmapFiles[heatmap_type].append({"name": file, "base64": getAndConvertJPGToBase64(abs_file_path), "created_at": getCreatedAtTime(abs_file_path) })
 
         # Sort each list by dat_id?
         return allHeatmapFiles

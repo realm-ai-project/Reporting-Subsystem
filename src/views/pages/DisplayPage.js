@@ -159,7 +159,7 @@ class DisplayPage extends Component {
     }
 
     // given response, check if heatmap returned already exists in image list
-    let newHeatmapObj = { name: responseJSON.name, base64: responseJSON.base64 };
+    let newHeatmapObj = { name: responseJSON.name, base64: responseJSON.base64, created_at: responseJSON.created_at };
     let existingIndex = this.checkHeatmapExistsInMemory(responseJSON.name, imageList);
     if (existingIndex >= 0) {
       imageList[existingIndex] = newHeatmapObj;
@@ -270,16 +270,32 @@ class DisplayPage extends Component {
         // Get all heatmaps based on file path
         const responseHeatmapsJSON = await getAllHeatmaps(this.state.params.file_path);
         responseHeatmapsJSON.naive.forEach((heatmapObj, index) => {
-          oldState.naiveImageList.push({ name: heatmapObj.name, base64: heatmapObj.base64 });
+          oldState.naiveImageList.push({
+            name: heatmapObj.name,
+            base64: heatmapObj.base64,
+            created_at: heatmapObj.created_at,
+          });
         });
         responseHeatmapsJSON.reward.forEach((heatmapObj, index) => {
-          oldState.byRewardImageList.push({ name: heatmapObj.name, base64: heatmapObj.base64 });
+          oldState.byRewardImageList.push({
+            name: heatmapObj.name,
+            base64: heatmapObj.base64,
+            created_at: heatmapObj.created_at,
+          });
         });
         responseHeatmapsJSON.episode_length.forEach((heatmapObj, index) => {
-          oldState.byEpisodeLengthList.push({ name: heatmapObj.name, base64: heatmapObj.base64 });
+          oldState.byEpisodeLengthList.push({
+            name: heatmapObj.name,
+            base64: heatmapObj.base64,
+            created_at: heatmapObj.created_at,
+          });
         });
         responseHeatmapsJSON.last_position.forEach((heatmapObj, index) => {
-          oldState.byLastPositionList.push({ name: heatmapObj.name, base64: heatmapObj.base64 });
+          oldState.byLastPositionList.push({
+            name: heatmapObj.name,
+            base64: heatmapObj.base64,
+            created_at: heatmapObj.created_at,
+          });
         });
         this.setState(oldState);
       }
@@ -467,7 +483,10 @@ class DisplayPage extends Component {
                           }}
                         />
                         <CardBody>
-                          <CardTitle>{imgObj.name}</CardTitle>
+                          <CardTitle tag="h4">{imgObj.name}</CardTitle>
+                          <CardSubtitle className="text-muted" tag="h5">
+                            {imgObj.created_at}
+                          </CardSubtitle>
                         </CardBody>
                       </Card>
                     </div>
@@ -540,7 +559,10 @@ class DisplayPage extends Component {
                           style={{ flex: 1, minHeight: '10%', maxHeight: 500, cursor: 'pointer' }}
                         />
                         <CardBody>
-                          <CardTitle>{imgObj.name}</CardTitle>
+                          <CardTitle tag="h4">{imgObj.name}</CardTitle>
+                          <CardSubtitle className="text-muted" tag="h5">
+                            {imgObj.created_at}
+                          </CardSubtitle>
                         </CardBody>
                       </Card>
                     </div>
@@ -601,7 +623,10 @@ class DisplayPage extends Component {
                           style={{ flex: 1, minHeight: '10%', maxHeight: 500, cursor: 'pointer' }}
                         />
                         <CardBody>
-                          <CardTitle>{imgObj.name}</CardTitle>
+                          <CardTitle tag="h4">{imgObj.name}</CardTitle>
+                          <CardSubtitle className="text-muted" tag="h5">
+                            {imgObj.created_at}
+                          </CardSubtitle>
                         </CardBody>
                       </Card>
                     </div>
@@ -625,7 +650,10 @@ class DisplayPage extends Component {
                           style={{ flex: 1, minHeight: '10%', maxHeight: 500, cursor: 'pointer' }}
                         />
                         <CardBody>
-                          <CardTitle>{imgObj.name}</CardTitle>
+                          <CardTitle tag="h4">{imgObj.name}</CardTitle>
+                          <CardSubtitle className="text-muted" tag="h5">
+                            {imgObj.created_at}
+                          </CardSubtitle>
                         </CardBody>
                       </Card>
                     </div>
