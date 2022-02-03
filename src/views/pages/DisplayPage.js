@@ -65,7 +65,7 @@ class DisplayPage extends Component {
       loadingByRewardHeatmap: false,
       loadingByEpisodeLengthHeatmap: false,
       loadingByLastPositionHeatmap: false,
-      directoryErrorVisible: false,
+      // directoryErrorVisible: false,
       directoryError: '',
       activeTab: '1',
       progress: 40,
@@ -90,14 +90,14 @@ class DisplayPage extends Component {
 
     this.down = this.down.bind(this);
     this.up = this.up.bind(this);
-    this.dismissDirectoryError = this.dismissDirectoryError.bind(this);
+    // this.dismissDirectoryError = this.dismissDirectoryError.bind(this);
     this.onClickTenserboardButton = this.onClickTenserboardButton.bind(this);
     this.apiHandler = this.apiHandler.bind(this);
   }
 
-  dismissDirectoryError() {
-    this.setState({ directoryErrorVisible: false, directoryError: '' });
-  }
+  // dismissDirectoryError() {
+  //   this.setState({ directoryErrorVisible: false, directoryError: '' });
+  // }
 
   handleChange = event => {
     this.setState({ tempFilePath: event.target.value });
@@ -153,7 +153,9 @@ class DisplayPage extends Component {
   toastSuccess = (heatmap_file_name, timestamp) =>
     toast.success('Succesfully generated ' + heatmap_file_name + ' on ' + timestamp);
 
-  toastError = (heatmap_file_name, error) => toast.error('Error generating ' + heatmap_file_name + ': ' + error);
+  toastHeatmapError = (heatmap_file_name, error) => toast.error('Error generating ' + heatmap_file_name + ': ' + error);
+
+  toastDirectoryError = error => toast.error(error + ', please input a valid directory.');
 
   async apiHandler() {
     let option = this.state.activeTab;
@@ -163,7 +165,7 @@ class DisplayPage extends Component {
       this.setState({ loadingNaiveHeatmap: true }, () => {
         generateHeatmap(option, params).then(responseJSON => {
           if (responseJSON.hasOwnProperty('error')) {
-            this.toastError(responseJSON.name, responseJSON.error);
+            this.toastHeatmapError(responseJSON.name, responseJSON.error);
           } else {
             this.updateHeatmapImageListWithData(responseJSON, this.state.naiveImageList);
             this.toastSuccess(responseJSON.name, responseJSON.created_at);
@@ -177,7 +179,7 @@ class DisplayPage extends Component {
       this.setState({ loadingByRewardHeatmap: true }, () => {
         generateHeatmap(option, params).then(responseJSON => {
           if (responseJSON.hasOwnProperty('error')) {
-            this.toastError(responseJSON.name, responseJSON.error);
+            this.toastHeatmapError(responseJSON.name, responseJSON.error);
           } else {
             this.updateHeatmapImageListWithData(responseJSON, this.state.byRewardImageList);
             this.toastSuccess(responseJSON.name, responseJSON.created_at);
@@ -191,7 +193,7 @@ class DisplayPage extends Component {
       this.setState({ loadingByEpisodeLengthHeatmap: true }, () => {
         generateHeatmap(option, params).then(responseJSON => {
           if (responseJSON.hasOwnProperty('error')) {
-            this.toastError(responseJSON.name, responseJSON.error);
+            this.toastHeatmapError(responseJSON.name, responseJSON.error);
           } else {
             this.updateHeatmapImageListWithData(responseJSON, this.state.byEpisodeLengthList);
             this.toastSuccess(responseJSON.name, responseJSON.created_at);
@@ -204,7 +206,7 @@ class DisplayPage extends Component {
       this.setState({ loadingByLastPositionHeatmap: true }, () => {
         generateHeatmap(option, params).then(responseJSON => {
           if (responseJSON.hasOwnProperty('error')) {
-            this.toastError(responseJSON.name, responseJSON.error);
+            this.toastHeatmapError(responseJSON.name, responseJSON.error);
           } else {
             this.updateHeatmapImageListWithData(responseJSON, this.state.byLastPositionList);
             this.toastSuccess(responseJSON.name, responseJSON.created_at);
@@ -219,9 +221,11 @@ class DisplayPage extends Component {
     this.setState({ loadingTenserboard: true }, async () => {
       const responseValidDirectoryJSON = await isValidDirectory(this.state.params.file_path);
       if (responseValidDirectoryJSON.isDirectory == false) {
+        // show directory error
+        this.toastDirectoryError(responseValidDirectoryJSON.error);
         this.setState({
-          directoryErrorVisible: true,
-          directoryError: responseValidDirectoryJSON.error,
+          // directoryErrorVisible: true,
+          // directoryError: responseValidDirectoryJSON.error,
           loadingTenserboard: false,
         });
         return;
@@ -310,9 +314,10 @@ class DisplayPage extends Component {
       const responseValidDirectoryJSON = await isValidDirectory(this.state.params.file_path);
       if (responseValidDirectoryJSON.isDirectory == false) {
         // show error popup
-        this.setState({ directoryErrorVisible: true, directoryError: responseValidDirectoryJSON.error });
+        this.toastDirectoryError(responseValidDirectoryJSON.error);
+        // this.setState({ directoryErrorVisible: true, directoryError: responseValidDirectoryJSON.error });
       } else {
-        oldState.directoryErrorVisible = false;
+        // oldState.directoryErrorVisible = false;
         oldState.directoryError = '';
         // Get all videos based on the file path
         const responseVideosJSON = await getAllVideos(this.state.params.file_path);
@@ -452,6 +457,7 @@ class DisplayPage extends Component {
                       <Button
                         color="primary"
                         outline
+                        style={{ width: 'auto' }}
                         onClick={() => this.fillInPathWithSelectedRecentDirectory(directory)}
                       >
                         {directory}
@@ -471,9 +477,9 @@ class DisplayPage extends Component {
             </ModalFooter>
           </Modal>
         </div>
-        <Alert color="danger" isOpen={this.state.directoryErrorVisible} toggle={this.dismissDirectoryError}>
+        {/* <Alert color="danger" isOpen={this.state.directoryErrorVisible} toggle={this.dismissDirectoryError}>
           {this.state.directoryError}, please input a valid directory.
-        </Alert>
+        </Alert> */}
         {directorySelected}
         {!this.state.isDirectorySelected && (
           <Card className="my-4">
