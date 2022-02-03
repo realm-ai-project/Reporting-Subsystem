@@ -66,7 +66,6 @@ class DisplayPage extends Component {
       loadingByRewardHeatmap: false,
       loadingByEpisodeLengthHeatmap: false,
       loadingByLastPositionHeatmap: false,
-      // directoryErrorVisible: false,
       directoryError: '',
       activeTab: '1',
       progress: 30,
@@ -91,14 +90,9 @@ class DisplayPage extends Component {
 
     this.down = this.down.bind(this);
     this.up = this.up.bind(this);
-    // this.dismissDirectoryError = this.dismissDirectoryError.bind(this);
     this.onClickTenserboardButton = this.onClickTenserboardButton.bind(this);
     this.apiHandler = this.apiHandler.bind(this);
   }
-
-  // dismissDirectoryError() {
-  //   this.setState({ directoryErrorVisible: false, directoryError: '' });
-  // }
 
   handleChange = event => {
     this.setState({ tempFilePath: event.target.value });
@@ -226,8 +220,6 @@ class DisplayPage extends Component {
         // show directory error
         this.toastDirectoryError(responseValidDirectoryJSON.error);
         this.setState({
-          // directoryErrorVisible: true,
-          // directoryError: responseValidDirectoryJSON.error,
           loadingTenserboard: false,
         });
         return;
@@ -316,7 +308,7 @@ class DisplayPage extends Component {
       const responseValidDirectoryJSON = await isValidDirectory(this.state.params.file_path);
       if (responseValidDirectoryJSON.isDirectory == false) {
         // show error popup
-        this.setState({ directoryErrorVisible: true, directoryError: responseValidDirectoryJSON.error });
+        this.toastDirectoryError(responseValidDirectoryJSON.error);
         this.setState(prevState => ({
           modal: !prevState.modal,
           isDirectorySelected: false,
@@ -324,7 +316,6 @@ class DisplayPage extends Component {
         console.log(this.state.isDirectorySelected);
         return;
       } else {
-        // oldState.directoryErrorVisible = false;
         oldState.directoryError = '';
         // Get all videos based on the file path
         const responseVideosJSON = await getAllVideos(this.state.params.file_path);
@@ -480,10 +471,6 @@ class DisplayPage extends Component {
             </ModalFooter>
           </Modal>
         </div>
-        <Alert color="danger" isOpen={this.state.directoryErrorVisible}>
-          {this.state.directoryError}, please input a valid directory.
-        </Alert>{' '}
-        */}
         {directorySelected}
         {!this.state.isDirectorySelected && (
           <Card className="my-4">
