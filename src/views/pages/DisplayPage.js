@@ -3,6 +3,7 @@ import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import { Carousel } from 'react-responsive-carousel';
 import classnames from 'classnames';
 import {
+  UncontrolledAlert,
   Alert,
   Breadcrumb,
   BreadcrumbItem,
@@ -68,7 +69,7 @@ class DisplayPage extends Component {
       directoryErrorVisible: false,
       directoryError: '',
       activeTab: '1',
-      progress: 40,
+      progress: 30,
       params: {
         range_type: 'top',
         percentage: 0.01,
@@ -125,6 +126,7 @@ class DisplayPage extends Component {
 
   updatePercentage(event) {
     this.setState({ progress: event.target.value });
+    console.log(event.target.value);
   }
 
   // check if heatmap is already created and in list, if it does return the index, otherwise return -1
@@ -311,6 +313,12 @@ class DisplayPage extends Component {
       if (responseValidDirectoryJSON.isDirectory == false) {
         // show error popup
         this.setState({ directoryErrorVisible: true, directoryError: responseValidDirectoryJSON.error });
+        this.setState(prevState => ({
+          modal: !prevState.modal,
+          isDirectorySelected: false,
+        }));
+        console.log(this.state.isDirectorySelected);
+        return;
       } else {
         oldState.directoryErrorVisible = false;
         oldState.directoryError = '';
@@ -352,17 +360,17 @@ class DisplayPage extends Component {
         });
         this.setState(oldState);
       }
+      if (this.state.tempFilePath != null) {
+        this.setState(prevState => ({
+          isDirectorySelected: true,
+        }));
+      }
     } else {
-      this.setState({ tempFilePath: this.state.params.file_path });
+      this.setState({ isDirectorySelected: false });
     }
     this.setState(prevState => ({
       modal: !prevState.modal,
     }));
-    if (this.state.tempFilePath != null) {
-      this.setState(prevState => ({
-        isDirectorySelected: true,
-      }));
-    }
   }
 
   // function to toggle modal state
@@ -418,13 +426,8 @@ class DisplayPage extends Component {
               onClick={this.onClickTenserboardButton}
               disabled={this.state.loadingTenserboard}
             >
-              {this.state.loadingTenserboard && <i class="fa fa-circle-o-notch fa-spin fa-lg fa-fw"></i>}
+              {this.state.loadingTenserboard && <i class="fa fa-circle-o-notch fa-spin fa-lg fa-fw" />}
               TensorBoard
-            </Button>{' '}
-          </a>
-          <a target="_blank" href="https://wandb.ai/site" style={{ textDecoration: 'none' }}>
-            <Button color="success" className="my-2">
-              Weights and Biases
             </Button>{' '}
           </a>
           <Modal isOpen={this.state.modal} toggle={this.toggle}>
@@ -453,6 +456,7 @@ class DisplayPage extends Component {
                         color="primary"
                         outline
                         onClick={() => this.fillInPathWithSelectedRecentDirectory(directory)}
+                        style={{ width: '400px', overflow: 'hidden', wordWrap: 'break-word' }}
                       >
                         {directory}
                       </Button>
@@ -471,7 +475,7 @@ class DisplayPage extends Component {
             </ModalFooter>
           </Modal>
         </div>
-        <Alert color="danger" isOpen={this.state.directoryErrorVisible} toggle={this.dismissDirectoryError}>
+        <Alert color="danger" isOpen={this.state.directoryErrorVisible}>
           {this.state.directoryError}, please input a valid directory.
         </Alert>
         {directorySelected}
@@ -537,7 +541,7 @@ class DisplayPage extends Component {
             <TabPane tabId="1">
               <Col md={3}>
                 <Button onClick={this.apiHandler} disabled={this.state.loadingNaiveHeatmap}>
-                  {this.state.loadingNaiveHeatmap && <i class="fa fa-circle-o-notch fa-spin fa-lg fa-fw"></i>}
+                  {this.state.loadingNaiveHeatmap && <i class="fa fa-circle-o-notch fa-spin fa-lg fa-fw" />}
                   Generate Heatmap
                 </Button>
               </Col>
@@ -618,7 +622,7 @@ class DisplayPage extends Component {
                   </Col>
                 </Row>
                 <Button onClick={this.apiHandler} disabled={this.state.loadingByRewardHeatmap}>
-                  {this.state.loadingByRewardHeatmap && <i class="fa fa-circle-o-notch fa-spin fa-lg fa-fw"></i>}
+                  {this.state.loadingByRewardHeatmap && <i class="fa fa-circle-o-notch fa-spin fa-lg fa-fw" />}
                   Generate Heatmap
                 </Button>
               </Form>
@@ -683,7 +687,7 @@ class DisplayPage extends Component {
                   </Col>
                 </Row>
                 <Button onClick={this.apiHandler} disabled={this.state.loadingByEpisodeLengthHeatmap}>
-                  {this.state.loadingByEpisodeLengthHeatmap && <i class="fa fa-circle-o-notch fa-spin fa-lg fa-fw"></i>}
+                  {this.state.loadingByEpisodeLengthHeatmap && <i class="fa fa-circle-o-notch fa-spin fa-lg fa-fw" />}
                   Generate Heatmap
                 </Button>
               </Form>
@@ -711,7 +715,7 @@ class DisplayPage extends Component {
             <TabPane tabId="4">
               <Col md={3}>
                 <Button onClick={this.apiHandler} disabled={this.state.loadingByLastPositionHeatmap}>
-                  {this.state.loadingByLastPositionHeatmap && <i class="fa fa-circle-o-notch fa-spin fa-lg fa-fw"></i>}
+                  {this.state.loadingByLastPositionHeatmap && <i class="fa fa-circle-o-notch fa-spin fa-lg fa-fw" />}
                   Generate Heatmap
                 </Button>
               </Col>
@@ -773,7 +777,7 @@ class DisplayPage extends Component {
         )}
         <div>
           <Card>
-            <CardHeader className="my-1">Frequently Asked Questions</CardHeader>
+            <CardHeader className="my-1">Links / FAQ</CardHeader>
             <Accordion>
               <Accordion.Item eventKey="0">
                 <Accordion.Header>How do I view videos?</Accordion.Header>
@@ -789,6 +793,12 @@ class DisplayPage extends Component {
                 </Accordion.Body>
               </Accordion.Item>
               <Accordion.Item eventKey="2">
+                <Accordion.Header>Weights and Biases</Accordion.Header>
+                <Accordion.Body>
+                  <a href="https://wandb.ai/site">Weights and Biases</a>
+                </Accordion.Body>
+              </Accordion.Item>
+              <Accordion.Item eventKey="3">
                 <Accordion.Header>Documentation</Accordion.Header>
                 <Accordion.Body>
                   Visit our <a href="https://realm-ai-project.github.io/documentation">Documentation Site</a>.
