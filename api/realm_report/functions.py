@@ -1,4 +1,5 @@
 import base64
+import datetime
 import json
 import os
 import platform
@@ -17,7 +18,13 @@ error_map = {"not enough values": "not enough data"}
 
 # gets the created at date given a absolute filepath
 def getCreatedAtTime(filePath):
-    return time.ctime(os.path.getctime(filePath))
+    timestamp = time.ctime(os.path.getctime(filePath))
+    timestamp_list = timestamp.split(" ")
+    print(f"timestamp_list: {timestamp_list}")
+    timestamp_list[-2] = datetime.datetime.strptime(timestamp_list[-2],'%H:%M:%S').strftime('%I:%M:%S %p')
+    if '' in timestamp_list:
+        timestamp_list.remove('')
+    return ", ".join(timestamp_list)
 
 # gets and converts a jpg to base 64, pass absoulte path as argument
 def getAndConvertJPGToBase64(filePath):
