@@ -18,13 +18,14 @@ error_map = {"not enough values": "not enough data"}
 
 # gets the created at date given a absolute filepath
 def getCreatedAtTime(filePath):
-    timestamp = time.ctime(os.path.getctime(filePath))
+    # getctime is buggy on *nix systems: https://stackoverflow.com/questions/237079/how-to-get-file-creation-and-modification-date-times/237084#237084
+    timestamp = time.ctime(os.path.getmtime(filePath))
     timestamp_list = timestamp.split(" ")
-    print(f"timestamp_list: {timestamp_list}")
     timestamp_list[-2] = datetime.datetime.strptime(timestamp_list[-2],'%H:%M:%S').strftime('%I:%M:%S %p')
     if '' in timestamp_list:
         timestamp_list.remove('')
-    return ", ".join(timestamp_list)
+    join_month_day = timestamp_list[0:1] + [timestamp_list[1] + " " + timestamp_list[2]] + timestamp_list[3:]
+    return ", ".join(join_month_day)
 
 # gets and converts a jpg to base 64, pass absoulte path as argument
 def getAndConvertJPGToBase64(filePath):
