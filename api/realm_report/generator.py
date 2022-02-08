@@ -32,7 +32,7 @@ def plot_and_save(pos_x, pos_y, filePath):
     H, _, _ = np.histogram2d(pos_x, pos_y, bins=[x_size, y_size])
     
     # Plot heatmap and save figures
-    ax = sns.heatmap(np.log(H.T+1), cmap="BuPu", cbar=False, xticklabels=False, yticklabels=False)
+    ax = sns.heatmap(np.log(H.T+1), cmap="BuPu",)# cbar=False, xticklabels=False, yticklabels=False)
     
     plt.savefig(filePath)
     plt.close()
