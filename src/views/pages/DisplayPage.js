@@ -3,6 +3,7 @@ import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import { Carousel } from 'react-responsive-carousel';
 import classnames from 'classnames';
 import {
+  UncontrolledAlert,
   Alert,
   Breadcrumb,
   BreadcrumbItem,
@@ -36,6 +37,8 @@ import {
 } from 'reactstrap';
 
 import { Accordion } from 'react-bootstrap';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import Slider from '@mui/material/Slider';
 import {
@@ -58,10 +61,14 @@ class DisplayPage extends Component {
     this.expandImage = this.expandImage.bind(this);
     this.closeImageModal = this.closeImageModal.bind(this);
     this.state = {
-      directoryErrorVisible: false,
+      loadingTenserboard: false,
+      loadingNaiveHeatmap: false,
+      loadingByRewardHeatmap: false,
+      loadingByEpisodeLengthHeatmap: false,
+      loadingByLastPositionHeatmap: false,
       directoryError: '',
       activeTab: '1',
-      progress: 40,
+      progress: 30,
       params: {
         range_type: 'top',
         percentage: 0.01,
@@ -83,12 +90,8 @@ class DisplayPage extends Component {
 
     this.down = this.down.bind(this);
     this.up = this.up.bind(this);
-    this.dismissDirectoryError = this.dismissDirectoryError.bind(this);
     this.onClickTenserboardButton = this.onClickTenserboardButton.bind(this);
-  }
-
-  dismissDirectoryError() {
-    this.setState({ directoryErrorVisible: false, directoryError: '' });
+    this.apiHandler = this.apiHandler.bind(this);
   }
 
   handleChange = event => {
@@ -117,6 +120,7 @@ class DisplayPage extends Component {
 
   updatePercentage(event) {
     this.setState({ progress: event.target.value });
+    console.log(event.target.value);
   }
 
   // check if heatmap is already created and in list, if it does return the index, otherwise return -1
@@ -129,55 +133,102 @@ class DisplayPage extends Component {
     return -1;
   }
 
-  // abstraction to let us set base64 image in react state
-  async apiHandler(option, params) {
-    let oldState = this.state;
-    let responseJSON;
-    let imageList;
-
-    // make api call based on option
-    if (option == '1' || option == '4') {
-      // make api call
-      responseJSON = await generateHeatmap(option, params);
-      // keep reference to correct list
-      if (option == '1') {
-        imageList = oldState.naiveImageList;
-      } else {
-        imageList = oldState.byLastPositionList;
-      }
-    } else if (option == '2' || option == '3') {
-      oldState.params.percentage = this.state.progress / 100;
-      responseJSON = await generateHeatmap(option, params);
-      if (option == '2') {
-        imageList = oldState.byRewardImageList;
-      } else {
-        imageList = oldState.byEpisodeLengthList;
-      }
-    } else {
-      // if option not valid return
-      return;
-    }
-
+  // explicitly used in apiHandler, to invoke a callback for manipulating spinners
+  updateHeatmapImageListWithData(responseJSON, imageList) {
     // given response, check if heatmap returned already exists in image list
-    let newHeatmapObj = { name: responseJSON.name, base64: responseJSON.base64 };
+    let newHeatmapObj = { name: responseJSON.name, base64: responseJSON.base64, created_at: responseJSON.created_at };
     let existingIndex = this.checkHeatmapExistsInMemory(responseJSON.name, imageList);
     if (existingIndex >= 0) {
       imageList[existingIndex] = newHeatmapObj;
     } else {
       imageList.push(newHeatmapObj);
     }
+  }
 
-    this.setState(oldState);
+  // toast notification functionsq
+  toastSuccess = (heatmap_file_name, timestamp) =>
+    toast.success('Succesfully generated ' + heatmap_file_name + ' on ' + timestamp);
+
+  toastHeatmapError = (heatmap_file_name, error) => toast.error('Error generating ' + heatmap_file_name + ': ' + error);
+
+  toastDirectoryError = error => toast.error(error + ', please input a valid directory.');
+
+  async apiHandler() {
+    let option = this.state.activeTab;
+    let params = this.state.params;
+
+    if (option == '1') {
+      this.setState({ loadingNaiveHeatmap: true }, () => {
+        generateHeatmap(option, params).then(responseJSON => {
+          if (responseJSON.hasOwnProperty('error')) {
+            this.toastHeatmapError(responseJSON.name, responseJSON.error);
+          } else {
+            this.updateHeatmapImageListWithData(responseJSON, this.state.naiveImageList);
+            this.toastSuccess(responseJSON.name, responseJSON.created_at);
+          }
+          this.setState({ loadingNaiveHeatmap: false });
+        });
+      });
+    }
+    if (option == '2') {
+      this.state.params.percentage = this.state.progress / 100;
+      this.setState({ loadingByRewardHeatmap: true }, () => {
+        generateHeatmap(option, params).then(responseJSON => {
+          if (responseJSON.hasOwnProperty('error')) {
+            this.toastHeatmapError(responseJSON.name, responseJSON.error);
+          } else {
+            this.updateHeatmapImageListWithData(responseJSON, this.state.byRewardImageList);
+            this.toastSuccess(responseJSON.name, responseJSON.created_at);
+          }
+          this.setState({ loadingByRewardHeatmap: false });
+        });
+      });
+    }
+    if (option == '3') {
+      this.state.params.percentage = this.state.progress / 100;
+      this.setState({ loadingByEpisodeLengthHeatmap: true }, () => {
+        generateHeatmap(option, params).then(responseJSON => {
+          if (responseJSON.hasOwnProperty('error')) {
+            this.toastHeatmapError(responseJSON.name, responseJSON.error);
+          } else {
+            this.updateHeatmapImageListWithData(responseJSON, this.state.byEpisodeLengthList);
+            this.toastSuccess(responseJSON.name, responseJSON.created_at);
+          }
+          this.setState({ loadingByEpisodeLengthHeatmap: false });
+        });
+      });
+    }
+    if (option == '4') {
+      this.setState({ loadingByLastPositionHeatmap: true }, () => {
+        generateHeatmap(option, params).then(responseJSON => {
+          if (responseJSON.hasOwnProperty('error')) {
+            this.toastHeatmapError(responseJSON.name, responseJSON.error);
+          } else {
+            this.updateHeatmapImageListWithData(responseJSON, this.state.byLastPositionList);
+            this.toastSuccess(responseJSON.name, responseJSON.created_at);
+          }
+          this.setState({ loadingByLastPositionHeatmap: false });
+        });
+      });
+    }
   }
 
   async onClickTenserboardButton() {
-    const responseValidDirectoryJSON = await isValidDirectory(this.state.params.file_path);
-    if (responseValidDirectoryJSON.isDirectory == false) {
-      this.setState({ directoryErrorVisible: true, directoryError: responseValidDirectoryJSON.error });
-      return;
-    }
-    const responseJSON = await getTenserboardHost(this.state.params.file_path);
-    window.open(responseJSON.localHost);
+    this.setState({ loadingTenserboard: true }, async () => {
+      const responseValidDirectoryJSON = await isValidDirectory(this.state.params.file_path);
+      if (responseValidDirectoryJSON.isDirectory == false) {
+        // show directory error
+        this.toastDirectoryError(responseValidDirectoryJSON.error);
+        this.setState({
+          loadingTenserboard: false,
+        });
+        return;
+      }
+      getTenserboardHost(this.state.params.file_path).then(responseJSON => {
+        this.setState({ loadingTenserboard: false });
+        window.open(responseJSON.localHost);
+      });
+    });
   }
 
   // TODO add error checking and validation for form inputs
@@ -257,9 +308,14 @@ class DisplayPage extends Component {
       const responseValidDirectoryJSON = await isValidDirectory(this.state.params.file_path);
       if (responseValidDirectoryJSON.isDirectory == false) {
         // show error popup
-        this.setState({ directoryErrorVisible: true, directoryError: responseValidDirectoryJSON.error });
+        this.toastDirectoryError(responseValidDirectoryJSON.error);
+        this.setState(prevState => ({
+          modal: !prevState.modal,
+          isDirectorySelected: false,
+        }));
+        console.log(this.state.isDirectorySelected);
+        return;
       } else {
-        oldState.directoryErrorVisible = false;
         oldState.directoryError = '';
         // Get all videos based on the file path
         const responseVideosJSON = await getAllVideos(this.state.params.file_path);
@@ -270,30 +326,46 @@ class DisplayPage extends Component {
         // Get all heatmaps based on file path
         const responseHeatmapsJSON = await getAllHeatmaps(this.state.params.file_path);
         responseHeatmapsJSON.naive.forEach((heatmapObj, index) => {
-          oldState.naiveImageList.push({ name: heatmapObj.name, base64: heatmapObj.base64 });
+          oldState.naiveImageList.push({
+            name: heatmapObj.name,
+            base64: heatmapObj.base64,
+            created_at: heatmapObj.created_at,
+          });
         });
         responseHeatmapsJSON.reward.forEach((heatmapObj, index) => {
-          oldState.byRewardImageList.push({ name: heatmapObj.name, base64: heatmapObj.base64 });
+          oldState.byRewardImageList.push({
+            name: heatmapObj.name,
+            base64: heatmapObj.base64,
+            created_at: heatmapObj.created_at,
+          });
         });
         responseHeatmapsJSON.episode_length.forEach((heatmapObj, index) => {
-          oldState.byEpisodeLengthList.push({ name: heatmapObj.name, base64: heatmapObj.base64 });
+          oldState.byEpisodeLengthList.push({
+            name: heatmapObj.name,
+            base64: heatmapObj.base64,
+            created_at: heatmapObj.created_at,
+          });
         });
         responseHeatmapsJSON.last_position.forEach((heatmapObj, index) => {
-          oldState.byLastPositionList.push({ name: heatmapObj.name, base64: heatmapObj.base64 });
+          oldState.byLastPositionList.push({
+            name: heatmapObj.name,
+            base64: heatmapObj.base64,
+            created_at: heatmapObj.created_at,
+          });
         });
         this.setState(oldState);
       }
+      if (this.state.tempFilePath != null) {
+        this.setState(prevState => ({
+          isDirectorySelected: true,
+        }));
+      }
     } else {
-      this.setState({ tempFilePath: this.state.params.file_path });
+      this.setState({ isDirectorySelected: false });
     }
     this.setState(prevState => ({
       modal: !prevState.modal,
     }));
-    if (this.state.tempFilePath != null) {
-      this.setState(prevState => ({
-        isDirectorySelected: true,
-      }));
-    }
   }
 
   // function to toggle modal state
@@ -327,17 +399,30 @@ class DisplayPage extends Component {
     return (
       <div>
         <div>
+          <ToastContainer
+            position="top-right"
+            autoClose={false}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            style={{ width: 'fit-content' }}
+          />
           <Button color="primary" onClick={this.toggle}>
             Select Directory Path
           </Button>
           <a target="_blank" style={{ textDecoration: 'none' }}>
-            <Button color="warning" className="m-2" onClick={this.onClickTenserboardButton}>
+            <Button
+              color="warning"
+              className="m-2"
+              onClick={this.onClickTenserboardButton}
+              disabled={this.state.loadingTenserboard}
+            >
+              {this.state.loadingTenserboard && <i class="fa fa-circle-o-notch fa-spin fa-lg fa-fw" />}
               TensorBoard
-            </Button>{' '}
-          </a>
-          <a target="_blank" href="https://wandb.ai/site" style={{ textDecoration: 'none' }}>
-            <Button color="success" className="my-2">
-              Weights and Biases
             </Button>{' '}
           </a>
           <Modal isOpen={this.state.modal} toggle={this.toggle}>
@@ -365,7 +450,9 @@ class DisplayPage extends Component {
                       <Button
                         color="primary"
                         outline
+                        style={{ width: 'auto' }}
                         onClick={() => this.fillInPathWithSelectedRecentDirectory(directory)}
+                        style={{ width: '400px', overflow: 'hidden', wordWrap: 'break-word' }}
                       >
                         {directory}
                       </Button>
@@ -384,9 +471,6 @@ class DisplayPage extends Component {
             </ModalFooter>
           </Modal>
         </div>
-        <Alert color="danger" isOpen={this.state.directoryErrorVisible} toggle={this.dismissDirectoryError}>
-          {this.state.directoryError}, please input a valid directory.
-        </Alert>
         {directorySelected}
         {!this.state.isDirectorySelected && (
           <Card className="my-4">
@@ -449,7 +533,8 @@ class DisplayPage extends Component {
           <TabContent activeTab={this.state.activeTab}>
             <TabPane tabId="1">
               <Col md={3}>
-                <Button onClick={() => this.apiHandler(this.state.activeTab, this.state.params)}>
+                <Button onClick={this.apiHandler} disabled={this.state.loadingNaiveHeatmap}>
+                  {this.state.loadingNaiveHeatmap && <i class="fa fa-circle-o-notch fa-spin fa-lg fa-fw" />}
                   Generate Heatmap
                 </Button>
               </Col>
@@ -467,7 +552,10 @@ class DisplayPage extends Component {
                           }}
                         />
                         <CardBody>
-                          <CardTitle>{imgObj.name}</CardTitle>
+                          <CardTitle tag="h4">{imgObj.name}</CardTitle>
+                          <CardSubtitle className="text-muted" tag="h5">
+                            {imgObj.created_at}
+                          </CardSubtitle>
                         </CardBody>
                       </Card>
                     </div>
@@ -526,7 +614,8 @@ class DisplayPage extends Component {
                     </FormGroup>
                   </Col>
                 </Row>
-                <Button onClick={() => this.apiHandler(this.state.activeTab, this.state.params)}>
+                <Button onClick={this.apiHandler} disabled={this.state.loadingByRewardHeatmap}>
+                  {this.state.loadingByRewardHeatmap && <i class="fa fa-circle-o-notch fa-spin fa-lg fa-fw" />}
                   Generate Heatmap
                 </Button>
               </Form>
@@ -540,7 +629,10 @@ class DisplayPage extends Component {
                           style={{ flex: 1, minHeight: '10%', maxHeight: 500, cursor: 'pointer' }}
                         />
                         <CardBody>
-                          <CardTitle>{imgObj.name}</CardTitle>
+                          <CardTitle tag="h4">{imgObj.name}</CardTitle>
+                          <CardSubtitle className="text-muted" tag="h5">
+                            {imgObj.created_at}
+                          </CardSubtitle>
                         </CardBody>
                       </Card>
                     </div>
@@ -587,7 +679,8 @@ class DisplayPage extends Component {
                     </FormGroup>
                   </Col>
                 </Row>
-                <Button onClick={() => this.apiHandler(this.state.activeTab, this.state.params)}>
+                <Button onClick={this.apiHandler} disabled={this.state.loadingByEpisodeLengthHeatmap}>
+                  {this.state.loadingByEpisodeLengthHeatmap && <i class="fa fa-circle-o-notch fa-spin fa-lg fa-fw" />}
                   Generate Heatmap
                 </Button>
               </Form>
@@ -601,7 +694,10 @@ class DisplayPage extends Component {
                           style={{ flex: 1, minHeight: '10%', maxHeight: 500, cursor: 'pointer' }}
                         />
                         <CardBody>
-                          <CardTitle>{imgObj.name}</CardTitle>
+                          <CardTitle tag="h4">{imgObj.name}</CardTitle>
+                          <CardSubtitle className="text-muted" tag="h5">
+                            {imgObj.created_at}
+                          </CardSubtitle>
                         </CardBody>
                       </Card>
                     </div>
@@ -611,7 +707,8 @@ class DisplayPage extends Component {
             </TabPane>
             <TabPane tabId="4">
               <Col md={3}>
-                <Button onClick={() => this.apiHandler(this.state.activeTab, this.state.params)}>
+                <Button onClick={this.apiHandler} disabled={this.state.loadingByLastPositionHeatmap}>
+                  {this.state.loadingByLastPositionHeatmap && <i class="fa fa-circle-o-notch fa-spin fa-lg fa-fw" />}
                   Generate Heatmap
                 </Button>
               </Col>
@@ -625,7 +722,10 @@ class DisplayPage extends Component {
                           style={{ flex: 1, minHeight: '10%', maxHeight: 500, cursor: 'pointer' }}
                         />
                         <CardBody>
-                          <CardTitle>{imgObj.name}</CardTitle>
+                          <CardTitle tag="h4">{imgObj.name}</CardTitle>
+                          <CardSubtitle className="text-muted" tag="h5">
+                            {imgObj.created_at}
+                          </CardSubtitle>
                         </CardBody>
                       </Card>
                     </div>
@@ -670,7 +770,7 @@ class DisplayPage extends Component {
         )}
         <div>
           <Card>
-            <CardHeader className="my-1">Frequently Asked Questions</CardHeader>
+            <CardHeader className="my-1">Links / FAQ</CardHeader>
             <Accordion>
               <Accordion.Item eventKey="0">
                 <Accordion.Header>How do I view videos?</Accordion.Header>
@@ -686,6 +786,12 @@ class DisplayPage extends Component {
                 </Accordion.Body>
               </Accordion.Item>
               <Accordion.Item eventKey="2">
+                <Accordion.Header>Weights and Biases</Accordion.Header>
+                <Accordion.Body>
+                  <a href="https://wandb.ai/site">Weights and Biases</a>
+                </Accordion.Body>
+              </Accordion.Item>
+              <Accordion.Item eventKey="3">
                 <Accordion.Header>Documentation</Accordion.Header>
                 <Accordion.Body>
                   Visit our <a href="https://realm-ai-project.github.io/documentation">Documentation Site</a>.

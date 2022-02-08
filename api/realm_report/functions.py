@@ -1,11 +1,31 @@
 import base64
+import datetime
 import json
 import os
 import platform
 import re
 import struct
+import time
 import subprocess, shlex
 from pathlib import Path
+
+#  -------- Constants --------
+
+# map error message segments to more generic error messages for API return
+error_map = {"not enough values": "not enough data"}
+
+#  -------- Functions --------
+
+# gets the created at date given a absolute filepath
+def getCreatedAtTime(filePath):
+    # getctime is buggy on *nix systems: https://stackoverflow.com/questions/237079/how-to-get-file-creation-and-modification-date-times/237084#237084
+    timestamp = time.ctime(os.path.getmtime(filePath))
+    timestamp_list = timestamp.split(" ")
+    timestamp_list[-2] = datetime.datetime.strptime(timestamp_list[-2],'%H:%M:%S').strftime('%I:%M:%S %p')
+    if '' in timestamp_list:
+        timestamp_list.remove('')
+    join_month_day = timestamp_list[0:1] + [timestamp_list[1] + " " + timestamp_list[2]] + timestamp_list[3:]
+    return ", ".join(join_month_day)
 
 # gets and converts a jpg to base 64, pass absoulte path as argument
 def getAndConvertJPGToBase64(filePath):
@@ -47,13 +67,17 @@ def convertDatToJson(datFilePaths):
         
     return jsondict
 
-# converts dat to json as dictionary
+
+# converts dat to json as dictionary, returns (error string, list of data)
 def loadJSONIntoMemory(filePaths):
-    try: 
-        return convertDatToJson(filePaths)
+    try:
+        return (None, convertDatToJson(filePaths))
     except OSError as e:
         print("Error: %s : %s" % (filePaths, e.strerror))
-        return []
+        return (str(e), [])
+    except ValueError as e:
+        print("Value Error: %s" % e)
+        return (str(e), [])
 
 def removeFile(filePath):
     try:
@@ -173,7 +197,8 @@ def getAllHeatmapFilesFromDirectory(directory):
                 # for given heatmap, find out which type of heatmap it is
                 for heatmap_type in heatmap_types:
                     if heatmap_type in file:
-                        allHeatmapFiles[heatmap_type].append({"name": file, "base64": getAndConvertJPGToBase64(directory+"/"+file) })
+                        abs_file_path = Path(directory) / file
+                        allHeatmapFiles[heatmap_type].append({"name": file, "base64": getAndConvertJPGToBase64(abs_file_path), "created_at": getCreatedAtTime(abs_file_path) })
 
         # Sort each list by dat_id?
         return allHeatmapFiles
@@ -190,10 +215,7 @@ def checkFileExists(fileName, directory):
 def deleteFileIfExists(fileName, directory):
     if not checkFileExists(fileName, directory):
         return False
-    try:
-        os.remove(directory+"/"+fileName)
-    except:
-        return False
+    os.remove(Path(directory, fileName))
     return True
 
 def checkRunDirectoryStructure(directory):
@@ -212,3 +234,9 @@ def checkRunDirectoryStructure(directory):
 
 def constructDatFileName(dat_id):
     return f"data-{dat_id}.dat"
+
+def getErrorGeneric(error_string):
+    for error_key in error_map:
+        if error_key in error_string:
+            return error_map[error_key]
+    return "undefined error encountered"

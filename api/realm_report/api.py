@@ -162,15 +162,15 @@ def create_heatmap_by_reward(range_type, percentage):
     fileName = f"heatmap_reward_{range_type}_{percentage}.jpg"
     fileSavePath = absDataDirPath / fileName
 
-    if not checkFileExists(fileName, absDataDirPath): # Create Heatmap
-        datFilePaths = getAllDatFilesFromDirectory(absDataDirPath)
-        data = loadJSONIntoMemory(datFilePaths)
-        if data == []:
-            return {'text': 'Heatmap was not created: %s' % absDataDirPath}
-        createHeatmap2(data, float(percentage), highest, fileSavePath)
+    datFilePaths = getAllDatFilesFromDirectory(absDataDirPath)
+    err, data = loadJSONIntoMemory(datFilePaths)
+    if err is not None:
+        return {'name': fileName, 'error': getErrorGeneric(err) }
+    createHeatmap2(data, float(percentage), highest, fileSavePath)
 
     base64_str = getAndConvertJPGToBase64(fileSavePath)
-    return {'name': fileName, "base64": base64_str}
+    created_at = getCreatedAtTime(fileSavePath)
+    return {'name': fileName, "base64": base64_str, "created_at": created_at}
 
 @app.route('/by_episode_length/<range_type>/<percentage>', methods=["POST"])
 def create_heatmap_by_episode_length(range_type, percentage):
@@ -187,15 +187,15 @@ def create_heatmap_by_episode_length(range_type, percentage):
     fileName = f"heatmap_episode_length_{range_type}_{percentage}.jpg"
     fileSavePath = absDataDirPath / fileName
 
-    if not checkFileExists(fileName, absDataDirPath): # Create Heatmap
-        datFilePaths = getAllDatFilesFromDirectory(absDataDirPath)
-        data = loadJSONIntoMemory(datFilePaths)
-        if data == []:
-            return {'text': 'Heatmap was not created: %s' % absDataDirPath}
-        createHeatmap3(data, float(percentage), highest, fileSavePath)
+    datFilePaths = getAllDatFilesFromDirectory(absDataDirPath)
+    err, data = loadJSONIntoMemory(datFilePaths)
+    if err is not None:
+        return {'name': fileName, 'error': getErrorGeneric(err) }
+    createHeatmap3(data, float(percentage), highest, fileSavePath)
 
     base64_str = getAndConvertJPGToBase64(fileSavePath)
-    return {'name': fileName, "base64": base64_str}
+    created_at = getCreatedAtTime(fileSavePath)
+    return {'name': fileName, "base64": base64_str, "created_at": created_at}
 
 @app.route('/naive', methods=["POST"])
 def create_heatmap_naive():
@@ -207,15 +207,15 @@ def create_heatmap_naive():
     fileName = "heatmap_naive.jpg"
     fileSavePath = absDataDirPath / fileName
 
-    if not checkFileExists(fileName, absDataDirPath): # Create Heatmap
-        datFilePaths = getAllDatFilesFromDirectory(absDataDirPath)
-        data = loadJSONIntoMemory(datFilePaths)
-        if data == []:
-            return {'text': 'Heatmap was not created: %s' % absDataDirPath}
-        createHeatmap1(data, fileSavePath)
+    datFilePaths = getAllDatFilesFromDirectory(absDataDirPath)
+    err, data = loadJSONIntoMemory(datFilePaths)
+    if err is not None:
+        return {'name': fileName, 'error': getErrorGeneric(err) }
+    createHeatmap1(data, fileSavePath)
 
     base64_str = getAndConvertJPGToBase64(fileSavePath)
-    return {'name': fileName, "base64": base64_str}
+    created_at = getCreatedAtTime(fileSavePath)
+    return {'name': fileName, "base64": base64_str, "created_at": created_at}
 
 @app.route('/by_last_position', methods=["POST"])
 def create_heatmap_by_last_position():
@@ -226,15 +226,15 @@ def create_heatmap_by_last_position():
     fileName = "heatmap_last_position.jpg"
     fileSavePath = absDataDirPath / fileName
 
-    if not checkFileExists(fileName, absDataDirPath): # Create Heatmap
-        datFilePaths = getAllDatFilesFromDirectory(absDataDirPath)
-        data = loadJSONIntoMemory(datFilePaths)
-        if data == []:
-            return {'text': 'Heatmap was not created: %s' % absDataDirPath}
-        createHeatmap4(data, fileSavePath)
+    datFilePaths = getAllDatFilesFromDirectory(absDataDirPath)
+    err, data = loadJSONIntoMemory(datFilePaths)
+    if err is not None:
+        return {'name': fileName, 'error': getErrorGeneric(err) }
+    createHeatmap4(data, fileSavePath)
 
     base64_str = getAndConvertJPGToBase64(fileSavePath)
-    return {'name': fileName, "base64": base64_str}
+    created_at = getCreatedAtTime(fileSavePath)
+    return {'name': fileName, "base64": base64_str, "created_at": created_at}
 
 # @app.before_first_request # couldn't get this to be on flask init
 # def init():
