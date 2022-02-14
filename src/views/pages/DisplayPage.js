@@ -145,9 +145,17 @@ class DisplayPage extends Component {
     }
   }
 
+  // given time in seconds convert it to proper time string
+  getTimeString(time) {
+    if (time < 60) {
+      return `${time.toFixed(2)}s`;
+    }
+    return `${(time / 60).toFixed(2)}mins`;
+  }
+
   // toast notification functionsq
-  toastSuccess = (heatmap_file_name, timestamp) =>
-    toast.success('Succesfully generated ' + heatmap_file_name + ' on ' + timestamp);
+  toastSuccess = (heatmap_file_name, timestamp, elapsed_time) =>
+    toast.success('Succesfully generated ' + heatmap_file_name + ' on ' + timestamp + ' (Took ' + elapsed_time + ')');
 
   toastHeatmapError = (heatmap_file_name, error) => toast.error('Error generating ' + heatmap_file_name + ': ' + error);
 
@@ -156,7 +164,8 @@ class DisplayPage extends Component {
   async apiHandler() {
     let option = this.state.activeTab;
     let params = this.state.params;
-
+    let start_time = performance.now();
+    console.log('starting a api call: ' + start_time);
     if (option == '1') {
       this.setState({ loadingNaiveHeatmap: true }, () => {
         generateHeatmap(option, params).then(responseJSON => {
@@ -164,7 +173,11 @@ class DisplayPage extends Component {
             this.toastHeatmapError(responseJSON.name, responseJSON.error);
           } else {
             this.updateHeatmapImageListWithData(responseJSON, this.state.naiveImageList);
-            this.toastSuccess(responseJSON.name, responseJSON.created_at);
+            this.toastSuccess(
+              responseJSON.name,
+              responseJSON.created_at,
+              this.getTimeString((performance.now() - start_time) / 1000)
+            );
           }
           this.setState({ loadingNaiveHeatmap: false });
         });
@@ -178,7 +191,11 @@ class DisplayPage extends Component {
             this.toastHeatmapError(responseJSON.name, responseJSON.error);
           } else {
             this.updateHeatmapImageListWithData(responseJSON, this.state.byRewardImageList);
-            this.toastSuccess(responseJSON.name, responseJSON.created_at);
+            this.toastSuccess(
+              responseJSON.name,
+              responseJSON.created_at,
+              this.getTimeString((performance.now() - start_time) / 1000)
+            );
           }
           this.setState({ loadingByRewardHeatmap: false });
         });
@@ -192,7 +209,11 @@ class DisplayPage extends Component {
             this.toastHeatmapError(responseJSON.name, responseJSON.error);
           } else {
             this.updateHeatmapImageListWithData(responseJSON, this.state.byEpisodeLengthList);
-            this.toastSuccess(responseJSON.name, responseJSON.created_at);
+            this.toastSuccess(
+              responseJSON.name,
+              responseJSON.created_at,
+              this.getTimeString((performance.now() - start_time) / 1000)
+            );
           }
           this.setState({ loadingByEpisodeLengthHeatmap: false });
         });
@@ -205,7 +226,11 @@ class DisplayPage extends Component {
             this.toastHeatmapError(responseJSON.name, responseJSON.error);
           } else {
             this.updateHeatmapImageListWithData(responseJSON, this.state.byLastPositionList);
-            this.toastSuccess(responseJSON.name, responseJSON.created_at);
+            this.toastSuccess(
+              responseJSON.name,
+              responseJSON.created_at,
+              this.getTimeString((performance.now() - start_time) / 1000)
+            );
           }
           this.setState({ loadingByLastPositionHeatmap: false });
         });
