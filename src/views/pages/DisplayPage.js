@@ -66,6 +66,7 @@ class DisplayPage extends Component {
       loadingByRewardHeatmap: false,
       loadingByEpisodeLengthHeatmap: false,
       loadingByLastPositionHeatmap: false,
+      loadingByEpisodesHeatmap: false,
       directoryError: '',
       activeTab: '1',
       progress: 30,
@@ -81,6 +82,7 @@ class DisplayPage extends Component {
       modal: false,
       byEpisodeLengthList: [],
       byLastPositionList: [],
+      byEpisodesList: [],
       videosList: [],
       videoFilesList: [],
       recentlySelectedDirectories: [],
@@ -88,8 +90,6 @@ class DisplayPage extends Component {
       selectedImage: null,
     };
 
-    this.down = this.down.bind(this);
-    this.up = this.up.bind(this);
     this.onClickTenserboardButton = this.onClickTenserboardButton.bind(this);
     this.apiHandler = this.apiHandler.bind(this);
   }
@@ -103,18 +103,6 @@ class DisplayPage extends Component {
       this.setState({
         activeTab: tab,
       });
-    }
-  }
-
-  down() {
-    if (this.state.progress > 0) {
-      this.setState(prevState => ({ progress: prevState.progress - 10 }));
-    }
-  }
-
-  up() {
-    if (this.state.progress < 100) {
-      this.setState(prevState => ({ progress: prevState.progress + 10 }));
     }
   }
 
@@ -165,7 +153,6 @@ class DisplayPage extends Component {
     let option = this.state.activeTab;
     let params = this.state.params;
     let start_time = performance.now();
-    console.log('starting a api call: ' + start_time);
     if (option == '1') {
       this.setState({ loadingNaiveHeatmap: true }, () => {
         generateHeatmap(option, params).then(responseJSON => {
@@ -233,6 +220,24 @@ class DisplayPage extends Component {
             );
           }
           this.setState({ loadingByLastPositionHeatmap: false });
+        });
+      });
+    }
+    if (option == '5') {
+      this.state.params.percentage = this.state.progress / 100;
+      this.setState({ loadingByEpisodesHeatmap: true }, () => {
+        generateHeatmap(option, params).then(responseJSON => {
+          if (responseJSON.hasOwnProperty('error')) {
+            this.toastHeatmapError(responseJSON.name, responseJSON.error);
+          } else {
+            this.updateHeatmapImageListWithData(responseJSON, this.state.byEpisodesList);
+            this.toastSuccess(
+              responseJSON.name,
+              responseJSON.created_at,
+              this.getTimeString((performance.now() - start_time) / 1000)
+            );
+          }
+          this.setState({ loadingByEpisodesHeatmap: false });
         });
       });
     }
@@ -326,6 +331,7 @@ class DisplayPage extends Component {
       this.state.byRewardImageList = [];
       this.state.byEpisodeLengthList = [];
       this.state.byLastPositionList = [];
+      this.state.byEpisodesList = [];
       this.state.videosList = [];
       this.state.videoFilesList = [];
 
@@ -373,6 +379,13 @@ class DisplayPage extends Component {
         });
         responseHeatmapsJSON.last_position.forEach((heatmapObj, index) => {
           oldState.byLastPositionList.push({
+            name: heatmapObj.name,
+            base64: heatmapObj.base64,
+            created_at: heatmapObj.created_at,
+          });
+        });
+        responseHeatmapsJSON.episode_num.forEach((heatmapObj, index) => {
+          oldState.byEpisodesList.push({
             name: heatmapObj.name,
             base64: heatmapObj.base64,
             created_at: heatmapObj.created_at,
@@ -550,6 +563,17 @@ class DisplayPage extends Component {
                 }}
               >
                 Heatmaps by Agent Last Position
+              </NavLink>
+            </NavItem>
+            <NavItem>
+              <NavLink
+                href="#"
+                className={classnames({ active: this.state.activeTab === '5' })}
+                onClick={() => {
+                  this.toggleTab('5');
+                }}
+              >
+                Heatmaps by Episodes
               </NavLink>
             </NavItem>
           </Nav>
@@ -740,6 +764,71 @@ class DisplayPage extends Component {
               <Row>
                 <div style={{ display: 'flex', flexWrap: 'wrap' }}>
                   {this.state.byLastPositionList.map((imgObj, index) => (
+                    <div key={index}>
+                      <Card onClick={() => this.expandImage(`data:image/png;base64,${imgObj.base64}`)}>
+                        <CardImg
+                          src={`data:image/png;base64,${imgObj.base64}`}
+                          style={{ flex: 1, minHeight: '10%', maxHeight: 500, cursor: 'pointer' }}
+                        />
+                        <CardBody>
+                          <CardTitle tag="h4">{imgObj.name}</CardTitle>
+                          <CardSubtitle className="text-muted" tag="h5">
+                            {imgObj.created_at}
+                          </CardSubtitle>
+                        </CardBody>
+                      </Card>
+                    </div>
+                  ))}
+                </div>
+              </Row>
+            </TabPane>
+            <TabPane tabId="5">
+              <Form>
+                <Row form>
+                  <Col md={3}>
+                    <FormGroup>
+                      <Label className="mb-2">Range type</Label>
+                      <Input
+                        type="select"
+                        onChange={event => this.updateStateParamsRangeType(event.target.value)}
+                        value={this.state.params.range_type}
+                        className="mb-2"
+                      >
+                        <option>top</option>
+                        <option>bottom</option>
+                      </Input>
+                    </FormGroup>
+                  </Col>
+                </Row>
+                <Row form>
+                  <Col md={3}>
+                    <FormGroup>
+                      <Label className="mb-2">Percentage</Label>
+                      <CardBody className="mb-2">
+                        <Row>
+                          <Slider
+                            onChange={this.updatePercentage}
+                            defaultValue={30}
+                            step={10}
+                            marks
+                            min={10}
+                            max={100}
+                            valueLabelDisplay="on"
+                            className="mt-2"
+                          />
+                        </Row>
+                      </CardBody>
+                    </FormGroup>
+                  </Col>
+                </Row>
+                <Button onClick={this.apiHandler} disabled={this.state.loadingByEpisodesHeatmap}>
+                  {this.state.loadingByEpisodesHeatmap && <i class="fa fa-circle-o-notch fa-spin fa-lg fa-fw" />}
+                  Generate Heatmap
+                </Button>
+              </Form>
+              <Row>
+                <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+                  {this.state.byEpisodesList.map((imgObj, index) => (
                     <div key={index}>
                       <Card onClick={() => this.expandImage(`data:image/png;base64,${imgObj.base64}`)}>
                         <CardImg

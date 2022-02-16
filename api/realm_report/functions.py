@@ -189,9 +189,9 @@ def playVideo(filePath):
     return True
 
 def getAllHeatmapFilesFromDirectory(directory):
-    heatmap_types = ["naive", "reward", "episode_length", "last_position"]
+    heatmap_types = ["naive", "reward", "episode_length", "last_position", "episode_num"]
     try:
-        allHeatmapFiles = {"naive": [], "reward": [], "episode_length": [], "last_position": []}
+        allHeatmapFiles = {"naive": [], "reward": [], "episode_length": [], "last_position": [], "episode_num": []}
         for file in os.listdir(directory):
             if file.endswith(".jpg"):
                 # for given heatmap, find out which type of heatmap it is

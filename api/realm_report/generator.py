@@ -151,6 +151,36 @@ def createHeatmap4(data, filePath):
 
     plot_and_save(pos_x, pos_y, filePath)
 
+"""
+    createHeatmap5 - creates heatmap based on percentage of top or bottom episode numbers
+
+    data (dictionary): heatmap data
+    percentile (decimal): percentage of highest/lowest gamescore to filter by
+    longest (boolean): True = filter by top percentile, False = filter by bottom percentile
+    filePath (string): path to save heatmap
+"""
+def createHeatmap5(data, percentile, longest, filePath):
+    assert 0 < percentile <= 1
+    
+    # Convert data into dataframe
+    df = pd.DataFrame.from_dict(data['episodes'])
+    df.head()
+
+    # Get percentile episodes that are longest/shortest  
+    sorted_df = df.sort_values(by=['episode_number'], ascending=not longest)
+
+    # Filter by percentile
+    filtered_df = sorted_df.iloc[:int(len(sorted_df)*percentile), :]
+
+    # Concatenate all positional data across filtered episodes
+    pos_x, pos_y = np.concatenate(filtered_df['pos_x'].to_numpy()), np.concatenate(filtered_df['pos_y'].to_numpy())
+
+    if longest:
+        print("Heatmap 5: Top %f%% episodes by episode number" % (percentile*100))
+    else:
+        print("Heatmap 5: Bottom %f%% episodes by episode number" % (percentile*100))
+    plot_and_save(pos_x, pos_y, filePath)
+
 
 """
     createHeatmap5 - can specify a minimum reward they want
@@ -159,7 +189,7 @@ def createHeatmap4(data, filePath):
     minReward (float): minimum reward
     filePath (string): path to save heatmap
 """ 
-def createHeatmap5(data, minReward, filePath):
+def createHeatmap6(data, minReward, filePath):
     print("Heatmap 5: User can specify a specific minimum reward they want")
     
     # Convert data into dataframe
@@ -188,7 +218,7 @@ def createHeatmap5(data, minReward, filePath):
     minSteps (int): minimum steps
     filePath (string): path to save heatmap
 """ 
-def createHeatmap6(data, minSteps, filePath):
+def createHeatmap7(data, minSteps, filePath):
     print("Heatmap 6: User can specify a specific minimum number of steps they want")
     
     # Convert data into dataframe

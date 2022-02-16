@@ -12,7 +12,7 @@ export async function generateHeatmap(option, params) {
     body: JSON.stringify({ file_path: params.file_path }),
   };
   if (option === '1') {
-    url += 'naive'
+    url += 'naive';
     return makeApiCall(url, body);
   } else if (option === '2') {
     url += 'by_reward/' + params.range_type + '/' + params.percentage;
@@ -22,6 +22,9 @@ export async function generateHeatmap(option, params) {
     return makeApiCall(url, body);
   } else if (option === '4') {
     url += 'by_last_position';
+    return makeApiCall(url, body);
+  } else if (option === '5') {
+    url += 'by_episode_num/' + params.range_type + '/' + params.percentage;
     return makeApiCall(url, body);
   }
 }
