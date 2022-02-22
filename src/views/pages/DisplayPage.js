@@ -59,6 +59,7 @@ class DisplayPage extends Component {
     this.toggle = this.toggle.bind(this);
     this.updatePercentage = this.updatePercentage.bind(this);
     this.expandImage = this.expandImage.bind(this);
+    this.removeImage = this.removeImage.bind(this);
     this.closeImageModal = this.closeImageModal.bind(this);
     this.state = {
       loadingTenserboard: false,
@@ -148,6 +149,8 @@ class DisplayPage extends Component {
   toastHeatmapError = (heatmap_file_name, error) => toast.error('Error generating ' + heatmap_file_name + ': ' + error);
 
   toastDirectoryError = error => toast.error(error + ', please input a valid directory.');
+
+  toastDeleteSuccess = imgName => toast.success('Successfully deleted ' + imgName);
 
   async apiHandler() {
     let option = this.state.activeTab;
@@ -306,6 +309,18 @@ class DisplayPage extends Component {
   expandImage(base64image) {
     console.log(base64image);
     this.setState({ selectedImage: base64image });
+  }
+
+  // Delete image from selected state array
+  removeImage(arrayName, imgObj) {
+    this.setState(prevState => {
+      return {
+        [`${arrayName}`]: prevState[`${arrayName}`].filter(item => {
+          return item !== imgObj;
+        }),
+      };
+    });
+    this.toastDeleteSuccess(imgObj.name);
   }
 
   closeImageModal() {
@@ -591,7 +606,7 @@ class DisplayPage extends Component {
                 <div style={{ display: 'flex', flexWrap: 'wrap' }}>
                   {this.state.naiveImageList.map((imgObj, index) => (
                     <div key={index}>
-                      <Card onClick={() => this.expandImage(`data:image/png;base64,${imgObj.base64}`)}>
+                      <Card>
                         <CardImg
                           src={`data:image/png;base64,${imgObj.base64}`}
                           style={{
@@ -599,12 +614,20 @@ class DisplayPage extends Component {
                             maxHeight: 500,
                             cursor: 'pointer',
                           }}
+                          onClick={() => this.expandImage(`data:image/png;base64,${imgObj.base64}`)}
                         />
                         <CardBody>
                           <CardTitle tag="h4">{imgObj.name}</CardTitle>
                           <CardSubtitle className="text-muted" tag="h5">
                             {imgObj.created_at}
                           </CardSubtitle>
+                          <Button
+                            className="my-2"
+                            color="danger"
+                            onClick={() => this.removeImage('naiveImageList', imgObj)}
+                          >
+                            DELETE
+                          </Button>
                         </CardBody>
                       </Card>
                     </div>
@@ -672,16 +695,24 @@ class DisplayPage extends Component {
                 <div style={{ display: 'flex', flexWrap: 'wrap' }}>
                   {this.state.byRewardImageList.map((imgObj, index) => (
                     <div key={index}>
-                      <Card onClick={() => this.expandImage(`data:image/png;base64,${imgObj.base64}`)}>
+                      <Card>
                         <CardImg
                           src={`data:image/png;base64,${imgObj.base64}`}
                           style={{ flex: 1, minHeight: '10%', maxHeight: 500, cursor: 'pointer' }}
+                          onClick={() => this.expandImage(`data:image/png;base64,${imgObj.base64}`)}
                         />
                         <CardBody>
                           <CardTitle tag="h4">{imgObj.name}</CardTitle>
                           <CardSubtitle className="text-muted" tag="h5">
                             {imgObj.created_at}
                           </CardSubtitle>
+                          <Button
+                            className="my-2"
+                            color="danger"
+                            onClick={() => this.removeImage('byRewardImageList', imgObj)}
+                          >
+                            DELETE
+                          </Button>
                         </CardBody>
                       </Card>
                     </div>
@@ -737,16 +768,24 @@ class DisplayPage extends Component {
                 <div style={{ display: 'flex', flexWrap: 'wrap' }}>
                   {this.state.byEpisodeLengthList.map((imgObj, index) => (
                     <div key={index}>
-                      <Card onClick={() => this.expandImage(`data:image/png;base64,${imgObj.base64}`)}>
+                      <Card>
                         <CardImg
                           src={`data:image/png;base64,${imgObj.base64}`}
                           style={{ flex: 1, minHeight: '10%', maxHeight: 500, cursor: 'pointer' }}
+                          onClick={() => this.expandImage(`data:image/png;base64,${imgObj.base64}`)}
                         />
                         <CardBody>
                           <CardTitle tag="h4">{imgObj.name}</CardTitle>
                           <CardSubtitle className="text-muted" tag="h5">
                             {imgObj.created_at}
                           </CardSubtitle>
+                          <Button
+                            className="my-2"
+                            color="danger"
+                            onClick={() => this.removeImage('byEpisodeLengthList', imgObj)}
+                          >
+                            DELETE
+                          </Button>
                         </CardBody>
                       </Card>
                     </div>
@@ -765,16 +804,24 @@ class DisplayPage extends Component {
                 <div style={{ display: 'flex', flexWrap: 'wrap' }}>
                   {this.state.byLastPositionList.map((imgObj, index) => (
                     <div key={index}>
-                      <Card onClick={() => this.expandImage(`data:image/png;base64,${imgObj.base64}`)}>
+                      <Card>
                         <CardImg
                           src={`data:image/png;base64,${imgObj.base64}`}
                           style={{ flex: 1, minHeight: '10%', maxHeight: 500, cursor: 'pointer' }}
+                          onClick={() => this.expandImage(`data:image/png;base64,${imgObj.base64}`)}
                         />
                         <CardBody>
                           <CardTitle tag="h4">{imgObj.name}</CardTitle>
                           <CardSubtitle className="text-muted" tag="h5">
                             {imgObj.created_at}
                           </CardSubtitle>
+                          <Button
+                            className="my-2"
+                            color="danger"
+                            onClick={() => this.removeImage('byLastPositionList', imgObj)}
+                          >
+                            DELETE
+                          </Button>
                         </CardBody>
                       </Card>
                     </div>
@@ -830,16 +877,24 @@ class DisplayPage extends Component {
                 <div style={{ display: 'flex', flexWrap: 'wrap' }}>
                   {this.state.byEpisodesList.map((imgObj, index) => (
                     <div key={index}>
-                      <Card onClick={() => this.expandImage(`data:image/png;base64,${imgObj.base64}`)}>
+                      <Card>
                         <CardImg
                           src={`data:image/png;base64,${imgObj.base64}`}
                           style={{ flex: 1, minHeight: '10%', maxHeight: 500, cursor: 'pointer' }}
+                          onClick={() => this.expandImage(`data:image/png;base64,${imgObj.base64}`)}
                         />
                         <CardBody>
                           <CardTitle tag="h4">{imgObj.name}</CardTitle>
                           <CardSubtitle className="text-muted" tag="h5">
                             {imgObj.created_at}
                           </CardSubtitle>
+                          <Button
+                            className="my-2"
+                            color="danger"
+                            onClick={() => this.removeImage('byEpisodesList', imgObj)}
+                          >
+                            DELETE
+                          </Button>
                         </CardBody>
                       </Card>
                     </div>
