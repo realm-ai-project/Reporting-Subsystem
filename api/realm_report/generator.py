@@ -155,30 +155,28 @@ def createHeatmap4(data, filePath):
     createHeatmap5 - creates heatmap based on percentage of top or bottom episode numbers
 
     data (dictionary): heatmap data
-    percentile (decimal): percentage of highest/lowest gamescore to filter by
-    longest (boolean): True = filter by top percentile, False = filter by bottom percentile
+    lower_bound (decimal): lower bound percentage of relative episodes numbers to filter by
+    upper_bound (decimal): upper bound percentage of relative episodes numbers to filter by
     filePath (string): path to save heatmap
 """
-def createHeatmap5(data, percentile, longest, filePath):
-    assert 0 < percentile <= 1
+def createHeatmap5(data, lower_bound, upper_bound, filePath):
+    assert 0 <= lower_bound <= 1
+    assert 0 < upper_bound <= 1
     
     # Convert data into dataframe
     df = pd.DataFrame.from_dict(data['episodes'])
     df.head()
 
-    # Get percentile episodes that are longest/shortest  
-    sorted_df = df.sort_values(by=['episode_number'], ascending=not longest)
+    # sort episodes in ascending order
+    sorted_df = df.sort_values(by=['episode_number'], ascending=True)
 
     # Filter by percentile
-    filtered_df = sorted_df.iloc[:int(len(sorted_df)*percentile), :]
+    filtered_df = sorted_df.iloc[int(len(sorted_df)*lower_bound):int(len(sorted_df)*upper_bound), :]
 
     # Concatenate all positional data across filtered episodes
     pos_x, pos_y = np.concatenate(filtered_df['pos_x'].to_numpy()), np.concatenate(filtered_df['pos_y'].to_numpy())
 
-    if longest:
-        print("Heatmap 5: Top %f%% episodes by episode number" % (percentile*100))
-    else:
-        print("Heatmap 5: Bottom %f%% episodes by episode number" % (percentile*100))
+    print(f"Heatmap 5: {lower_bound}% to {upper_bound}% relative range episodes by episode number")
     plot_and_save(pos_x, pos_y, filePath)
 
 
