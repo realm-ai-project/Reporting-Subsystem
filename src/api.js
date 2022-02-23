@@ -76,6 +76,21 @@ export async function getAllHeatmaps(userDirectory) {
   return makeApiCall(url, body);
 }
 
+export async function deleteHeatmap(userDirectory, fileName) {
+  let url = 'http://localhost:5000/deleteHeatmap';
+
+  const body = {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ file_path: userDirectory, file_name: fileName }),
+  };
+
+  return makeApiCall(url, body);
+}
+
 export async function isValidDirectory(userDirectory) {
   let url = 'http://localhost:5000/isValidDirectory';
 
@@ -115,6 +130,8 @@ export async function getRecentlySelectedDirectories() {
 }
 
 async function makeApiCall(url, requestBody) {
+  console.log(url);
+  console.log(requestBody);
   const response = await fetch(url, requestBody);
   const responseJSON = response.json();
   return responseJSON;

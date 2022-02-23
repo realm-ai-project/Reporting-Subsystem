@@ -46,6 +46,7 @@ import {
   getAllVideos,
   playVideo,
   getAllHeatmaps,
+  deleteHeatmap,
   isValidDirectory,
   getRecentlySelectedDirectories,
   getTenserboardHost,
@@ -312,7 +313,7 @@ class DisplayPage extends Component {
   }
 
   // Delete image from selected state array
-  removeImage(arrayName, imgObj) {
+  async removeImage(arrayName, imgObj) {
     this.setState(prevState => {
       return {
         [`${arrayName}`]: prevState[`${arrayName}`].filter(item => {
@@ -320,6 +321,8 @@ class DisplayPage extends Component {
         }),
       };
     });
+    // Send request to permanently delete the image
+    const res = await deleteHeatmap(this.state.params.file_path, imgObj.name);
     this.toastDeleteSuccess(imgObj.name);
   }
 

@@ -134,6 +134,11 @@ def get_all_heatmaps():
     # get all heatmap images that exist in current file_path from request body
     return jsonify(getAllHeatmapFilesFromDirectory(request.json["file_path"]+DATA_SUBDIRECTORY))
 
+@app.route('/deleteHeatmap', methods=["POST"])
+def delete_heatmap():
+    # delete the selected heatmap
+    return jsonify(success=True)
+
 @app.route('/playVideo', methods=["POST"])
 def play_video():
     if playVideo(request.json["file_path"]):

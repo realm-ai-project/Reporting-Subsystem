@@ -207,6 +207,11 @@ def getAllHeatmapFilesFromDirectory(directory):
         print("Error: %s : %s" % (directory, e.strerror))
         return []
 
+def deleteFile(directory, fileName):
+    abs_file_path = Path(directory) / fileName
+    print("Deleted ", abs_file_path)
+    os.remove(abs_file_path)
+
 def checkFileExists(fileName, directory):
     if fileName in os.listdir(directory):
         return True
