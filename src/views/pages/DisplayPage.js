@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, useState } from 'react';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import { Carousel } from 'react-responsive-carousel';
 import classnames from 'classnames';
@@ -75,6 +75,8 @@ class DisplayPage extends Component {
         percentage: 0.01,
         dat_id: '1',
         file_path: '',
+        hm5_start: 0,
+        hm5_end: 0,
       },
       tempFilePath: '',
       naiveImageList: [],
@@ -88,6 +90,10 @@ class DisplayPage extends Component {
       recentlySelectedDirectories: [],
       isDirectorySelected: false,
       selectedImage: null,
+      // added some extra stuff for heatmap 5
+      minDistance: 10,
+      hm5StartProgress: 10,
+      hm5EndProgress: 20,
     };
 
     this.onClickTenserboardButton = this.onClickTenserboardButton.bind(this);
@@ -108,7 +114,7 @@ class DisplayPage extends Component {
 
   updatePercentage(event) {
     this.setState({ progress: event.target.value });
-    console.log(event.target.value);
+    // console.log(event.target.value);
   }
 
   // check if heatmap is already created and in list, if it does return the index, otherwise return -1
@@ -224,7 +230,8 @@ class DisplayPage extends Component {
       });
     }
     if (option == '5') {
-      this.state.params.percentage = this.state.progress / 100;
+      this.state.params.hm5_start = this.state.hm5StartProgress / 100;
+      this.state.params.hm5_end = this.state.hm5EndProgress / 100;
       this.setState({ loadingByEpisodesHeatmap: true }, () => {
         generateHeatmap(option, params).then(responseJSON => {
           if (responseJSON.hasOwnProperty('error')) {
@@ -418,6 +425,18 @@ class DisplayPage extends Component {
       modal: !prevState.modal,
     }));
   }
+
+  handleRangeChangeHeatmap5 = (event, newValue, activeThumb) => {
+    if (!Array.isArray(newValue)) {
+      return;
+    }
+    let minDistance = this.state.minDistance;
+    if (activeThumb === 0) {
+      this.setState({ hm5StartProgress: Math.min(newValue[0], this.state.hm5EndProgress - minDistance) });
+    } else {
+      this.setState({ hm5EndProgress: Math.max(newValue[1], this.state.hm5StartProgress + minDistance) });
+    }
+  };
 
   render() {
     let directorySelected;
@@ -787,32 +806,15 @@ class DisplayPage extends Component {
                 <Row form>
                   <Col md={3}>
                     <FormGroup>
-                      <Label className="mb-2">Range type</Label>
-                      <Input
-                        type="select"
-                        onChange={event => this.updateStateParamsRangeType(event.target.value)}
-                        value={this.state.params.range_type}
-                        className="mb-2"
-                      >
-                        <option>top</option>
-                        <option>bottom</option>
-                      </Input>
-                    </FormGroup>
-                  </Col>
-                </Row>
-                <Row form>
-                  <Col md={3}>
-                    <FormGroup>
-                      <Label className="mb-2">Percentage</Label>
+                      <Label className="mb-2">Relative Episode Range</Label>
                       <CardBody className="mb-2">
                         <Row>
                           <Slider
-                            onChange={this.updatePercentage}
-                            defaultValue={30}
+                            getAriaLabel={() => 'Temperature range'}
+                            value={[this.state.hm5StartProgress, this.state.hm5EndProgress]}
+                            onChange={this.handleRangeChangeHeatmap5}
                             step={10}
                             marks
-                            min={10}
-                            max={100}
                             valueLabelDisplay="on"
                             className="mt-2"
                           />
