@@ -24,7 +24,7 @@ export async function generateHeatmap(option, params) {
     url += 'by_last_position';
     return makeApiCall(url, body);
   } else if (option === '5') {
-    url += 'by_episode_num/' + params.range_type + '/' + params.percentage;
+    url += 'by_episode_num/' + params.hm5_start + '/' + params.hm5_end;
     return makeApiCall(url, body);
   }
 }
