@@ -38,6 +38,37 @@ def plot_and_save(pos_x, pos_y, filePath):
     plt.savefig(filePath)
     plt.close()
 
+def plot_and_save2(pos_x, pos_y, filePath, x_size, y_size):
+    # x_size, y_size = int(max(pos_x) - min(pos_x)), int(max(pos_y) - min(pos_y))
+    
+    # Find greatest common divisor 
+    # gcd = np.gcd(x_size, y_size)
+    
+    # Set aspect ratio of figure
+    aspect_ratio = x_size/y_size
+    print(f"plot and save 2, aspect ratio is: {aspect_ratio}")
+    
+    # max_width, max_height = 6.4, 4.8 # default figsize of matplotlib, in inches
+    max_width, max_height = 8, 6 # our own max size in inches
+    if max_width/aspect_ratio>max_height:
+        height = max_height
+        width = aspect_ratio*height
+        assert width<=max_width
+    else:
+        width = max_width
+        height = width/aspect_ratio
+        assert height<=max_height
+
+    plt.figure(figsize=(width, height))
+    H, _, _ = np.histogram2d(pos_x, pos_y, bins=[x_size, y_size])
+    
+    # Plot heatmap and save figures
+    ax = sns.heatmap(np.log(H.T+1), cmap="BuPu",)# cbar=False, xticklabels=False, yticklabels=False)
+    
+    # We can overwrite files this way
+    plt.savefig(filePath)
+    plt.close()
+
 def overlay_game_image(ax, x_size, y_size, imagefile='zombiemap.png'):
     # get the image as an array so we can plot it 
     import matplotlib.image as mpimg 
@@ -89,6 +120,10 @@ def createHeatmap2(data, percentile, highest, filePath):
     # Sort episodes by highest/lowest gamescore (i.e., reward)    
     sorted_df = df.sort_values(by=['reward'], ascending=not highest)
 
+    # get the x_size and y_size for aspect ratio and number of bins
+    unfiltered_pos_x, unfiltered_pos_y = np.concatenate(sorted_df['pos_x'].to_numpy()), np.concatenate(sorted_df['pos_y'].to_numpy())
+    x_size, y_size = int(max(unfiltered_pos_x) - min(unfiltered_pos_x)), int(max(unfiltered_pos_y) - min(unfiltered_pos_y))
+
     # Filter by percentile
     filtered_df = sorted_df.iloc[:int(len(sorted_df)*percentile), :]
 
@@ -99,7 +134,7 @@ def createHeatmap2(data, percentile, highest, filePath):
         print("Heatmap 2: Top %f%% highest gamescore episodes" % (percentile*100))
     else:
         print("Heatmap 2: Bottom %f%% lowest gamescore episodes" % (percentile*100))
-    plot_and_save(pos_x, pos_y, filePath)
+    plot_and_save2(pos_x, pos_y, filePath, x_size, y_size)
 
 
 """
@@ -120,6 +155,10 @@ def createHeatmap3(data, percentile, longest, filePath):
     # Get percentile episodes that are longest/shortest  
     sorted_df = df.sort_values(by=['step_num'], ascending=not longest)
 
+    # get the x_size and y_size for aspect ratio and number of bins
+    unfiltered_pos_x, unfiltered_pos_y = np.concatenate(sorted_df['pos_x'].to_numpy()), np.concatenate(sorted_df['pos_y'].to_numpy())
+    x_size, y_size = int(max(unfiltered_pos_x) - min(unfiltered_pos_x)), int(max(unfiltered_pos_y) - min(unfiltered_pos_y))
+
     # Filter by percentile
     filtered_df = sorted_df.iloc[:int(len(sorted_df)*percentile), :]
 
@@ -130,7 +169,7 @@ def createHeatmap3(data, percentile, longest, filePath):
         print("Heatmap 3: Top %f%% longest duration episodes" % (percentile*100))
     else:
         print("Heatmap 3: Top %f%% shortest duration episodes" % (percentile*100))
-    plot_and_save(pos_x, pos_y, filePath)
+    plot_and_save2(pos_x, pos_y, filePath, x_size, y_size)
 
 
 """
@@ -170,6 +209,10 @@ def createHeatmap5(data, lower_bound, upper_bound, filePath):
     # sort episodes in ascending order
     sorted_df = df.sort_values(by=['episode_number'], ascending=True)
 
+    # get the x_size and y_size for aspect ratio and number of bins
+    unfiltered_pos_x, unfiltered_pos_y = np.concatenate(sorted_df['pos_x'].to_numpy()), np.concatenate(sorted_df['pos_y'].to_numpy())
+    x_size, y_size = int(max(unfiltered_pos_x) - min(unfiltered_pos_x)), int(max(unfiltered_pos_y) - min(unfiltered_pos_y))
+
     # Filter by percentile
     filtered_df = sorted_df.iloc[int(len(sorted_df)*lower_bound):int(len(sorted_df)*upper_bound), :]
 
@@ -177,7 +220,7 @@ def createHeatmap5(data, lower_bound, upper_bound, filePath):
     pos_x, pos_y = np.concatenate(filtered_df['pos_x'].to_numpy()), np.concatenate(filtered_df['pos_y'].to_numpy())
 
     print(f"Heatmap 5: {lower_bound}% to {upper_bound}% relative range episodes by episode number")
-    plot_and_save(pos_x, pos_y, filePath)
+    plot_and_save2(pos_x, pos_y, filePath, x_size, y_size)
 
 
 """
