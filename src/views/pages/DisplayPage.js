@@ -93,9 +93,9 @@ class DisplayPage extends Component {
       isDirectorySelected: false,
       selectedImage: null,
       // added some extra stuff for heatmap 5
-      minDistance: 10,
-      hm5StartProgress: 10,
-      hm5EndProgress: 20,
+      minDistance: 5,
+      hm5StartProgress: 90,
+      hm5EndProgress: 100,
     };
 
     this.onClickTenserboardButton = this.onClickTenserboardButton.bind(this);
@@ -860,10 +860,9 @@ class DisplayPage extends Component {
                       <CardBody className="mb-2">
                         <Row>
                           <Slider
-                            getAriaLabel={() => 'Temperature range'}
                             value={[this.state.hm5StartProgress, this.state.hm5EndProgress]}
                             onChange={this.handleRangeChangeHeatmap5}
-                            step={10}
+                            step={5}
                             marks
                             valueLabelDisplay="on"
                             className="mt-2"
