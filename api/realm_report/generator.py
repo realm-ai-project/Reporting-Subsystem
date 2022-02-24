@@ -160,7 +160,7 @@ def createHeatmap4(data, filePath):
     filePath (string): path to save heatmap
 """
 def createHeatmap5(data, lower_bound, upper_bound, filePath):
-    assert 0 <= lower_bound <= 1
+    assert 0 <= lower_bound < 1
     assert 0 < upper_bound <= 1
     
     # Convert data into dataframe
