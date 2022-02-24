@@ -137,6 +137,7 @@ def get_all_heatmaps():
 @app.route('/deleteHeatmap', methods=["POST"])
 def delete_heatmap():
     # delete the selected heatmap
+    deleteFile(request.json["file_path"]+DATA_SUBDIRECTORY, request.json["file_name"])
     return jsonify(success=True)
 
 @app.route('/playVideo', methods=["POST"])
@@ -202,21 +203,26 @@ def create_heatmap_by_episode_length(range_type, percentage):
     created_at = getCreatedAtTime(fileSavePath)
     return {'name': fileName, "base64": base64_str, "created_at": created_at}
 
-@app.route('/by_episode_num/<lower_bound>/<upper_bound>', methods=["POST"])
-def create_heatmap_by_episodes(lower_bound, upper_bound):
+@app.route('/by_episode_num/<range_type>/<percentage>', methods=["POST"])
+def create_heatmap_by_episodes(range_type, percentage):
     '''
     TODO validate parameter inputs
     '''
+    highest = None
+    if range_type == "top":
+        highest = True
+    elif range_type == "bottom":
+        highest = False
     
     absDataDirPath = Path(request.json["file_path"] + DATA_SUBDIRECTORY)
-    fileName = f"heatmap_episode_num_{lower_bound}_to_{upper_bound}.jpg"
+    fileName = f"heatmap_episode_num_{range_type}_{percentage}.jpg"
     fileSavePath = absDataDirPath / fileName
 
     datFilePaths = getAllDatFilesFromDirectory(absDataDirPath)
     err, data = loadJSONIntoMemory(datFilePaths)
     if err is not None:
         return {'name': fileName, 'error': getErrorGeneric(err) }
-    createHeatmap5(data, float(lower_bound), float(upper_bound), fileSavePath)
+    createHeatmap5(data, float(percentage), highest, fileSavePath)
 
     base64_str = getAndConvertJPGToBase64(fileSavePath)
     created_at = getCreatedAtTime(fileSavePath)
