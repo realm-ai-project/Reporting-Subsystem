@@ -8,45 +8,19 @@ import seaborn as sns
 
 matplotlib.use('agg')
 
-def plot_and_save(pos_x, pos_y, filePath):
-    x_size, y_size = int(max(pos_x) - min(pos_x)), int(max(pos_y) - min(pos_y))
+def plot_and_save(pos_x, pos_y, filePath, x_max, y_max, x_min, y_min):
+    pos_x = np.append(pos_x, [x_min, x_max, x_min, x_max], axis=0)
+    pos_y = np.append(pos_y, [y_min, y_min, y_max, y_max], axis=0)
+    x_size, y_size = abs(int(x_max - x_min)), abs(int(y_max - y_min))
     
+    # Add space for axis labels and cbar
+    x_size += 50
+
     # Find greatest common divisor 
     # gcd = np.gcd(x_size, y_size)
     
     # Set aspect ratio of figure
     aspect_ratio = x_size/y_size
-    
-    # max_width, max_height = 6.4, 4.8 # default figsize of matplotlib, in inches
-    max_width, max_height = 8, 6 # our own max size in inches
-    if max_width/aspect_ratio>max_height:
-        height = max_height
-        width = aspect_ratio*height
-        assert width<=max_width
-    else:
-        width = max_width
-        height = width/aspect_ratio
-        assert height<=max_height
-
-    plt.figure(figsize=(width, height))
-    H, _, _ = np.histogram2d(pos_x, pos_y, bins=[x_size, y_size])
-    
-    # Plot heatmap and save figures
-    ax = sns.heatmap(np.log(H.T+1), cmap="BuPu",)# cbar=False, xticklabels=False, yticklabels=False)
-    
-    # We can overwrite files this way
-    plt.savefig(filePath)
-    plt.close()
-
-def plot_and_save2(pos_x, pos_y, filePath, x_size, y_size):
-    # x_size, y_size = int(max(pos_x) - min(pos_x)), int(max(pos_y) - min(pos_y))
-    
-    # Find greatest common divisor 
-    # gcd = np.gcd(x_size, y_size)
-    
-    # Set aspect ratio of figure
-    aspect_ratio = x_size/y_size
-    print(f"plot and save 2, aspect ratio is: {aspect_ratio}")
     
     # max_width, max_height = 6.4, 4.8 # default figsize of matplotlib, in inches
     max_width, max_height = 8, 6 # our own max size in inches
@@ -99,7 +73,7 @@ def createHeatmap1(data, filePath):
 
     # Bin values
     pos_x, pos_y = np.concatenate(pos_x), np.concatenate(pos_y)
-    plot_and_save(pos_x, pos_y, filePath)
+    plot_and_save(pos_x, pos_y, filePath, max(pos_x), max(pos_y), min(pos_x), min(pos_y))
 
 
 """
@@ -122,7 +96,6 @@ def createHeatmap2(data, percentile, highest, filePath):
 
     # get the x_size and y_size for aspect ratio and number of bins
     unfiltered_pos_x, unfiltered_pos_y = np.concatenate(sorted_df['pos_x'].to_numpy()), np.concatenate(sorted_df['pos_y'].to_numpy())
-    x_size, y_size = int(max(unfiltered_pos_x) - min(unfiltered_pos_x)), int(max(unfiltered_pos_y) - min(unfiltered_pos_y))
 
     # Filter by percentile
     filtered_df = sorted_df.iloc[:int(len(sorted_df)*percentile), :]
@@ -134,7 +107,7 @@ def createHeatmap2(data, percentile, highest, filePath):
         print("Heatmap 2: Top %f%% highest gamescore episodes" % (percentile*100))
     else:
         print("Heatmap 2: Bottom %f%% lowest gamescore episodes" % (percentile*100))
-    plot_and_save2(pos_x, pos_y, filePath, x_size, y_size)
+    plot_and_save(pos_x, pos_y, filePath, max(unfiltered_pos_x), max(unfiltered_pos_y), min(unfiltered_pos_x), min(unfiltered_pos_y))
 
 
 """
@@ -169,7 +142,7 @@ def createHeatmap3(data, percentile, longest, filePath):
         print("Heatmap 3: Top %f%% longest duration episodes" % (percentile*100))
     else:
         print("Heatmap 3: Top %f%% shortest duration episodes" % (percentile*100))
-    plot_and_save2(pos_x, pos_y, filePath, x_size, y_size)
+    plot_and_save(pos_x, pos_y, filePath,  max(unfiltered_pos_x), max(unfiltered_pos_y), min(unfiltered_pos_x), min(unfiltered_pos_y))
 
 
 """
@@ -188,7 +161,7 @@ def createHeatmap4(data, filePath):
         pos_y.append(eps['pos_y'][-1])
     pos_x, pos_y = np.array(pos_x), np.array(pos_y)
 
-    plot_and_save(pos_x, pos_y, filePath)
+    plot_and_save(pos_x, pos_y, filePath,  max(pos_x), max(pos_y), min(pos_x), min(pos_y))
 
 """
     createHeatmap5 - creates heatmap based on percentage of top or bottom episode numbers
@@ -211,7 +184,6 @@ def createHeatmap5(data, lower_bound, upper_bound, filePath):
 
     # get the x_size and y_size for aspect ratio and number of bins
     unfiltered_pos_x, unfiltered_pos_y = np.concatenate(sorted_df['pos_x'].to_numpy()), np.concatenate(sorted_df['pos_y'].to_numpy())
-    x_size, y_size = int(max(unfiltered_pos_x) - min(unfiltered_pos_x)), int(max(unfiltered_pos_y) - min(unfiltered_pos_y))
 
     # Filter by percentile
     filtered_df = sorted_df.iloc[int(len(sorted_df)*lower_bound):int(len(sorted_df)*upper_bound), :]
@@ -220,7 +192,7 @@ def createHeatmap5(data, lower_bound, upper_bound, filePath):
     pos_x, pos_y = np.concatenate(filtered_df['pos_x'].to_numpy()), np.concatenate(filtered_df['pos_y'].to_numpy())
 
     print(f"Heatmap 5: {lower_bound}% to {upper_bound}% relative range episodes by episode number")
-    plot_and_save2(pos_x, pos_y, filePath, x_size, y_size)
+    plot_and_save(pos_x, pos_y, filePath, max(unfiltered_pos_x), max(unfiltered_pos_y), min(unfiltered_pos_x), min(unfiltered_pos_y))
 
 
 """
@@ -246,10 +218,12 @@ def createHeatmap6(data, minReward, filePath):
         print("There are no results")
         return
 
+
     # Concatenate all positional data across filtered episodes
     pos_x, pos_y = np.concatenate(filtered_df['pos_x'].to_numpy()), np.concatenate(filtered_df['pos_y'].to_numpy())
 
-    plot_and_save(pos_x, pos_y, filePath)
+    unfiltered_pos_x, unfiltered_pos_y = np.concatenate(df['pos_x'].to_numpy()), np.concatenate(df['pos_y'].to_numpy())
+    plot_and_save(pos_x, pos_y, filePath, max(unfiltered_pos_x), max(unfiltered_pos_y), min(unfiltered_pos_x), min(unfiltered_pos_y))
 
 
 """
@@ -278,4 +252,5 @@ def createHeatmap7(data, minSteps, filePath):
     # Concatenate all positional data across filtered episodes
     pos_x, pos_y = np.concatenate(filtered_df['pos_x'].to_numpy()), np.concatenate(filtered_df['pos_y'].to_numpy())
    
-    plot_and_save(pos_x, pos_y, filePath)
+    unfiltered_pos_x, unfiltered_pos_y = np.concatenate(df['pos_x'].to_numpy()), np.concatenate(df['pos_y'].to_numpy())
+    plot_and_save(pos_x, pos_y, filePath, max(unfiltered_pos_x), max(unfiltered_pos_y), min(unfiltered_pos_x), min(unfiltered_pos_y))
