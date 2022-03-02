@@ -953,18 +953,24 @@ class DisplayPage extends Component {
                 </Accordion.Body>
               </Accordion.Item>
               <Accordion.Item eventKey="1">
-                <Accordion.Header>How can I improve results?</Accordion.Header>
+                <Accordion.Header>How do I update my heatmaps?</Accordion.Header>
                 <Accordion.Body>
-                  Ken maybe write a small blurb on using the python gui to tune better/read the ml agents documentation.
+                  If a heatmap is regenerated using the same parameters as existing heatmap(s), the newer heatmap will replace the older ones.
                 </Accordion.Body>
               </Accordion.Item>
               <Accordion.Item eventKey="2">
-                <Accordion.Header>Weights and Biases</Accordion.Header>
+                <Accordion.Header>What is considered a "valid directory"?</Accordion.Header>
                 <Accordion.Body>
-                  <a href="https://wandb.ai/site">Weights and Biases</a>
+                  To properly generate heatmaps, users are expected to integrate their game with the REALM-AI Unity plugin. During training, the plugin creates a custom directory structure containing the necessary data for heatmap generation and video replay retrieval. Therefore, we validate a directory by checking if the "RealmAI" folder exists within, and if the "Data" and "Videos" folders exist within the "RealmAI" folder.
                 </Accordion.Body>
               </Accordion.Item>
               <Accordion.Item eventKey="3">
+                <Accordion.Header>Weights and Biases</Accordion.Header>
+                <Accordion.Body>
+                  Since Weights and Biases is an optional component of the RL training manager, users who are using it can directly visit <a href="https://wandb.ai/site">Weights and Biases' website</a> to view the training dashboards.
+                </Accordion.Body>
+              </Accordion.Item>
+              <Accordion.Item eventKey="4">
                 <Accordion.Header>Documentation</Accordion.Header>
                 <Accordion.Body>
                   Visit our <a href="https://realm-ai-project.github.io/documentation">Documentation Site</a>.
