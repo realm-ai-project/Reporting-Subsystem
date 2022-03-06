@@ -4,7 +4,7 @@ from collections import deque
 from importlib.resources import path
 from pathlib import Path
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 from tensorboard import program
 
@@ -13,7 +13,7 @@ from realm_report.functions import *
 from realm_report.generator import (createHeatmap1, createHeatmap2,
                                     createHeatmap3, createHeatmap4, createHeatmap5)
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="dashboard/static")
 CORS(app)
 
 #  -------- Global --------
@@ -292,9 +292,14 @@ def create_heatmap_by_last_position():
 #     print("These JSON files have been loaded into memory:")
 #     print(DATA_JSON_LOOKUP)
 
+@app.route('/',  defaults={'path': 'index.html'})
+@app.route('/<path:path>')
+def send_dashboard(path):
+    print(path)
+    return send_from_directory('dashboard', path)
 
 def main():
-    app.run(host='0.0.0.0', debug=True)
+    app.run(host='0.0.0.0')
 
 if __name__=='__main__':
     main()

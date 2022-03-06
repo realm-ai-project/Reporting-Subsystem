@@ -176,7 +176,7 @@ def playVideo(filePath):
 
     if userOS == "Windows":
         cmd = '"%s"' % filePath
-        subprocess.run(shlex.split(cmd))
+        subprocess.run(shlex.split(cmd), shell=True)
 
     elif userOS == "Linux":
         cmd = 'xdg-open "%s"' % filePath
@@ -227,15 +227,16 @@ def checkRunDirectoryStructure(directory):
     # run directories should follow a consistent internal structure
     # these are the things we check for, RealmAI/Data, RealmAI/Videos. The tenserboard data should be in a seperate subdirectory from RealmAI
     data_dir_exists = False
-    video_dir_exists = False
+    # video_dir_exists = False
     for file_parent in os.listdir(directory):
         if file_parent == "RealmAI":
             for file_child in os.listdir(directory+"/RealmAI"):
                 if file_child == "Data":
                     data_dir_exists = True
-                if file_child == "Videos":
-                    video_dir_exists = True
-    return data_dir_exists and video_dir_exists
+                # if file_child == "Videos":
+                #     video_dir_exists = True
+
+    return data_dir_exists
 
 def constructDatFileName(dat_id):
     return f"data-{dat_id}.dat"

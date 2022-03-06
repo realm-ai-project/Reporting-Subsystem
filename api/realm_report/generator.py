@@ -38,7 +38,11 @@ def plot_and_save(pos_x, pos_y, filePath, x_max, y_max, x_min, y_min):
     
     # Plot heatmap and save figures
     ax = sns.heatmap(np.log(H.T+1), cmap="BuPu",)# cbar=False, xticklabels=False, yticklabels=False)
-    
+    # flip axis to match Unity
+    ax.invert_yaxis()
+    # stop tick labels from being cut off
+    ax.figure.tight_layout()
+
     # We can overwrite files this way
     plt.savefig(filePath)
     plt.close()
