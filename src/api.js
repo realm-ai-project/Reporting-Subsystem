@@ -15,10 +15,12 @@ export async function generateHeatmap(option, params) {
     url += 'naive';
     return makeApiCall(url, body);
   } else if (option === '2') {
-    url += 'by_reward/' + params.range_type + '/' + params.percentage;
+    // url += 'by_reward/' + params.range_type + '/' + params.percentage;
+    url += 'by_reward/' + params.hm2_start + '/' + params.hm2_end;
     return makeApiCall(url, body);
   } else if (option === '3') {
-    url += 'by_episode_length/' + params.range_type + '/' + params.percentage;
+    // url += 'by_episode_length/' + params.range_type + '/' + params.percentage;
+    url += 'by_episode_length/' + params.hm3_start + '/' + params.hm3_end;
     return makeApiCall(url, body);
   } else if (option === '4') {
     url += 'by_last_position';

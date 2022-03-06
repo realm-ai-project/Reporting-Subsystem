@@ -153,51 +153,93 @@ def play_video():
 def count_dat_files():
     return {"count": len(getAllDatFilesFromDirectory(request.json["file_path"]+DATA_SUBDIRECTORY))}
 
-@app.route('/by_reward/<range_type>/<percentage>', methods=["POST"])
-def create_heatmap_by_reward(range_type, percentage):
+# @app.route('/by_reward/<range_type>/<percentage>', methods=["POST"])
+# def create_heatmap_by_reward(range_type, percentage):
+#     '''
+#     TODO validate parameter inputs
+#     '''
+#     highest = None
+#     if range_type == "top":
+#         highest = True
+#     elif range_type == "bottom":
+#         highest = False
+
+#     absDataDirPath = Path(request.json["file_path"] + DATA_SUBDIRECTORY)
+#     fileName = f"heatmap_reward_{range_type}_{percentage}.jpg"
+#     fileSavePath = absDataDirPath / fileName
+
+#     datFilePaths = getAllDatFilesFromDirectory(absDataDirPath)
+#     err, data = loadJSONIntoMemory(datFilePaths)
+#     if err is not None:
+#         return {'name': fileName, 'error': getErrorGeneric(err) }
+#     createHeatmap2(data, float(percentage), highest, fileSavePath)
+
+#     base64_str = getAndConvertJPGToBase64(fileSavePath)
+#     created_at = getCreatedAtTime(fileSavePath)
+#     return {'name': fileName, "base64": base64_str, "created_at": created_at}
+
+@app.route('/by_reward/<lower_bound>/<upper_bound>', methods=["POST"])
+def create_heatmap_by_reward(lower_bound, upper_bound):
     '''
     TODO validate parameter inputs
     '''
-    highest = None
-    if range_type == "top":
-        highest = True
-    elif range_type == "bottom":
-        highest = False
 
     absDataDirPath = Path(request.json["file_path"] + DATA_SUBDIRECTORY)
-    fileName = f"heatmap_reward_{range_type}_{percentage}.jpg"
+    fileName = f"heatmap_reward_{lower_bound}_to_{upper_bound}.jpg"
     fileSavePath = absDataDirPath / fileName
 
     datFilePaths = getAllDatFilesFromDirectory(absDataDirPath)
     err, data = loadJSONIntoMemory(datFilePaths)
     if err is not None:
         return {'name': fileName, 'error': getErrorGeneric(err) }
-    createHeatmap2(data, float(percentage), highest, fileSavePath)
+    createHeatmap2(data, float(lower_bound), float(upper_bound), fileSavePath)
+    # createHeatmap2(data, float(percentage), highest, fileSavePath)
 
     base64_str = getAndConvertJPGToBase64(fileSavePath)
     created_at = getCreatedAtTime(fileSavePath)
     return {'name': fileName, "base64": base64_str, "created_at": created_at}
 
-@app.route('/by_episode_length/<range_type>/<percentage>', methods=["POST"])
-def create_heatmap_by_episode_length(range_type, percentage):
+# @app.route('/by_episode_length/<range_type>/<percentage>', methods=["POST"])
+# def create_heatmap_by_episode_length(range_type, percentage):
+#     '''
+#     TODO validate parameter inputs
+#     '''
+#     highest = None
+#     if range_type == "top":
+#         highest = True
+#     elif range_type == "bottom":
+#         highest = False
+    
+#     absDataDirPath = Path(request.json["file_path"] + DATA_SUBDIRECTORY)
+#     fileName = f"heatmap_episode_length_{range_type}_{percentage}.jpg"
+#     fileSavePath = absDataDirPath / fileName
+
+#     datFilePaths = getAllDatFilesFromDirectory(absDataDirPath)
+#     err, data = loadJSONIntoMemory(datFilePaths)
+#     if err is not None:
+#         return {'name': fileName, 'error': getErrorGeneric(err) }
+#     createHeatmap3(data, float(percentage), highest, fileSavePath)
+
+#     base64_str = getAndConvertJPGToBase64(fileSavePath)
+#     created_at = getCreatedAtTime(fileSavePath)
+#     return {'name': fileName, "base64": base64_str, "created_at": created_at}
+
+@app.route('/by_episode_length/<lower_bound>/<upper_bound>', methods=["POST"])
+def create_heatmap_by_episode_length(lower_bound, upper_bound):
     '''
     TODO validate parameter inputs
     '''
-    highest = None
-    if range_type == "top":
-        highest = True
-    elif range_type == "bottom":
-        highest = False
-    
+
     absDataDirPath = Path(request.json["file_path"] + DATA_SUBDIRECTORY)
-    fileName = f"heatmap_episode_length_{range_type}_{percentage}.jpg"
+    fileName = f"heatmap_episode_length_{lower_bound}_to_{upper_bound}.jpg"
     fileSavePath = absDataDirPath / fileName
 
     datFilePaths = getAllDatFilesFromDirectory(absDataDirPath)
     err, data = loadJSONIntoMemory(datFilePaths)
     if err is not None:
         return {'name': fileName, 'error': getErrorGeneric(err) }
-    createHeatmap3(data, float(percentage), highest, fileSavePath)
+    createHeatmap3(data, float(lower_bound), float(upper_bound), fileSavePath)
+    # createHeatmap3(data, float(percentage), highest, fileSavePath)
 
     base64_str = getAndConvertJPGToBase64(fileSavePath)
     created_at = getCreatedAtTime(fileSavePath)

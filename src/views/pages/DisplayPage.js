@@ -77,6 +77,10 @@ class DisplayPage extends Component {
         percentage: 0.01,
         dat_id: '1',
         file_path: '',
+        hm2_start: 0,
+        hm2_end: 0,
+        hm3_start: 0,
+        hm3_end: 0,
         hm5_start: 0,
         hm5_end: 0,
       },
@@ -92,8 +96,12 @@ class DisplayPage extends Component {
       recentlySelectedDirectories: [],
       isDirectorySelected: false,
       selectedImage: null,
-      // added some extra stuff for heatmap 5
+      // added some extra stuff for heatmap 2,3,5
       minDistance: 5,
+      hm2StartProgress: 90,
+      hm2EndProgress: 100,
+      hm3StartProgress: 90,
+      hm3EndProgress: 100,
       hm5StartProgress: 90,
       hm5EndProgress: 100,
     };
@@ -181,7 +189,9 @@ class DisplayPage extends Component {
       });
     }
     if (option == '2') {
-      this.state.params.percentage = this.state.progress / 100;
+      // this.state.params.percentage = this.state.progress / 100;
+      this.state.params.hm2_start = this.state.hm2StartProgress / 100;
+      this.state.params.hm2_end = this.state.hm2EndProgress / 100;
       this.setState({ loadingByRewardHeatmap: true }, () => {
         generateHeatmap(option, params).then(responseJSON => {
           if (responseJSON.hasOwnProperty('error')) {
@@ -199,7 +209,9 @@ class DisplayPage extends Component {
       });
     }
     if (option == '3') {
-      this.state.params.percentage = this.state.progress / 100;
+      // this.state.params.percentage = this.state.progress / 100;
+      this.state.params.hm3_start = this.state.hm3StartProgress / 100;
+      this.state.params.hm3_end = this.state.hm3EndProgress / 100;
       this.setState({ loadingByEpisodeLengthHeatmap: true }, () => {
         generateHeatmap(option, params).then(responseJSON => {
           if (responseJSON.hasOwnProperty('error')) {
@@ -444,6 +456,30 @@ class DisplayPage extends Component {
     }));
   }
 
+  handleRangeChangeHeatmap2 = (event, newValue, activeThumb) => {
+    if (!Array.isArray(newValue)) {
+      return;
+    }
+    let minDistance = this.state.minDistance;
+    if (activeThumb === 0) {
+      this.setState({ hm2StartProgress: Math.min(newValue[0], this.state.hm2EndProgress - minDistance) });
+    } else {
+      this.setState({ hm2EndProgress: Math.max(newValue[1], this.state.hm2StartProgress + minDistance) });
+    }
+  };
+
+  handleRangeChangeHeatmap3 = (event, newValue, activeThumb) => {
+    if (!Array.isArray(newValue)) {
+      return;
+    }
+    let minDistance = this.state.minDistance;
+    if (activeThumb === 0) {
+      this.setState({ hm3StartProgress: Math.min(newValue[0], this.state.hm3EndProgress - minDistance) });
+    } else {
+      this.setState({ hm3EndProgress: Math.max(newValue[1], this.state.hm3StartProgress + minDistance) });
+    }
+  };
+
   handleRangeChangeHeatmap5 = (event, newValue, activeThumb) => {
     if (!Array.isArray(newValue)) {
       return;
@@ -671,7 +707,7 @@ class DisplayPage extends Component {
             </TabPane>
             <TabPane tabId="2">
               <Form>
-                <Row form>
+                {/* <Row form>
                   <Col md={3}>
                     <FormGroup>
                       <Label className="mb-2">Range type</Label>
@@ -686,13 +722,13 @@ class DisplayPage extends Component {
                       </Input>
                     </FormGroup>
                   </Col>
-                </Row>
+                </Row> */}
                 <Row form>
                   <Col md={3}>
                     <FormGroup>
-                      <Label className="mb-2">Percentage</Label>
+                      <Label className="mb-2">Percentage Range</Label>
                       <CardBody className="mb-2">
-                        <Row>
+                        {/* <Row>
                           <Slider
                             onChange={this.updatePercentage}
                             defaultValue={30}
@@ -700,6 +736,16 @@ class DisplayPage extends Component {
                             marks
                             min={10}
                             max={100}
+                            valueLabelDisplay="on"
+                            className="mt-2"
+                          />
+                        </Row> */}
+                        <Row>
+                          <Slider
+                            value={[this.state.hm2StartProgress, this.state.hm2EndProgress]}
+                            onChange={this.handleRangeChangeHeatmap2}
+                            step={5}
+                            marks
                             valueLabelDisplay="on"
                             className="mt-2"
                           />
@@ -744,7 +790,7 @@ class DisplayPage extends Component {
             </TabPane>
             <TabPane tabId="3">
               <Form>
-                <Row form>
+                {/* <Row form>
                   <Col md={3}>
                     <FormGroup>
                       <Label className="mb-2">Range type</Label>
@@ -759,13 +805,13 @@ class DisplayPage extends Component {
                       </Input>
                     </FormGroup>
                   </Col>
-                </Row>
+                </Row> */}
                 <Row form>
                   <Col md={3}>
                     <FormGroup>
-                      <Label className="mb-2">Percentage</Label>
+                      <Label className="mb-2">Percentage Range</Label>
                       <CardBody className="mb-2">
-                        <Row>
+                        {/* <Row>
                           <Slider
                             onChange={this.updatePercentage}
                             defaultValue={30}
@@ -773,6 +819,16 @@ class DisplayPage extends Component {
                             marks
                             min={10}
                             max={100}
+                            valueLabelDisplay="on"
+                            className="mt-2"
+                          />
+                        </Row> */}
+                        <Row>
+                          <Slider
+                            value={[this.state.hm3StartProgress, this.state.hm3EndProgress]}
+                            onChange={this.handleRangeChangeHeatmap3}
+                            step={5}
+                            marks
                             valueLabelDisplay="on"
                             className="mt-2"
                           />
@@ -955,19 +1011,26 @@ class DisplayPage extends Component {
               <Accordion.Item eventKey="1">
                 <Accordion.Header>How do I update my heatmaps?</Accordion.Header>
                 <Accordion.Body>
-                  If a heatmap is regenerated using the same parameters as existing heatmap(s), the newer heatmap will replace the older ones.
+                  If a heatmap is regenerated using the same parameters as existing heatmap(s), the newer heatmap will
+                  replace the older ones.
                 </Accordion.Body>
               </Accordion.Item>
               <Accordion.Item eventKey="2">
                 <Accordion.Header>What is considered a "valid directory"?</Accordion.Header>
                 <Accordion.Body>
-                  To properly generate heatmaps, users are expected to integrate their game with the REALM-AI Unity plugin. During training, the plugin creates a custom directory structure containing the necessary data for heatmap generation and video replay retrieval. Therefore, we validate a directory by checking if the "RealmAI" folder exists within, and if the "Data" and "Videos" folders exist within the "RealmAI" folder.
+                  To properly generate heatmaps, users are expected to integrate their game with the REALM-AI Unity
+                  plugin. During training, the plugin creates a custom directory structure containing the necessary data
+                  for heatmap generation and video replay retrieval. Therefore, we validate a directory by checking if
+                  the "RealmAI" folder exists within, and if the "Data" and "Videos" folders exist within the "RealmAI"
+                  folder.
                 </Accordion.Body>
               </Accordion.Item>
               <Accordion.Item eventKey="3">
                 <Accordion.Header>Weights and Biases</Accordion.Header>
                 <Accordion.Body>
-                  Since Weights and Biases is an optional component of the RL training manager, users who are using it can directly visit <a href="https://wandb.ai/site">Weights and Biases' website</a> to view the training dashboards.
+                  Since Weights and Biases is an optional component of the RL training manager, users who are using it
+                  can directly visit <a href="https://wandb.ai/site">Weights and Biases' website</a> to view the
+                  training dashboards.
                 </Accordion.Body>
               </Accordion.Item>
               <Accordion.Item eventKey="4">
